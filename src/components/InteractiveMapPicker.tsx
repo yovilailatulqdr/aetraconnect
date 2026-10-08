@@ -67,7 +67,7 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
   const [isLocating, setIsLocating] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [mapLayer, setMapLayer] = useState<'streets' | 'satellite'>('streets');
+  const [mapLayer, setMapLayer] = useState<'streets' | 'osm' | 'satellite'>('streets');
   const [statusNote, setStatusNote] = useState<string>('Geser pin merah atau klik pada peta untuk menentukan posisi meter air');
   const [copiedCoords, setCopiedCoords] = useState(false);
 
@@ -89,10 +89,6 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
                 <stop offset="70%" stop-color="#D93025" />
                 <stop offset="100%" stop-color="#B31412" />
               </linearGradient>
-              <filter id="innerGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="2" result="blur"/>
-                <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1"/>
-              </filter>
             </defs>
             <path fill="url(#pinRedGrad)" d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z"/>
             <circle cx="192" cy="192" r="76" fill="#FFFFFF"/>
@@ -108,6 +104,41 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     });
   };
 
+  // Helper to create tile layer with Google Street fallback
+  const createLayerInstance = (type: 'streets' | 'osm' | 'satellite') => {
+    if (type === 'osm') {
+      return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+      });
+    }
+
+    if (type === 'satellite') {
+      return L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&hl=id&gl=ID&x={x}&y={y}&z={z}', {
+        maxZoom: 21,
+        subdomains: ['0', '1', '2', '3'],
+        attribution: '&copy; Google Maps Satelit',
+      });
+    }
+
+    // Google Maps Roads & Streets with Indonesian labels
+    const googleLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=id&x={x}&y={y}&z={z}', {
+      maxZoom: 21,
+      subdomains: ['0', '1', '2', '3'],
+      attribution: '&copy; Google Maps Jalan',
+    });
+
+    let roadTileErrors = 0;
+    googleLayer.on('tileerror', () => {
+      roadTileErrors++;
+      if (roadTileErrors >= 4 && mapInstanceRef.current && mapLayer === 'streets') {
+        toggleLayer('osm');
+      }
+    });
+
+    return googleLayer;
+  };
+
   // Initialize Map with Google Map-like smooth behavior
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -119,18 +150,12 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     const map = L.map(mapContainerRef.current, {
       center: [lat, lng],
       zoom: 15,
-      zoomControl: false, // Custom placed zoom controls
+      zoomControl: false,
       attributionControl: false,
     });
 
-    // Official Google Maps Street Tiles (Roads, Street Names, Gang, Tol, Landmarks)
-    const googleStreetsLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      subdomains: ['0', '1', '2', '3'],
-      attribution: '&copy; Google Maps',
-    });
-
-    googleStreetsLayer.addTo(map);
+    const initialLayer = createLayerInstance('streets');
+    initialLayer.addTo(map);
 
     // Add Draggable Marker
     const marker = L.marker([lat, lng], {
@@ -168,24 +193,24 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     mapInstanceRef.current = map;
     markerRef.current = marker;
 
-    // Repeated invalidateSize checks to ensure streets and tiles render properly in any viewport
-    setTimeout(() => { map.invalidateSize(); }, 150);
-    setTimeout(() => { map.invalidateSize(); }, 400);
-    setTimeout(() => { map.invalidateSize(); }, 800);
+    // Invalidate size on mount and container layout shifts
+    const timer1 = setTimeout(() => map.invalidateSize(), 100);
+    const timer2 = setTimeout(() => map.invalidateSize(), 350);
+    const timer3 = setTimeout(() => map.invalidateSize(), 700);
 
-    // ResizeObserver to automatically resize map whenever container or tab becomes active
-    let resizeObserver: ResizeObserver | null = null;
-    if (window.ResizeObserver && mapContainerRef.current) {
-      resizeObserver = new ResizeObserver(() => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.invalidateSize();
-        }
+    let resizeObs: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
+      resizeObs = new ResizeObserver(() => {
+        map.invalidateSize();
       });
-      resizeObserver.observe(mapContainerRef.current);
+      resizeObs.observe(mapContainerRef.current);
     }
 
     return () => {
-      if (resizeObserver) resizeObserver.disconnect();
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      resizeObs?.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -207,8 +232,8 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     }
   }, [initialLat, initialLng]);
 
-  // Handle Layer Toggle (Google Streets vs Google Hybrid Satellite with Roads)
-  const toggleLayer = (layer: 'streets' | 'satellite') => {
+  // Handle Layer Toggle (Google Road Streets vs OpenStreetMap vs Google Satellite Hybrid)
+  const toggleLayer = (layer: 'streets' | 'osm' | 'satellite') => {
     if (!mapInstanceRef.current) return;
     setMapLayer(layer);
 
@@ -218,23 +243,9 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
       }
     });
 
-    if (layer === 'streets') {
-      L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        subdomains: ['0', '1', '2', '3'],
-        attribution: '&copy; Google Maps',
-      }).addTo(mapInstanceRef.current);
-    } else {
-      // Google Hybrid: Satellite imagery + Roads/Streets overlay with labels
-      L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        subdomains: ['0', '1', '2', '3'],
-        attribution: '&copy; Google Maps Satellite',
-      }).addTo(mapInstanceRef.current);
-    }
-    setTimeout(() => {
-      mapInstanceRef.current?.invalidateSize();
-    }, 100);
+    const newLayer = createLayerInstance(layer);
+    newLayer.addTo(mapInstanceRef.current);
+    mapInstanceRef.current.invalidateSize();
   };
 
   // Jump to specific area
@@ -345,7 +356,19 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
               }`}
             >
               <MapIcon className="w-3.5 h-3.5" />
-              <span>Peta Jalan</span>
+              <span>Google Jalan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleLayer('osm')}
+              className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                mapLayer === 'osm'
+                  ? 'bg-white text-[#005DAA] shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Peta Jalan (OSM)</span>
             </button>
             <button
               type="button"

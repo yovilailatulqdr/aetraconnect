@@ -395,14 +395,14 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
               type="checkbox"
               checked={agreeChecked}
               onChange={(e) => setAgreeChecked(e.target.checked)}
-              className="w-5 h-5 rounded-md text-[#005DAA] focus:ring-[#005DAA] border-slate-300 mt-0.5 shrink-0 cursor-pointer"
+              className="w-5 h-5 rounded-md text-emerald-600 focus:ring-emerald-500 border-slate-300 mt-0.5 shrink-0 cursor-pointer"
             />
-            <div className="text-xs space-y-1 select-none">
+            <div className="text-xs space-y-0.5 select-none">
               <span className="font-black text-slate-900 block">
-                Pernyataan Persetujuan Berlangganan (Pasal 1 s/d Pasal 11):
+                Saya telah membaca, memahami, dan menyetujui seluruh Syarat dan Ketentuan Berlangganan PT Aetra Air Tangerang.
               </span>
-              <span className="text-[11px] text-slate-600 leading-relaxed block">
-                "Dengan menandatangani/mengirim formulir ini, Pelanggan menyatakan <strong>telah membaca, memahami, dan setuju tunduk</strong> kepada seluruh Syarat dan Ketentuan Berlangganan (Pasal 1 sampai dengan Pasal 11) yang berlaku dan merupakan hubungan kepelangganan yang sah menurut hukum dengan <strong>PT Aetra Air Tangerang</strong>."
+              <span className="text-[11px] text-slate-500 block">
+                Dengan mencentang pernyataan ini, saya menyatakan bahwa seluruh data yang diisikan adalah benar dan mengikat secara hukum.
               </span>
             </div>
           </label>
@@ -419,7 +419,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
                 onClick={onClose}
                 className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-bold text-xs transition cursor-pointer"
               >
-                Batal
+                Tutup
               </button>
 
               <button
@@ -431,9 +431,9 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
                     onClose();
                   }
                 }}
-                className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <CheckCircle2 className="w-4 h-4 text-amber-300" />
+                <CheckCircle2 className="w-4 h-4" />
                 <span>Setujui &amp; Daftarkan Sambungan Baru</span>
               </button>
             </div>

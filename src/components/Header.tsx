@@ -122,12 +122,12 @@ export const Header: React.FC<HeaderProps> = ({
           {currentUser?.role === 'admin' ? (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-[#005DAA] to-[#003868] text-white text-xs font-bold shadow-2xs border border-blue-900/30">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
-              <span className="hidden sm:inline">Portal Admin</span>
+              <span className="hidden sm:inline">Admin Aetra Connect</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-[#005DAA] text-xs font-bold shadow-2xs">
               <User className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Portal Pelanggan</span>
+              <span className="hidden sm:inline">Aetra Connect</span>
             </div>
           )}
 

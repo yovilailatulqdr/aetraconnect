@@ -168,16 +168,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
       <div className="w-full max-w-md bg-white text-slate-800 rounded-3xl shadow-2xl shadow-blue-950/40 border border-slate-100 overflow-hidden relative z-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Header Branding */}
         <div className="bg-linear-to-b from-slate-50 via-white to-white px-6 pt-7 pb-4 text-center border-b border-slate-100">
-          <div className="flex justify-center mb-3">
+          <div className="flex justify-center mb-2">
             <AetraLogo size="lg" />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 text-[#005DAA] text-[11px] font-black tracking-wide border border-blue-200/80 mb-2 uppercase">
-            <Droplets className="w-3.5 h-3.5 text-[#005DAA]" />
-            <span>AETRA CONNECT</span>
-          </div>
-
-          <p className="text-xs font-semibold text-slate-600 mt-1">
+          <h1 className="text-xl font-black text-[#005DAA] tracking-tight mt-1">
+            Aetra Connect
+          </h1>
+          <p className="text-xs font-semibold text-slate-500 mt-0.5">
             PT Aetra Air Tangerang
           </p>
 

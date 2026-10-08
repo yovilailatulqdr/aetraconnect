@@ -37,9 +37,29 @@ export const AETRA_TANGERANG_INSTALLATION_REGIONS: AetraInstallationKecamatan[] 
     villages: ['Cikupa', 'Budi Mulya', 'Bojong', 'Sukamulya', 'Dukuh', 'Bitung Jaya', 'Talaga', 'Pasir Gadung', 'Sukamantri', 'Cibadak', 'Pasir Jaya'],
   },
   {
+    name: 'CISOKA',
+    postalCode: '15730',
+    villages: ['Cisoka', 'Bojong Loa', 'Carenang', 'Caringin', 'Cempaka', 'Karangharja', 'Sukatani', 'Selapajang'],
+  },
+  {
+    name: 'CISAUK',
+    postalCode: '15341',
+    villages: ['Cisauk', 'Sampora', 'Cibogo', 'Suradita', 'Dangdang', 'Mekar Wangi'],
+  },
+  {
     name: 'CURUG',
     postalCode: '15810',
     villages: ['Curug Kulon', 'Curug Wetan', 'Kadu Jaya', 'Kadu', 'Cukanggalih', 'Binong'],
+  },
+  {
+    name: 'GUNUNG KALER',
+    postalCode: '15620',
+    villages: ['Gunung Kaler', 'Candeleh', 'Cipaeh', 'Ganda Ria', 'Kedung', 'Onyam', 'Rancagede', 'Sidoko', 'Tamiang'],
+  },
+  {
+    name: 'JAMBE',
+    postalCode: '15720',
+    villages: ['Jambe', 'Ancol Pasir', 'Daru', 'Kutruk', 'Mekarsari', 'Pasir Barat', 'Ranca Buaya', 'Sukamanah', 'Taban', 'Tipar Raya'],
   },
   {
     name: 'JAYANTI',
@@ -47,9 +67,69 @@ export const AETRA_TANGERANG_INSTALLATION_REGIONS: AetraInstallationKecamatan[] 
     villages: ['Jayanti', 'Sumur Bandung', 'Pasir Gintung', 'Pabuaran', 'Dangdeur', 'Cikande', 'Pasir Muncang'],
   },
   {
+    name: 'KELAPA DUA',
+    postalCode: '15810',
+    villages: ['Kelapa Dua', 'Bencongan', 'Bencongan Indah', 'Bojong Nangka', 'Curug Sangereng', 'Pakulonan Barat'],
+  },
+  {
+    name: 'KEMIRI',
+    postalCode: '15530',
+    villages: ['Kemiri', 'Karang Anyar', 'Kaleran', 'Klebet', 'Lontar', 'Patramanggala', 'Ranca Labuh'],
+  },
+  {
+    name: 'KOSAMBI',
+    postalCode: '15211',
+    villages: ['Belimbing', 'Cengklong', 'Dadap', 'Jatimulya', 'Kosambi Barat', 'Kosambi Timur', 'Rawa Burung', 'Rawa Rengas', 'Salembaran Jaya', 'Salembaran Jati'],
+  },
+  {
+    name: 'KRESEK',
+    postalCode: '15620',
+    villages: ['Kresek', 'Jengkol', 'Kemuning', 'Koper', 'Pasir Ampo', 'Patrasana', 'Rancailat', 'Renged', 'Talok'],
+  },
+  {
+    name: 'KRONJO',
+    postalCode: '15550',
+    villages: ['Kronjo', 'Bakung', 'Cirumpak', 'Pagedangan Ilir', 'Pagedangan Udik', 'Pasilian', 'Pasir', 'Pagenjahan'],
+  },
+  {
+    name: 'LEGOK',
+    postalCode: '15820',
+    villages: ['Legok', 'Babakan Barat', 'Babakan', 'Bojongkamal', 'Cirarab', 'Palasari', 'Caringin', 'Kamuning', 'Rancagong', 'Serdang Wetan'],
+  },
+  {
+    name: 'MAUK',
+    postalCode: '15530',
+    villages: ['Mauk Barat', 'Mauk Timur', 'Banyu Asih', 'Gunung Sari', 'Jatiwaringin', 'Kedung Dalem', 'Ketapang', 'Marga Mulya', 'Sasak', 'Tanjung Anom'],
+  },
+  {
+    name: 'MEKAR BARU',
+    postalCode: '15550',
+    villages: ['Mekar Baru', 'Cijeruk', 'Gandaria', 'Jenggot', 'Kedaung', 'Kluit', 'Kosambi Dalam', 'Waliwis'],
+  },
+  {
+    name: 'PAGEDANGAN',
+    postalCode: '15339',
+    villages: ['Pagedangan', 'Cicalengka', 'Cihuni', 'Cijantra', 'Jatake', 'Kadu Sirung', 'Lengkona Kulon', 'Malang Nengah', 'Medang'],
+  },
+  {
+    name: 'PAKUHAJI',
+    postalCode: '15570',
+    villages: ['Pakuhaji', 'Buaran Bambu', 'Buaran Mangga', 'Gaga', 'Kalibaru', 'Kiara Payung', 'Kohod', 'Kramat', 'Laksana', 'Paku Alam', 'Rawa Boni', 'Sukawali', 'Surya Bahari'],
+  },
+  {
+    name: 'PANONGAN',
+    postalCode: '15711',
+    villages: ['Panongan', 'Mekar Bakti', 'Ciakar', 'Ranca Iyuh', 'Peusar', 'Serdang Kulon'],
+  },
+  {
     name: 'PASAR KEMIS',
     postalCode: '15560',
     villages: ['Pasar Kemis', 'Sukamantri', 'Kuta Jaya', 'Kuta Baru', 'Gelam Jaya', 'Sindangsari', 'Pangadegan', 'Suka Asih'],
+  },
+  {
+    name: 'RAJEG',
+    postalCode: '15540',
+    villages: ['Rajeg', 'Ranca Bango', 'Sukatani', 'Daon', 'Pangarengan', 'Tanjakan', 'Mekarsari', 'Tanjakan Mekar'],
   },
   {
     name: 'SEPATAN',
@@ -65,6 +145,31 @@ export const AETRA_TANGERANG_INSTALLATION_REGIONS: AetraInstallationKecamatan[] 
     name: 'SINDANG JAYA',
     postalCode: '15560',
     villages: ['Sindang Jaya', 'Sindang Asih', 'Sindang Sono', 'Wanakerta', 'Badak Anom', 'Sindang Panon'],
+  },
+  {
+    name: 'SOLEAR',
+    postalCode: '15730',
+    villages: ['Solear', 'Cikareo', 'Cikuya', 'Cikasungka', 'Munjul', 'Pasanggrahan', 'Tiregarang'],
+  },
+  {
+    name: 'SUKADIRI',
+    postalCode: '15530',
+    villages: ['Sukadiri', 'Buaran Jati', 'Gintung', 'Karang Serang', 'Kosambi', 'Mekar Kondang', 'Pekayon', 'Rawa Kidang'],
+  },
+  {
+    name: 'SUKAMULYA',
+    postalCode: '15610',
+    villages: ['Sukamulya', 'Buniayu', 'Kaliasin', 'Kubang', 'Merak', 'Parahu'],
+  },
+  {
+    name: 'TELUKNAGA',
+    postalCode: '15510',
+    villages: ['Babakan Asem', 'Bojong Renged', 'Kampung Besar', 'Kampung Melayu Barat', 'Kampung Melayu Timur', 'Keboncau', 'Lemo', 'Muara', 'Pangkalan', 'Tanjung Burung', 'Tanjung Pasir', 'Tegal Angus', 'Teluknaga'],
+  },
+  {
+    name: 'TIGARAKSA',
+    postalCode: '15720',
+    villages: ['Tigaraksa', 'Kadu Agung', 'Matagara', 'Pasir Bolang', 'Pasir Nangka', 'Sodong', 'Bantar Panjang', 'Pete', 'Cileles', 'Cisereh', 'Margasari', 'Pematang', 'Tegalsari'],
   },
   {
     name: 'WANA KERTA',
@@ -808,7 +913,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
     ],
   },
 
-// 12. JAMBI
+  // 12. JAMBI
   {
     id: 'jambi',
     name: 'Jambi',
@@ -818,23 +923,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         districts: [
           { name: 'Telanaipura', postalCode: '36122', villages: ['Buluran Kenali', 'Pematang Sulur', 'Simpang Empat Sipin', 'Telanaipura', 'Teluk Kenali'] },
           { name: 'Pasar Jambi', postalCode: '36111', villages: ['Beringin', 'Market', 'Orang Kayo Hitam', 'Sungai Asam'] },
-          { name: 'Danau Sipin', postalCode: '36121', villages: ['Legok', 'Murni', 'Selamat', 'Solok Sipin', 'Sungai Putri'] },
-          { name: 'Jelutung', postalCode: '36136', villages: ['Cempaka Putih', 'Handil Jaya', 'Jelutung', 'Kebun Handil', 'Lebak Bandung', 'Payo Lebar', 'Talang Jauh'] },
-          { name: 'Kotabaru', postalCode: '36128', villages: ['Kenali Asam Atas', 'Kenali Asam Bawah', 'Paal Lima', 'Simpang Tiga Sipin', 'Sukakarya'] },
-          { name: 'Alam Barajo', postalCode: '36126', villages: ['Bagan Pete', 'Beliung', 'Kenali Besar', 'Mayang Mangurai', 'Rawasari'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Muaro Jambi',
-        districts: [
-          { name: 'Jaluko (Jambi Luar Kota)', postalCode: '36361', villages: ['Pijoan', 'Mendalo Darat', 'Mendalo Laut', 'Simpang Sungai Duren', 'Sungai Duren', 'Rengas Bandung', 'Senaung'] },
-          { name: 'Sekernan', postalCode: '36381', villages: ['Sengeti', 'Berembang', 'Gerunggung', 'Kedemangan', 'Sekernan', 'Suak Putat', 'Tanjung Lanjut'] },
-        ],
-      },
-      {
-        name: 'Kota Sungai Penuh',
-        districts: [
-          { name: 'Sungai Penuh', postalCode: '37111', villages: ['Pasar Sungai Penuh', 'Sungai Penuh', 'Lawang Agung', 'Pondok Tinggi', 'Koto Renah'] },
         ],
       },
     ],
@@ -850,23 +938,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         districts: [
           { name: 'Ilir Timur I', postalCode: '30121', villages: ['13 Ilir', '14 Ilir', '15 Ilir', '16 Ilir', '17 Ilir', '18 Ilir', '20 Ilir D-I', 'Kepandean', 'Sungai Pangeran'] },
           { name: 'Ilir Barat I', postalCode: '30139', villages: ['26 Ilir D-I', 'Bukit Lama', 'Bukit Baru', 'Demang Lebar Daun', 'Lorok Pakjo', 'Siring Agung'] },
-          { name: 'Sukarami', postalCode: '30151', villages: ['Kebun Bunga', 'Suka Bangun', 'Sukarami', 'Talang Betutu', 'Talang Jambe'] },
-          { name: 'Kemuning', postalCode: '30127', villages: ['20 Ilir II', 'Ario Kemuning', 'Pahoman', 'Pahlawan', 'Pipa Reja', 'Sekip Jaya', 'Talang Aman'] },
-          { name: 'Seberang Ulu I', postalCode: '30252', villages: ['1 Ulu', '2 Ulu', '3-4 Ulu', '5 Ulu', '7 Ulu', 'Silaberanti', 'Tuan Kentang'] },
-          { name: 'Plaju', postalCode: '30268', villages: ['Bagus Kuning', 'Komperta', 'Plaju Darat', 'Plaju Ilir', 'Plaju Ulu', 'Talang Bubuk', 'Talang Putri'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Banyuasin',
-        districts: [
-          { name: 'Talang Kelapa', postalCode: '30961', villages: ['Air Batu', 'Alang-Alang Lebar', 'Kenten', 'Sukajadi', 'Talang Buluh', 'Talang Kelapa', 'Tanah Mas'] },
-          { name: 'Banyuasin III (Pangkalan Balai)', postalCode: '30911', villages: ['Pangkalan Balai', 'Kedondong Raye', 'Mulya Agung', 'Seterio', 'Kayuara Kuning'] },
-        ],
-      },
-      {
-        name: 'Kota Lubuklinggau',
-        districts: [
-          { name: 'Lubuklinggau Timur I', postalCode: '31625', villages: ['Karya Bakti', 'Majapahit', 'Taba Jemekeh', 'Taba Koji', 'Watervang'] },
         ],
       },
     ],
@@ -881,16 +952,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Bengkulu',
         districts: [
           { name: 'Ratu Samban', postalCode: '38221', villages: ['Anggut Atas', 'Anggut Bawah', 'Anggut Dalam', 'Belakang Pondok', 'Kebun Dahri', 'Kebun Geran', 'Padang Jati', 'Pengantungan', 'Penurunan'] },
-          { name: 'Gading Cempaka', postalCode: '38229', villages: ['Cempaka Permai', 'Jalan Gedang', 'Lingkar Barat', 'Padang Harapan', 'Sido Mulyo'] },
-          { name: 'Teluk Segara', postalCode: '38114', villages: ['Bajak', 'Berkas', 'Kampung Bali', 'Kebun Keling', 'Kebun Ros', 'Malabero', 'Pasar Baru', 'Pasar Melintang', 'Pintu Batu', 'Pondok Besi', 'Sumur Melele', 'Tengah Padang'] },
-          { name: 'Muara Bangka Hulu', postalCode: '38125', villages: ['Beringin Raya', 'Kandang Limun', 'Pematang Gubernur', 'Rawa Makmur', 'Rawa Makmur Permai'] },
-          { name: 'Selebar', postalCode: '38211', villages: ['Bumi Ayu', 'Betungan', 'Pagar Dewa', 'Pekan Sabtu', 'Sukami', 'Sumur Dewa'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Rejang Lebong',
-        districts: [
-          { name: 'Curup', postalCode: '39111', villages: ['Adirejo', 'Air Putih Lama', 'Dwi Tunggal', 'Jalan Baru', 'Pasar Baru', 'Pasar Curup', 'Talang Benih'] },
         ],
       },
     ],
@@ -905,26 +966,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Bandar Lampung',
         districts: [
           { name: 'Tanjung Karang Pusat', postalCode: '35111', villages: ['Durian Payung', 'Gotong Royong', 'Kaliawi', 'Kaliawi Persada', 'Kelapa Tiga', 'Palapa', 'Pasir Gintung'] },
-          { name: 'Tanjung Karang Timur', postalCode: '35121', villages: ['Kebon Jeruk', 'Kota Baru', 'Sawah Brebes', 'Sawah Lama', 'Tanjung Agung'] },
-          { name: 'Kedaton', postalCode: '35141', villages: ['Kedaton', 'Penengahan', 'Penengahan Raya', 'Sukamenanti', 'Sukamenanti Baru', 'Surabaya', 'Tegalsari'] },
-          { name: 'Rajabasa', postalCode: '35144', villages: ['Gedong Meneng', 'Gedong Meneng Baru', 'Rajabasa', 'Rajabasa Jaya', 'Rajabasa Pemuka', 'Rajabasa Raya'] },
-          { name: 'Teluk Betung Selatan', postalCode: '35221', villages: ['Gedong Pakuon', 'Gunung Mas', 'Pesawahan', 'Talang', 'Teluk Betung'] },
-          { name: 'Kemiling', postalCode: '35153', villages: ['Beringin Jaya', 'Beringin Raya', 'Kedaung', 'Kemiling Permai', 'Pinang Jaya', 'Sumber Agung', 'Sumber Rejo'] },
-          { name: 'Sukarame', postalCode: '35131', villages: ['Korpri Jaya', 'Korpri Raya', 'Sukarame', 'Sukarame Baru', 'Way Dadi', 'Way Dadi Baru'] },
-        ],
-      },
-      {
-        name: 'Kota Metro',
-        districts: [
-          { name: 'Metro Pusat', postalCode: '34111', villages: ['Hadimulyo Barat', 'Hadimulyo Timur', 'Imopuro', 'Metro', 'Yosomulyo'] },
-          { name: 'Metro Timur', postalCode: '34112', villages: ['Iringmulyo', 'Tejoagung', 'Tejosari', 'Yosodadi', 'Yosorejo'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Lampung Selatan',
-        districts: [
-          { name: 'Natar', postalCode: '35362', villages: ['Bumi Sari', 'Candi Mas', 'Hajimena', 'Kalisari', 'Merak Batin', 'Muara Putih', 'Natar', 'Negararatu', 'Rejosari', 'Sidosari', 'Sukadamai', 'Tanjung Sari'] },
-          { name: 'Kalianda', postalCode: '35551', villages: ['Bumi Agung', 'Canggu', 'Kedaton', 'Kalianda', 'Palembapang', 'Way Urang'] },
         ],
       },
     ],
@@ -939,21 +980,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Pangkalpinang',
         districts: [
           { name: 'Taman Sari', postalCode: '33121', villages: ['Batin Tikal', 'Gedung Nasional', 'Kejaksaan', 'Opas Indah', 'Rawa Bangun'] },
-          { name: 'Bukit Intan', postalCode: '33146', villages: ['Air Itam', 'Air Mawar', 'Bacang', 'Pasir Putih', 'Semabung Lama', 'Sinar Bulan'] },
-          { name: 'Gerunggang', postalCode: '33123', villages: ['Air Kepala Tujuh', 'Bukit Merapin', 'Bukit Sari', 'Kacang Pedang', 'Tua Tunu Indah'] },
-          { name: 'Pangkal Balam', postalCode: '33111', villages: ['Ampui', 'Ketapang', 'Lontong Pancur', 'Pasir Garam', 'Rejosari'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Bangka',
-        districts: [
-          { name: 'Sungailiat', postalCode: '33211', villages: ['Bukit Betung', 'Kenanga', 'Kudai', 'Matras', 'Parit Padang', 'Rebo', 'Sinar Baru', 'Srimenanti', 'Sungailiat', 'Surya Timur'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Belitung',
-        districts: [
-          { name: 'Tanjung Pandan', postalCode: '33411', villages: ['Air Saga', 'Buluh Tumbang', 'Kampung Damai', 'Lesung Batang', 'Paal Satu', 'Pangkal Lalang', 'Parit', 'Tanjung Pendam'] },
         ],
       },
     ],
@@ -968,23 +994,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Pontianak',
         districts: [
           { name: 'Pontianak Kota', postalCode: '78111', villages: ['Darat Sekip', 'Mariana', 'St. Antonius', 'St. Ignatius', 'Tengah'] },
-          { name: 'Pontianak Selatan', postalCode: '78121', villages: ['Akcaya', 'Benua Melayu Darat', 'Benua Melayu Laut', 'Kota Baru', 'Parit Tokaya'] },
-          { name: 'Pontianak Barat', postalCode: '78115', villages: ['Pal Lima', 'Sungai Beliung', 'Sungai Jawi Dalam', 'Sungai Jawi Luar'] },
-          { name: 'Pontianak Utara', postalCode: '78241', villages: ['Batu Layang', 'Siantan Hilir', 'Siantan Hulu', 'Siantan Tengah'] },
-          { name: 'Pontianak Tenggara', postalCode: '78124', villages: ['Bangka Belitung Darat', 'Bangka Belitung Laut', 'Bansir Darat', 'Bansir Laut'] },
-        ],
-      },
-      {
-        name: 'Kota Singkawang',
-        districts: [
-          { name: 'Singkawang Barat', postalCode: '79123', villages: ['Kuala', 'Melayu', 'Pasiran', 'Tengah'] },
-          { name: 'Singkawang Tengah', postalCode: '79111', villages: ['Condong', 'Jawa', 'Roban', 'Sekip Lama', 'Sungai Wie', 'Roban'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Kubu Raya',
-        districts: [
-          { name: 'Sungai Raya', postalCode: '78391', villages: ['Arang Limbung', 'Kuala Dua', 'Limbung', 'Parit Baru', 'Sungai Raya', 'Sungai Raya Dalam', 'Teluk Kapuas'] },
         ],
       },
     ],
@@ -999,21 +1008,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Palangka Raya',
         districts: [
           { name: 'Pahandut', postalCode: '73111', villages: ['Langhai', 'Pahandut', 'Pahandut Seberang', 'Panarung', 'Tanjung Pinang', 'Tumbang Rungan'] },
-          { name: 'Jekan Raya', postalCode: '73112', villages: ['Bukit Tunggal', 'Menteng', 'Palangka', 'Petuk Katimpun'] },
-          { name: 'Bukit Batu', postalCode: '73221', villages: ['Banturung', 'Habaring Hurung', 'Marang', 'Sei Gohong', 'Tangkiling', 'Tumbang Tahai'] },
-          { name: 'Sabangau', postalCode: '73113', villages: ['Bereng Bengkel', 'Kalampangan', 'Kameloh Baru', 'Kereng Bangkirai', 'Sabaru'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Kotawaringin Barat',
-        districts: [
-          { name: 'Arut Selatan (Pangkalan Bun)', postalCode: '74111', villages: ['Baru', 'Madurejo', 'Mendawai', 'Mendawai Seberang', 'Pasir Panjang', 'Raja', 'Raja Seberang', 'Sidorejo'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Kotawaringin Timur',
-        districts: [
-          { name: 'Mentawa Baru Ketapang (Sampit)', postalCode: '74322', villages: ['Ketapang', 'Mentawa Baru Hilir', 'Mentawa Baru Hulu', 'Pasir Putih', 'Sawahan'] },
         ],
       },
     ],
@@ -1028,24 +1022,12 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Banjarmasin',
         districts: [
           { name: 'Banjarmasin Tengah', postalCode: '70111', villages: ['Antasan Besar', 'Gadang', 'Kertak Baru Ilir', 'Kertak Baru Ulu', 'Mawar', 'Melayu', 'Pasar Lama', 'Pekapuran Laut', 'Seberang Mesjid', 'Sungai Baru', 'Teluk Dalam'] },
-          { name: 'Banjarmasin Barat', postalCode: '70114', villages: ['Belitung Selatan', 'Belitung Utara', 'Kuin Cerucuk', 'Kuin Selatan', 'Pelambuan', 'Telaga Biru', 'Teluk Tiram'] },
-          { name: 'Banjarmasin Timur', postalCode: '70231', villages: ['Benua Anyar', 'Karang Mekar', 'Kebun Bunga', 'Kuripan', 'Pekapuran Raya', 'Pengambangan', 'Sungai Bilu', 'Sungai Lulut'] },
-          { name: 'Banjarmasin Utara', postalCode: '70123', villages: ['Alalak Selatan', 'Alalak Tengah', 'Alalak Utara', 'Antasan Kecil Timur', 'Kuin Utara', 'Pangeran', 'Sungai Andai', 'Sungai Miai', 'Surian'] },
-          { name: 'Banjarmasin Selatan', postalCode: '70241', villages: ['Basirih', 'Kelayan Barat', 'Kelayan Dalam', 'Kelayan Tengah', 'Kelayan Timur', 'Mantuil', 'Murung Raya', 'Pemurus Baru', 'Pemurus Dalam', 'Tanjung Pagar'] },
         ],
       },
       {
         name: 'Kota Banjarbaru',
         districts: [
           { name: 'Banjarbaru Utara', postalCode: '70711', villages: ['Komet', 'Loktabat Utara', 'Mentaos', 'Sungai Ulin'] },
-          { name: 'Banjarbaru Selatan', postalCode: '70712', villages: ['Guntung Paikat', 'Kemuning', 'Loktabat Selatan', 'Sungai Besar'] },
-          { name: 'Landasan Ulin', postalCode: '70721', villages: ['Guntung Manggis', 'Guntung Payung', 'Landasan Ulin Barat', 'Landasan Ulin Timur'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Banjar',
-        districts: [
-          { name: 'Martapura', postalCode: '70611', villages: ['Cindai Alus', 'Jawa', 'Keraton', 'Murung Kenanga', 'Pasayangan', 'Sekumpul', 'Sungai Paring', 'Tanjung Rema'] },
         ],
       },
     ],
@@ -1060,24 +1042,12 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Samarinda',
         districts: [
           { name: 'Samarinda Kota', postalCode: '75111', villages: ['Bugis', 'Karang Mumus', 'Pelabuhan', 'Pasar Pagi', 'Sungai Pinang Luar'] },
-          { name: 'Samarinda Ulu', postalCode: '75124', villages: ['Air Hitam', 'Air Putih', 'Bukit Pinang', 'Dadi Mulya', 'Gunung Kelua', 'Jawa', 'Sidodadi', 'Teluk Lerong Ilir'] },
-          { name: 'Sungai Kunjang', postalCode: '75126', villages: ['Karang Anyar', 'Karang Asam Ilir', 'Karang Asam Ulu', 'Loa Bakung', 'Loa Buah', 'Lok Bahu', 'Teluk Lerong Ulu'] },
-          { name: 'Samarinda Utara', postalCode: '75119', villages: ['Lempake', 'Sempaja Barat', 'Sempaja Selatan', 'Sempaja Timur', 'Sempaja Utara', 'Sungai Siring', 'Tanah Merah'] },
         ],
       },
       {
         name: 'Kota Balikpapan',
         districts: [
           { name: 'Balikpapan Kota', postalCode: '76111', villages: ['Damai', 'Klandasan Ilir', 'Klandasan Ulu', 'Prapatan', 'Telaga Sari'] },
-          { name: 'Balikpapan Selatan', postalCode: '76114', villages: ['Damai Bahagia', 'Damai Baru', 'Gunung Bahagia', 'Sepinggan', 'Sepinggan Baru', 'Sepinggan Raya', 'Sungai Nangka'] },
-          { name: 'Balikpapan Tengah', postalCode: '76122', villages: ['Gunung Sari Ilir', 'Gunung Sari Ulu', 'Karang Jati', 'Karang Rejo', 'Mekar Sari', 'Sumber Rejo'] },
-          { name: 'Balikpapan Utara', postalCode: '76125', villages: ['Batu Ampar', 'Graha Indah', 'Gunung Samarinda', 'Gunung Samarinda Baru', 'Karang Joang', 'Muara Rapak'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Kutai Kartanegara',
-        districts: [
-          { name: 'Tenggarong', postalCode: '75511', villages: ['Bukit Biru', 'Jahab', 'Loa Ipuh', 'Loa Ipuh Darat', 'Loa Tebu', 'Maluhu', 'Mangkurawang', 'Melayu', 'Panji', 'Sukarame', 'Timbau'] },
         ],
       },
     ],
@@ -1091,22 +1061,13 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Tarakan',
         districts: [
-          { name: 'Tarakan Barat', postalCode: '77111', villages: ['Karang Anyar', 'Karang Anyar Pantai', 'Karang Balik', 'Karang Harapan', 'Pamusian'] },
-          { name: 'Tarakan Tengah', postalCode: '77113', villages: ['Kampung 1 Skip', 'Pamusian', 'Sebengkok', 'Selumit', 'Selumit Pantai'] },
-          { name: 'Tarakan Timur', postalCode: '77115', villages: ['Gunung Lingkas', 'Kampung Enam', 'Kampung Empat', 'Lingkas Ujung', 'Mamburungan', 'Mamburungan Timur'] },
-          { name: 'Tarakan Utara', postalCode: '77116', villages: ['Juata Kerikil', 'Juata Laut', 'Juata Permai'] },
+          { name: 'Tarakan Tengah', postalCode: '77111', villages: ['Kampung 1 Skip', 'Pamusian', 'Sebengkok', 'Selumit', 'Selumit Pantai'] },
         ],
       },
       {
-        name: 'Kabupaten Bulungan',
+        name: 'Kabupaten Bulungan (Tanjung Selor)',
         districts: [
-          { name: 'Tanjung Selor', postalCode: '77211', villages: ['Tanjung Selor Hulu', 'Tanjung Selor Hilir', 'Tanjung Selor Timur', 'Jelarai Selor', 'Tengkapak', 'Gunung Seriang'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Nunukan',
-        districts: [
-          { name: 'Nunukan', postalCode: '77482', villages: ['Nunukan Barat', 'Nunukan Tengah', 'Nunukan Timur', 'Nunukan Utara', 'Binusan'] },
+          { name: 'Tanjung Selor', postalCode: '77211', villages: ['Jelarai Selor', 'Tanjung Selor Hilir', 'Tanjung Selor Hulu', 'Tanjung Selor Timur'] },
         ],
       },
     ],
@@ -1120,23 +1081,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Manado',
         districts: [
-          { name: 'Wenang', postalCode: '95111', villages: ['Bumi Beringin', 'Calaca', 'Komo Luar', 'Lawangirung', 'Mahakeret Barat', 'Mahakeret Timur', 'Pinaesaan', 'Ranotana Weru', 'Teling Bawah', 'Tikala Kumaraka', 'Wenas', 'Wenang Selatan', 'Wenang Utara'] },
-          { name: 'Sario', postalCode: '95114', villages: ['Ranotana', 'Sario', 'Sario Kotabaru', 'Sario Tumpaan', 'Sario Utara', 'Titiwungen Selatan', 'Titiwungen Utara'] },
-          { name: 'Malalayang', postalCode: '95162', villages: ['Bahu', 'Batu Kota', 'Kleak', 'Malalayang Satu', 'Malalayang Satu Barat', 'Malalayang Satu Timur', 'Malalayang Dua', 'Winangun Satu', 'Winangun Dua'] },
-          { name: 'Tikala', postalCode: '95125', villages: ['Banjer', 'Paal IV', 'Taas', 'Tikala Ares', 'Tikala Baru'] },
-          { name: 'Mapanget', postalCode: '95258', villages: ['Bengkol', 'Buha', 'Kairagi Satu', 'Kairagi Dua', 'Kima Atas', 'Lapangan', 'Paniki Bawah', 'Paniki Satu', 'Paniki Dua'] },
-        ],
-      },
-      {
-        name: 'Kota Tomohon',
-        districts: [
-          { name: 'Tomohon Tengah', postalCode: '95441', villages: ['Kamasi', 'Kamasi Satu', 'Kolongan', 'Kolongan Satu', 'Matani Satu', 'Matani Dua', 'Matani Tiga', 'Paslaten Satu', 'Paslaten Dua', 'Talete Satu', 'Talete Dua'] },
-        ],
-      },
-      {
-        name: 'Kota Bitung',
-        districts: [
-          { name: 'Maesa', postalCode: '95511', villages: ['Bitung Barat Satu', 'Bitung Barat Dua', 'Bitung Tengah', 'Bitung Timur', 'Kakenturan Satu', 'Kakenturan Dua', 'Madidir', 'Pakadoodan', 'Pateten Satu', 'Pateten Dua'] },
+          { name: 'Wenang', postalCode: '95111', villages: ['Bumi Beringin', 'Calaca', 'Komunigi', 'Mahakeret Barat', 'Mahakeret Timur', 'Pinaesaan', 'Tikala Kumaraka', 'Wenang Selatan', 'Wenang Utara'] },
         ],
       },
     ],
@@ -1150,16 +1095,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Gorontalo',
         districts: [
-          { name: 'Kota Tengah', postalCode: '96121', villages: ['Dulalowo', 'Dulalowo Timur', 'Liluwo', 'Paguyaman', 'Pulubala', 'Wumialo'] },
-          { name: 'Kota Selatan', postalCode: '96111', villages: ['Biawao', 'Biawu', 'Limba B', 'Limba U I', 'Limba U II'] },
-          { name: 'Dungingi', postalCode: '96131', villages: ['Huangobotu', 'Libuo', 'Tomulabutao', 'Tomulabutao Selatan', 'Tuladenggi'] },
-          { name: 'Sipatana', postalCode: '96136', villages: ['Bulotadaa', 'Bulotadaa Timur', 'Molosipat U', 'Tangikiki', 'Tapa'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Gorontalo',
-        districts: [
-          { name: 'Limboto', postalCode: '96211', villages: ['Bolihuangga', 'Bongohulawa', 'Dutulanaa', 'Hepuhulawa', 'Hutuo', 'Kayubulan', 'Malahu', 'Polohungo', 'Tenilo'] },
+          { name: 'Kota Tengah', postalCode: '96111', villages: ['Dulalowo', 'Dulalowo Timur', 'Liluwo', 'Paguyaman', 'Pulubala', 'Wumialo'] },
         ],
       },
     ],
@@ -1174,16 +1110,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Palu',
         districts: [
           { name: 'Palu Timur', postalCode: '94111', villages: ['Besusu Barat', 'Besusu Tengah', 'Besusu Timur', 'Lolu Selatan', 'Lolu Utara'] },
-          { name: 'Palu Barat', postalCode: '94221', villages: ['Balaroa', 'Baru', 'Kamoji', 'Lere', 'Siratu', 'Ujuna'] },
-          { name: 'Palu Selatan', postalCode: '94231', villages: ['Birobuli Selatan', 'Birobuli Utara', 'Petobo', 'Tatura Selatan', 'Tatura Utara'] },
-          { name: 'Mantikulore', postalCode: '94118', villages: ['Kawatuna', 'Lasanimu', 'Poboya', 'Talise', 'Talise Valangguni', 'Tondo'] },
-          { name: 'Tatanga', postalCode: '94236', villages: ['Boyangere', 'Duyu', 'Nunu', 'Palupi', 'Pengawu', 'Tavanjuka'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Donggala',
-        districts: [
-          { name: 'Banawa', postalCode: '94351', villages: ['Boneoge', 'Boyamanya', 'Ganti', 'Gunung Bale', 'Kabonena', 'Labuan Bajo', 'Maleni', 'Tanjung Batu'] },
         ],
       },
     ],
@@ -1197,14 +1123,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kabupaten Mamuju',
         districts: [
-          { name: 'Mamuju', postalCode: '91511', villages: ['Binanga', 'Karema', 'Mamuju', 'Rangas', 'Rimuku', 'Tadui'] },
-          { name: 'Simboro dan Kepulauan', postalCode: '91512', villages: ['Botteng', 'Botteng Utara', 'Patti’di', 'Salletto', 'Simboro', 'Sumare'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Polewali Mandar',
-        districts: [
-          { name: 'Polewali', postalCode: '91311', villages: ['Darma', 'Lepo-Lepo', 'Madatte', 'Mandar Jaya', 'Pekkabata', 'Polewali', 'Sulewatang', 'Takatidung', 'Wattang'] },
+          { name: 'Mamuju', postalCode: '91511', villages: ['Bamboi', 'Binanga', 'Karema', 'Mamuju', 'Rangas', 'Rimuku'] },
         ],
       },
     ],
@@ -1219,28 +1138,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Makassar',
         districts: [
           { name: 'Ujung Pandang', postalCode: '90111', villages: ['Baru', 'Bulo Gading', 'Kajaolalido', 'Lae-Lae', 'Lajangiru', 'Losari', 'Maloku', 'Mangkura', 'Pisang Selatan', 'Pisang Utara', 'Sawerigading'] },
-          { name: 'Panakkukang', postalCode: '90231', villages: ['Karakuang', 'Karuwisi', 'Karuwisi Utara', 'Masale', 'Panaikang', 'Pandang', 'Sinrijawa', 'Tamamaung', 'Tellumpoccoe', 'Tello Baru'] },
-          { name: 'Rappocini', postalCode: '90222', villages: ['Balla Parang', 'Banta-Bantaeng', 'Bonto Makkio', 'Buakana', 'Gunung Sari', 'Karunrung', 'Kassi-Kassi', 'Mapala', 'Minasa Upa', 'Rappocini', 'Tidung'] },
-          { name: 'Tamalanrea', postalCode: '90245', villages: ['Bira', 'Kapasa', 'Kapasa Raya', 'Parang Tambung', 'Tamalanrea', 'Tamalanrea Indah', 'Tamalanrea Jaya'] },
-          { name: 'Biringkanaya', postalCode: '90241', villages: ['Bakung', 'Berua', 'Bulurokeng', 'Daya', 'Katimbang', 'Laikang', 'Paccerakkang', 'Pai', 'Sudiang', 'Sudiang Raya'] },
-        ],
-      },
-      {
-        name: 'Kota Parepare',
-        districts: [
-          { name: 'Ujung', postalCode: '91111', villages: ['Labukkang', 'Lapadde', 'Mallusetasi', 'Ujung Baru', 'Ujung Sabbang'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Gowa',
-        districts: [
-          { name: 'Somba Opu', postalCode: '92111', villages: ['Bonto-Bontoa', 'Batangkaluku', 'Katangka', 'Manggalli', 'Paccinongang', 'Pandang-Pandang', 'Romangpolong', 'Samata', 'Sungguminasa', 'Tombolo', 'Tompobalang'] },
-        ],
-      },
-      {
-        name: 'Kota Palopo',
-        districts: [
-          { name: 'Wara', postalCode: '91911', villages: ['Amassangan', 'Boting', 'Dangerakko', 'Lagaligo', 'Pajalesang', 'Tompotikka'] },
         ],
       },
     ],
@@ -1254,16 +1151,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Kendari',
         districts: [
-          { name: 'Mandonga', postalCode: '93111', villages: ['Alolama', 'Anggilowu', 'Korumba', 'Mandonga', 'Punggaloba', 'Wawonbalata'] },
-          { name: 'Kadia', postalCode: '93117', villages: ['Anaiwoi', 'Bende', 'Kadia', 'Pondambea', 'Wawowanggu'] },
-          { name: 'Poasia', postalCode: '93231', villages: ['Anduonohu', 'Anggoeya', 'Matabubu', 'Rahandouna', 'Wundumbatu'] },
-          { name: 'Kendari Barat', postalCode: '93121', villages: ['Benu-Benua', 'Dapu-Dapura', 'Kemaraya', 'Lahundape', 'Punggaloba', 'Sodohoa', 'Tipulu', 'Watu-Watu'] },
-        ],
-      },
-      {
-        name: 'Kota Baubau',
-        districts: [
-          { name: 'Wolio', postalCode: '93711', villages: ['Bataraguru', 'Batulo', 'Bone-Bone', 'Tomba', 'Wameo', 'Wangkanapi'] },
+          { name: 'Kendari Barat', postalCode: '93111', villages: ['Benu-Benua', 'Dapu-Dapura', 'Kemaraya', 'Lahundape', 'Punggaloba', 'Sanua', 'Sodohoa', 'Tipulu', 'Watu-Watu'] },
         ],
       },
     ],
@@ -1277,32 +1165,15 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Denpasar',
         districts: [
-          { name: 'Denpasar Barat', postalCode: '80119', villages: ['Dauh Puri', 'Dauh Puri Kangin', 'Dauh Puri Kauh', 'Dauh Puri Klod', 'Padangsambian', 'Padangsambian Kaja', 'Padangsambian Klod', 'Pemecutan', 'Pemecutan Klod', 'Tegal Harum', 'Tegal Kertha'] },
+          { name: 'Denpasar Barat', postalCode: '80111', villages: ['Dauh Puri', 'Dauh Puri Kangin', 'Dauh Puri Kauh', 'Dauh Puri Klod', 'Padangsambian', 'Padangsambian Kaja', 'Padangsambian Klod', 'Pemecutan', 'Pemecutan Klod', 'Tegal Harum', 'Tegal Kerta'] },
           { name: 'Denpasar Selatan', postalCode: '80221', villages: ['Panjer', 'Pedungan', 'Pemogan', 'Renon', 'Sanur', 'Sanur Kaja', 'Sanur Kauh', 'Serangan', 'Sidakarya'] },
-          { name: 'Denpasar Timur', postalCode: '80231', villages: ['Dangin Puri', 'Dangin Puri Kangin', 'Dangin Puri Klod', 'Kesiman', 'Kesiman Petilan', 'Kesiman Kertalangu', 'Penatih', 'Penatih Dangin Puri', 'Sumerta', 'Sumerta Kaja', 'Sumerta Kauh', 'Sumerta Klod'] },
-          { name: 'Denpasar Utara', postalCode: '80115', villages: ['Dangin Puri Kaja', 'Dangin Puri Kangin', 'Dangin Puri Kauh', 'Peguyangan', 'Peguyangan Kaja', 'Peguyangan Kangin', 'Pemecutan Kaja', 'Tonja', 'Ubung', 'Ubung Kaja'] },
         ],
       },
       {
         name: 'Kabupaten Badung',
         districts: [
-          { name: 'Kuta', postalCode: '80361', villages: ['Kedonganan', 'Kuta', 'Legian', 'Seminyak', 'Tuban'] },
-          { name: 'Kuta Selatan (Nusa Dua / Jimbaran)', postalCode: '80361', villages: ['Benoa', 'Jimbaran', 'Kutuh', 'Pecatu', 'Tanjung Benoa', 'Ungasan'] },
-          { name: 'Kuta Utara (Canggu)', postalCode: '80361', villages: ['Canggu', 'Dalung', 'Kerobokan', 'Kerobokan Kelod', 'Kerobokan Kaja', 'Tibubeneng'] },
-          { name: 'Mengwi', postalCode: '80351', villages: ['Abianbase', 'Baha', 'Buduk', 'Cemagi', 'Gulingan', 'Kapal', 'Kekeran', 'Kuwum', 'Lukluk', 'Mengwi', 'Mengwitani', 'Munggu', 'Penarungan', 'Pererenan', 'Sembung', 'Sobangan', 'Tumbak Bayuh', 'Werdi Bhuwana'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Gianyar (Ubud)',
-        districts: [
-          { name: 'Ubud', postalCode: '80571', villages: ['Kedewatan', 'Lodtunduh', 'Mas', 'Peliatan', 'Petulu', 'Sayan', 'Singakerta', 'Ubud'] },
-          { name: 'Gianyar', postalCode: '80511', villages: ['Abianbase', 'Beng', 'Bitera', 'Gianyar', 'Samplangan', 'Serongga', 'Siangan', 'Suwat', 'Tegal Tugu', 'Tulikup'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Tabanan',
-        districts: [
-          { name: 'Tabanan', postalCode: '82111', villages: ['Bongan', 'Buahan', 'Dajan Peken', 'Dauh Peken', 'Delod Peken', 'Denbantas', 'Gubug', 'Sesandan', 'Subamia', 'Sudimara', 'Tunjuk', 'Wanasari'] },
+          { name: 'Kuta', postalCode: '80361', villages: ['Kedonganan', 'Tuban', 'Kuta', 'Legian', 'Seminyak'] },
+          { name: 'Kuta Utara', postalCode: '80361', villages: ['Canggu', 'Dalung', 'Kerobokan', 'Kerobokan Kelod', 'Kerobokan Kaja', 'Tibubeneng'] },
         ],
       },
     ],
@@ -1316,24 +1187,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Mataram',
         districts: [
-          { name: 'Mataram', postalCode: '83121', villages: ['Mataram Timur', 'Pagesangan', 'Pagesangan Barat', 'Pagesangan Timur', 'Pagutan', 'Pagutan Barat', 'Pagutan Timur', 'Pejanggik', 'Punia'] },
-          { name: 'Ampenan', postalCode: '83111', villages: ['Ampenan Selatan', 'Ampenan Tengah', 'Ampenan Utara', 'Bintaro', 'Banjar', 'Dayan Peken', 'Kebun Sari', 'Pejeruk', 'Taman Sari'] },
-          { name: 'Cakranegara', postalCode: '83231', villages: ['Cakranegara Barat', 'Cakranegara Selatan', 'Cakranegara Selatan Baru', 'Cakranegara Timur', 'Cakranegara Utara', 'Cilinaya', 'Mayura', 'Sapta Marga', 'Sayang-Sayang', 'Turida'] },
-          { name: 'Sekarbela', postalCode: '83115', villages: ['Karang Pule', 'Kekalik Jaya', 'Jempong Baru', 'Tanjung Karang', 'Tanjung Karang Permai'] },
-          { name: 'Selaparang', postalCode: '83124', villages: ['Dasar Agung', 'Dasar Cermen', 'Gomong', 'Karang Baru', 'Mataram Barat', 'Monjok', 'Monjok Barat', 'Monjok Timur', 'Rembiga'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Lombok Barat',
-        districts: [
-          { name: 'Gerung', postalCode: '83363', villages: ['Babat', 'Dasan Tapen', 'Gapuk', 'Gerung Selatan', 'Gerung Utara', 'Kebun Ayu', 'Mesanggok', 'Suka Makmur'] },
-          { name: 'Batu Layar (Senggigi)', postalCode: '83355', villages: ['Batu Layar', 'Batu Layar Barat', 'Bengkaung', 'Meninting', 'Sandik', 'Senggigi', 'Senteluk'] },
-        ],
-      },
-      {
-        name: 'Kota Bima',
-        districts: [
-          { name: 'Rasanae Barat', postalCode: '84111', villages: ['Dara', 'Nae', 'Pane', 'Paruga', 'Sarae', 'Tanjung'] },
+          { name: 'Mataram', postalCode: '83111', villages: ['Mataram Timur', 'Pagesangan', 'Pagesangan Barat', 'Pagesangan Timur', 'Pagutan', 'Pagutan Barat', 'Pagutan Timur', 'Pejanggik', 'Punia'] },
         ],
       },
     ],
@@ -1347,23 +1201,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Kupang',
         districts: [
-          { name: 'Oebobo', postalCode: '85111', villages: ['Fatukoa', 'Kayu Putih', 'Liliba', 'Oebobo', 'Oebufu', 'Tuak Daun Merah'] },
-          { name: 'Kelapa Lima', postalCode: '85228', villages: ['Kelapa Lima', 'Lasiana', 'Oesapa', 'Oesapa Barat', 'Oesapa Selatan'] },
-          { name: 'Maulafa', postalCode: '85142', villages: ['Belo', 'Fatukoa', 'Kolhua', 'Maulafa', 'Naikolan', 'Naimata', 'Penfui', 'Sikumana'] },
-          { name: 'Alak', postalCode: '85231', villages: ['Alak', 'Batuplat', 'Fatufeto', 'Mantasi', 'Manulai II', 'Manutapen', 'Naioni', 'Namosain', 'Nunbaun Delha', 'Nunbaun Sabu', 'Nunhila', 'Penkase Oeleta'] },
-          { name: 'Kota Raja', postalCode: '85119', villages: ['Airnona', 'Bakunase', 'Bakunase II', 'Fontein', 'Kuanino', 'Manutapen', 'Naikoten I', 'Naikoten II', 'Nunleu'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Manggarai Barat (Labuan Bajo)',
-        districts: [
-          { name: 'Komodo', postalCode: '86754', villages: ['Batu Cermin', 'Gorontalo', 'Labuan Bajo', 'Macang Tanggar', 'Nggorang', 'Pasir Panjang', 'Seraya Marannu', 'Tiwu Nampar', 'Warloka'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Sikka (Maumere)',
-        districts: [
-          { name: 'Alok', postalCode: '86111', villages: ['Kota Uneng', 'Madawat', 'Nangameting', 'Kabor', 'Wuring'] },
+          { name: 'Kota Raja', postalCode: '85111', villages: ['Bakunase', 'Bakunase II', 'Fontein', 'Kuanino', 'Naikoten I', 'Naikoten II', 'Nunbaun Delha', 'Nunbaun Sabu'] },
         ],
       },
     ],
@@ -1377,16 +1215,7 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Ambon',
         districts: [
-          { name: 'Sirimau', postalCode: '97121', villages: ['Ahusen', 'Batu Gajah', 'Batu Meja', 'Honipopu', 'Karang Panjang', 'Pandang-Pandang', 'Rijali', 'Soya', 'Uritetu', 'Waihaong', 'Galala', 'Hative Kecil'] },
-          { name: 'Nusaniwe', postalCode: '97111', villages: ['Amahusu', 'Benteng', 'Kudamati', 'Mangga Dua', 'Nusaniwe', 'Silale', 'Urimessing', 'Waihaong', 'Wainitu'] },
-          { name: 'Teluk Ambon', postalCode: '97232', villages: ['Hative Besar', 'Hunut', 'Laha', 'Poka', 'Rumahtiga', 'Tawiri', 'Wayame'] },
-          { name: 'Baguala', postalCode: '97231', villages: ['Halong', 'Lateri', 'Passo', 'Waitatiri', 'Negeri Lama'] },
-        ],
-      },
-      {
-        name: 'Kota Tual',
-        districts: [
-          { name: 'Pulau Dullah Selatan', postalCode: '97611', villages: ['Ketsoblak', 'Lodang', 'Masrum', 'Taar', 'Tual'] },
+          { name: 'Sirimau', postalCode: '97121', villages: ['Ahusen', 'Batu Gajah', 'Batu Meja', 'Galala', 'Hative Kecil', 'Honipopu', 'Karang Panjang', 'Pandang Kasturi', 'Rijali', 'Soya', 'Uritetu', 'Waihaong'] },
         ],
       },
     ],
@@ -1400,15 +1229,13 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Ternate',
         districts: [
-          { name: 'Ternate Tengah', postalCode: '97711', villages: ['Gamalama', 'Kampung Pisang', 'Kota Baru', 'Maliaro', 'Marikurubu', 'Muhajirin', 'Salahuddin', 'Santiong', 'Stadion', 'Takoma', 'Tanah Raja'] },
-          { name: 'Ternate Selatan', postalCode: '97716', villages: ['Bastiong Karance', 'Bastiong Talangame', 'Fitu', 'Gambesi', 'Kalumata', 'Kayu Merah', 'Mangga Dua', 'Sasa', 'Toboko', 'Ubo-Ubo'] },
-          { name: 'Ternate Utara', postalCode: '97721', villages: ['Akehuda', 'Dufa-Dufa', 'Salero', 'Sangaji', 'Soasio', 'Tabam', 'Tafure', 'Tarau', 'Tuboh'] },
+          { name: 'Ternate Tengah', postalCode: '97711', villages: ['Gamalama', 'Kampueng Pisang', 'Kota Baru', 'Maliaro', 'Marikurubu', 'Muhajirin', 'Salahuddin', 'Santiong', 'Takoma', 'Tongole'] },
         ],
       },
       {
         name: 'Kota Tidore Kepulauan',
         districts: [
-          { name: 'Tidore', postalCode: '97811', villages: ['Gamtufkange', 'Goto', 'Gurabunga', 'Indomut', 'Soasio', 'Tambula', 'Tomagoba', 'Tuguiha'] },
+          { name: 'Tidore', postalCode: '97811', villages: ['Gamtufkange', 'Gurabunga', 'Indonusa', 'Kotabaru', 'Soasio', 'Tomagoba', 'Tuguiha'] },
         ],
       },
     ],
@@ -1422,17 +1249,9 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
       {
         name: 'Kota Jayapura',
         districts: [
-          { name: 'Jayapura Utara', postalCode: '99111', villages: ['Angkasapura', 'Bayangkara', 'Gurabesi', 'Imbi', 'Kayo Batu', 'Mandala', 'Tanjung Ria', 'Trikora'] },
-          { name: 'Jayapura Selatan', postalCode: '99221', villages: ['Hamadi', 'Numbai', 'Numbay', 'Tahima Soroma', 'Tobati', 'Entrop', 'Argapura'] },
-          { name: 'Abepura', postalCode: '99351', villages: ['Abepantai', 'Asano', 'Awiyo', 'Enggros', 'Koya Koso', 'Kotabaru', 'Nafri', 'Vim', 'Wahno', 'Way Mhorock', 'Yobe'] },
-          { name: 'Heram', postalCode: '99358', villages: ['Hedam', 'Waena', 'Yabansai', 'Kampung Waena', 'Yoka'] },
-          { name: 'Muara Tami', postalCode: '99356', villages: ['Holtekamp', 'Koya Barat', 'Koya Timur', 'Mosso', 'Skouw Mabo', 'Skouw Sae', 'Skouw Yambe'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Jayapura (Sentani)',
-        districts: [
-          { name: 'Sentani', postalCode: '99352', villages: ['Dobonsolo', 'Hinekombe', 'Hobong', 'Ifar Besar', 'Nendali', 'Sereh', 'Yobeh', 'Yoboi'] },
+          { name: 'Jayapura Utara', postalCode: '99111', villages: ['Angkasapura', 'Bayangkara', 'Gurabesi', 'Imbi', 'Kayu Batu', 'Mandalik', 'Trikora'] },
+          { name: 'Jayapura Selatan', postalCode: '99221', villages: ['Argapura', 'Entrop', 'Hamadi', 'Numbai', 'Tahima Soroma', 'Tobati'] },
+          { name: 'Abepura', postalCode: '99351', villages: ['Abepantai', 'Asano', 'Enggros', 'Kotabaru', 'Kota Raja', 'Nafri', 'Vim', 'Wahno', 'Way Mhorock', 'Yobe'] },
         ],
       },
     ],
@@ -1447,14 +1266,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kabupaten Manokwari',
         districts: [
           { name: 'Manokwari Barat', postalCode: '98311', villages: ['Amban', 'Manokwari Barat', 'Manokwari Timur', 'Padarni', 'Sanggeng', 'Wosi'] },
-          { name: 'Manokwari Timur', postalCode: '98312', villages: ['Arowi', 'Ayambori', 'Bakaro', 'Pasir Putih', 'Susuang'] },
-          { name: 'Manokwari Selatan', postalCode: '98313', villages: ['Anday', 'Maripi', 'Sowi', 'Warpramasi'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Fakfak',
-        districts: [
-          { name: 'Fakfak', postalCode: '98611', villages: ['Danaweria', 'Fakfak', 'Fakfak Selatan', 'Wagom', 'Wagom Utara'] },
         ],
       },
     ],
@@ -1469,16 +1280,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kota Sorong',
         districts: [
           { name: 'Sorong Kota', postalCode: '98411', villages: ['Kampung Baru', 'Klademak', 'Klasi', 'Klasuur', 'Malabutor', 'Puncak Cendrawasih', 'Remu Selatan', 'Remu Utara'] },
-          { name: 'Sorong Barat', postalCode: '98412', villages: ['Klawasi', 'Pal Putih', 'Rufei', 'Tampa Garam'] },
-          { name: 'Sorong Timur', postalCode: '98414', villages: ['Klamana', 'Kladufu', 'Klawalu', 'Klawuyuk'] },
-          { name: 'Sorong Utara', postalCode: '98415', villages: ['Malasilen', 'Malanu', 'Sawagumu'] },
-          { name: 'Sorong Manoi', postalCode: '98413', villages: ['Klaligi', 'Klasabi', 'Malawei', 'Remu'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Raja Ampat (Waisai)',
-        districts: [
-          { name: 'Kota Waisai', postalCode: '98482', villages: ['Bonkawir', 'Sapordanko', 'Waisai', 'Warmasen'] },
         ],
       },
     ],
@@ -1493,14 +1294,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kabupaten Merauke',
         districts: [
           { name: 'Merauke', postalCode: '99611', villages: ['Bambu Pemali', 'Karang Indah', 'Kelapa Lima', 'Kuda Mati', 'Maro', 'Merauke', 'Mopah Lama', 'Namas', 'Rimbe Jaya', 'Samkai', 'Seringgu Jaya'] },
-          { name: 'Semangga', postalCode: '99631', villages: ['Kuprik', 'Marga Mulya', 'Muram Sari', 'Semangga Jaya', 'Sidomulyo', 'Urumb', 'Waninggap Miraf', 'Waninggap Nanggo'] },
-          { name: 'Tanah Miring', postalCode: '99632', villages: ['Hidup Baru', 'Isano Mbias', 'Kamangi', 'Sari Mulya', 'Tambat', 'Yaba Mahika', 'Yasa Mulya'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Boven Digoel',
-        districts: [
-          { name: 'Mandobo (Tanah Merah)', postalCode: '99663', villages: ['Ampera', 'Mawan', 'Persatuan', 'Sokanggo', 'Tanah Merah'] },
         ],
       },
     ],
@@ -1515,14 +1308,6 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kabupaten Jayawijaya (Wamena)',
         districts: [
           { name: 'Wamena', postalCode: '99511', villages: ['Autakma', 'Hukimo', 'Honelama', 'Sinakma', 'Wamena', 'Wamena Kota', 'Wouma'] },
-          { name: 'Hubikiak', postalCode: '99512', villages: ['Anelak', 'Boluwondok', 'Dukobak', 'Kikimo', 'Pasema'] },
-          { name: 'Asologaima', postalCode: '99513', villages: ['Kimima', 'Kimbim', 'Wamarek', 'Wamena Utara'] },
-        ],
-      },
-      {
-        name: 'Kabupaten Tolikara (Karubaga)',
-        districts: [
-          { name: 'Karubaga', postalCode: '99564', villages: ['Golom', 'Karubaga', 'Kogome', 'Kolengka', 'Limbaga'] },
         ],
       },
     ],
@@ -1537,16 +1322,12 @@ export const INDONESIA_PROVINCES_DATA: ProvinceData[] = [
         name: 'Kabupaten Nabire',
         districts: [
           { name: 'Nabire', postalCode: '98811', villages: ['Girimulyo', 'Kalibobo', 'Karang Mulia', 'Karang Tumaritis', 'Morgo', 'Nabire Barat', 'Nabire Kota', 'Nabarua', 'Oyehe', 'Siriwini'] },
-          { name: 'Nabire Barat', postalCode: '98814', villages: ['Bumi Mulia', 'Bumi Raya', 'Kalisemen', 'Wadio', 'Wanggar Sari'] },
-          { name: 'Teluk Kimi', postalCode: '98815', villages: ['Air Mandidi', 'Kimi', 'Laimo', 'Samabusa', 'Waharia'] },
         ],
       },
       {
         name: 'Kabupaten Mimika (Timika)',
         districts: [
           { name: 'Mimika Baru', postalCode: '99910', villages: ['Hangaitji', 'Kebun Sirih', 'Kwamki', 'Nayaro', 'Otakwa', 'Passir Putih', 'Sempan', 'Timika Jaya', 'Wanagon'] },
-          { name: 'Kuala Kencana', postalCode: '99920', villages: ['Bumi Wonorejo', 'Karang Senang', 'Kuala Kencana', 'Liputan', 'Utikini Baru'] },
-          { name: 'Wania', postalCode: '99911', villages: ['Inauga', 'Kadun Jaya', 'Kamoro Jaya', 'Mawokau Jaya', 'Nania', 'Nawaripi'] },
         ],
       },
     ],

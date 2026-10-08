@@ -175,8 +175,8 @@ export const getEmptyFormData = (
       telpPetugas: '',
     },
     fotoPropertiFiles: [],
-    skemaPembayaran: 'Pembayaran Penuh',
-    keteranganSkema: 'Pembayaran Penuh',
+    skemaPembayaran: '',
+    keteranganSkema: '',
     biayaSambungan: 1371545,
     golonganTarif: '',
     persetujuan: false,
@@ -231,17 +231,22 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [notification, setNotification] = useState<string | null>(null);
   const [submittedRecord, setSubmittedRecord] = useState<RegistrationFormData | null>(null);
   const [forceShowForm, setForceShowForm] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [errorFields, setErrorFields] = useState<Record<string, boolean>>({});
 
-  // Background Auto-Save (Sistem menyimpan otomatis secara hening tanpa teks/simbol)
+  // Silent automatic persistence: saves all form inputs to storage so network loss / browser exit never loses data
   useEffect(() => {
     const draftKey = getDraftKey(currentUser);
-    try {
-      localStorage.setItem(draftKey, JSON.stringify(formData));
-    } catch {
-      // silent
-    }
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(formData));
+        localStorage.setItem('aetra_registration_form_draft', JSON.stringify(formData));
+      } catch {
+        // silent
+      }
+    }, 300);
+    return () => clearTimeout(timer);
   }, [formData, currentUser]);
 
   // Terms & Conditions Modal State
@@ -693,7 +698,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         }
       }
     } else if (stepNum === 6) {
-      // Step 6: Validasi form teknis sudah lengkap sebelum S&K
+      // Step 6 technical validation passed. S&K is shown upon clicking submit button.
     }
 
     setValidationErrors(errors);
@@ -736,6 +741,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const draftKey = getDraftKey(currentUser);
     try {
       localStorage.setItem(draftKey, JSON.stringify(formData));
+      setLastSavedTime(new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
     } catch {
       // ignore
     }
@@ -767,23 +773,23 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  const executeFinalSubmit = (recordToSubmit: RegistrationFormData) => {
-    const noFormVal = recordToSubmit.noForm || Math.floor(100000 + Math.random() * 900000).toString();
-    const noSrVal = recordToSubmit.noSr || calculateNextSrNumber(existingRegistrations);
+  const processRegistration = (currentData = formData) => {
+    const noFormVal = currentData.noForm || Math.floor(100000 + Math.random() * 900000).toString();
+    const noSrVal = currentData.noSr || calculateNextSrNumber(existingRegistrations);
 
     const finalizedRecord: RegistrationFormData = {
-      ...recordToSubmit,
+      ...currentData,
       noForm: noFormVal,
       noSr: noSrVal,
       idPelanggan: '', // Akan diisi admin setelah verifikasi dan pembayaran
-      persetujuan: true,
       statusPendaftaran: 'VERIFYING',
       status_pendaftaran: 'VERIFYING',
       statusPembayaran: 'Belum Ditagihkan',
       isSkAccepted: true,
       is_sk_accepted: true,
+      persetujuan: true,
       trackingStep: 1,
-      tanggal: recordToSubmit.tanggal || new Date().toISOString().split('T')[0],
+      tanggal: currentData.tanggal || new Date().toISOString().split('T')[0],
       createdAt: new Date().toISOString(),
     };
 
@@ -793,6 +799,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const draftKey = getDraftKey(currentUser);
     try {
       localStorage.removeItem(draftKey);
+      localStorage.removeItem('aetra_registration_form_draft');
     } catch {
       // ignore
     }
@@ -801,20 +808,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     setTimeout(() => setNotification(null), 5000);
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateCurrentSection(1) || !validateCurrentSection(2) || !validateCurrentSection(3) || !validateCurrentSection(4) || !validateCurrentSection(5)) {
-      return;
-    }
+  const handleFinalSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!validateCurrentSection(6)) return;
     if (!isAllRequiredFieldsFilled) return;
 
-    // Jika belum disetujui di modal S&K, buka modal S&K dan checkbox pernyataan
-    if (!formData.persetujuan) {
-      setIsTermsModalOpen(true);
-      return;
-    }
-
-    executeFinalSubmit(formData);
+    // Sesuai permintaan pengguna: munculkan S&K dan checkbox pernyataan ketika klik daftarkan sambungan baru
+    setIsTermsModalOpen(true);
   };
 
   const handleReset = () => {
@@ -1693,8 +1693,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         value={formData.rtKtp || ''}
                         onChange={(e) => {
                           const val = e.target.value;
-                          const currentRw = formData.rwKtp || '';
-                          const combined = val && currentRw ? `${val}/${currentRw}` : val || currentRw;
+                          const rw = formData.rwKtp || '';
+                          const combined = val && rw ? `${val}/${rw}` : val || rw || '';
                           setFormData({ ...formData, rtKtp: val, rtRwKtp: combined });
                           setErrorFields((prev) => ({ ...prev, rtKtp: false, rtRwKtp: false }));
                         }}
@@ -1715,8 +1715,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         value={formData.rwKtp || ''}
                         onChange={(e) => {
                           const val = e.target.value;
-                          const currentRt = formData.rtKtp || '';
-                          const combined = currentRt && val ? `${currentRt}/${val}` : currentRt || val;
+                          const rt = formData.rtKtp || '';
+                          const combined = rt && val ? `${rt}/${val}` : rt || val || '';
                           setFormData({ ...formData, rwKtp: val, rtRwKtp: combined });
                           setErrorFields((prev) => ({ ...prev, rwKtp: false, rtRwKtp: false }));
                         }}
@@ -1832,31 +1832,58 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
                         4. Kelurahan / Desa <span className="text-red-500">*</span>
                       </label>
-                      <select
-                        value={formData.kelurahanKtp || formData.desaKtp || ''}
-                        disabled={!formData.kecamatanKtp}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFormData({
-                            ...formData,
-                            kelurahanKtp: val,
-                            desaKtp: val,
-                          });
-                          setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
-                        }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
-                      >
-                        <option value="">-- Pilih Kelurahan / Desa --</option>
-                        {(
-                          INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)
-                            ?.cities.find((c) => c.name === formData.kotaKtp)
-                            ?.districts.find((d) => d.name === formData.kecamatanKtp)?.villages || []
-                        ).map((v: string) => (
-                          <option key={v} value={v}>
-                            {v}
-                          </option>
-                        ))}
-                      </select>
+                      {(() => {
+                        const currentVillages = INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)
+                          ?.cities.find((c) => c.name === formData.kotaKtp)
+                          ?.districts.find((d) => d.name === formData.kecamatanKtp)?.villages || [];
+                        const currentVal = formData.kelurahanKtp || formData.desaKtp || '';
+                        const isCustom = Boolean(currentVal && currentVillages.length > 0 && !currentVillages.includes(currentVal));
+
+                        return (
+                          <div className="space-y-1.5">
+                            <select
+                              value={isCustom ? '__custom__' : currentVal}
+                              disabled={!formData.kecamatanKtp}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '__custom__') {
+                                  setFormData({ ...formData, kelurahanKtp: '', desaKtp: '' });
+                                } else {
+                                  setFormData({ ...formData, kelurahanKtp: val, desaKtp: val });
+                                }
+                                setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
+                              }}
+                              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50 ${
+                                errorFields.kelurahanKtp ? 'border-red-500 bg-red-50' : 'border-slate-300'
+                              }`}
+                            >
+                              <option value="">-- Pilih Kelurahan / Desa --</option>
+                              {currentVillages.map((v: string) => (
+                                <option key={v} value={v}>
+                                  {v}
+                                </option>
+                              ))}
+                              {currentVillages.length > 0 && (
+                                <option value="__custom__">-- Masukkan Kelurahan/Desa Lainnya --</option>
+                              )}
+                            </select>
+
+                            {(currentVillages.length === 0 || isCustom) && formData.kecamatanKtp && (
+                              <input
+                                type="text"
+                                value={currentVal}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData({ ...formData, kelurahanKtp: val, desaKtp: val });
+                                  setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
+                                }}
+                                placeholder="Ketik nama Kelurahan / Desa..."
+                                className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                              />
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Kode Pos */}
@@ -1947,8 +1974,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         value={formData.rtPasang || ''}
                         onChange={(e) => {
                           const val = e.target.value;
-                          const currentRw = formData.rwPasang || '';
-                          const combined = val && currentRw ? `${val}/${currentRw}` : val || currentRw;
+                          const rw = formData.rwPasang || '';
+                          const combined = val && rw ? `${val}/${rw}` : val || rw || '';
                           setFormData({ ...formData, rtPasang: val, rtRwPasang: combined });
                           setErrorFields((prev) => ({ ...prev, rtPasang: false, rtRwPasang: false }));
                         }}
@@ -1969,8 +1996,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         value={formData.rwPasang || ''}
                         onChange={(e) => {
                           const val = e.target.value;
-                          const currentRt = formData.rtPasang || '';
-                          const combined = currentRt && val ? `${currentRt}/${val}` : currentRt || val;
+                          const rt = formData.rtPasang || '';
+                          const combined = rt && val ? `${rt}/${val}` : rt || val || '';
                           setFormData({ ...formData, rwPasang: val, rtRwPasang: combined });
                           setErrorFields((prev) => ({ ...prev, rwPasang: false, rtRwPasang: false }));
                         }}
@@ -2018,29 +2045,56 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
                         Kelurahan / Desa <span className="text-red-500">*</span>
                       </label>
-                      <select
-                        value={formData.kelurahanPasang || formData.desaPasang || ''}
-                        disabled={!formData.kecamatanPasang}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFormData({
-                            ...formData,
-                            kelurahanPasang: val,
-                            desaPasang: val,
-                          });
-                          setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
-                        }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
-                      >
-                        <option value="">-- Pilih Kelurahan / Desa --</option>
-                        {(
-                          AETRA_TANGERANG_INSTALLATION_REGIONS.find((k) => k.name === formData.kecamatanPasang)?.villages || []
-                        ).map((kel: string) => (
-                          <option key={`inst-vil-${kel}`} value={kel}>
-                            {kel}
-                          </option>
-                        ))}
-                      </select>
+                      {(() => {
+                        const currentVillages = AETRA_TANGERANG_INSTALLATION_REGIONS.find((k) => k.name === formData.kecamatanPasang)?.villages || [];
+                        const currentVal = formData.kelurahanPasang || formData.desaPasang || '';
+                        const isCustom = Boolean(currentVal && currentVillages.length > 0 && !currentVillages.includes(currentVal));
+
+                        return (
+                          <div className="space-y-1.5">
+                            <select
+                              value={isCustom ? '__custom__' : currentVal}
+                              disabled={!formData.kecamatanPasang}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '__custom__') {
+                                  setFormData({ ...formData, kelurahanPasang: '', desaPasang: '' });
+                                } else {
+                                  setFormData({ ...formData, kelurahanPasang: val, desaPasang: val });
+                                }
+                                setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
+                              }}
+                              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50 ${
+                                errorFields.kelurahanPasang ? 'border-red-500 bg-red-50' : 'border-slate-300'
+                              }`}
+                            >
+                              <option value="">-- Pilih Kelurahan / Desa --</option>
+                              {currentVillages.map((kel: string) => (
+                                <option key={`inst-vil-${kel}`} value={kel}>
+                                  {kel}
+                                </option>
+                              ))}
+                              {currentVillages.length > 0 && (
+                                <option value="__custom__">-- Masukkan Kelurahan/Desa Lainnya --</option>
+                              )}
+                            </select>
+
+                            {(currentVillages.length === 0 || isCustom) && formData.kecamatanPasang && (
+                              <input
+                                type="text"
+                                value={currentVal}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData({ ...formData, kelurahanPasang: val, desaPasang: val });
+                                  setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
+                                }}
+                                placeholder="Ketik nama Kelurahan / Desa..."
+                                className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                              />
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Kode Pos Pasang */}
@@ -2714,13 +2768,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       className="px-4 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer self-start sm:self-center"
                     >
                       <BookOpen className="w-4 h-4 text-amber-300" />
-                      <span>Buka Dokumen S&amp;K (Pasal 1 - 11)</span>
+                      <span>Buka &amp; Baca Dokumen S&amp;K (Pasal 1 - 11)</span>
                     </button>
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Dokumen ini memuat hak &amp; kewajiban Para Pihak, ketentuan tarif air, tagihan bulanan, larangan penyadapan ilegal, dan penyelesaian sengketa sesuai peraturan perundang-undangan.
                   </p>
+
+                  <div className="p-3 bg-blue-100/70 rounded-xl border border-blue-200 text-xs text-blue-950 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#005DAA] shrink-0" />
+                    <span>Ketika Anda mengklik tombol <strong>"Daftarkan Sambungan Baru"</strong>, jendela resmi Syarat &amp; Ketentuan beserta kotak pernyataan persetujuan akan terbuka untuk konfirmasi pendaftaran.</span>
+                  </div>
                 </div>
               </section>
             )}
@@ -2791,11 +2850,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         onClose={() => setIsTermsModalOpen(false)}
         isAccepted={Boolean(formData.persetujuan)}
         onAccept={() => {
-          const updated = { ...formData, persetujuan: true };
-          setFormData(updated);
+          setFormData((prev) => ({ ...prev, persetujuan: true }));
           setIsTermsRead(true);
           setErrorFields((prev) => ({ ...prev, persetujuan: false }));
-          executeFinalSubmit(updated);
+          processRegistration({ ...formData, persetujuan: true });
         }}
       />
 
