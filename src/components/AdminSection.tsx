@@ -392,18 +392,18 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
     const teknisi = item.trackingRecord?.petugasTeknisi?.nama || 'Bpk. Agus Santoso (Teknisi Aetra)';
 
     if (templateKey === 'paid_confirm') {
-      return `*AETRA CONNECT - KONFIRMASI PEMBAYARAN*\n\nYth. Bpk/Ibu *${nama}*,\n\nPembayaran biaya pasang sambungan baru air minum untuk *No. Form #${noForm}* (ID Pelanggan: *${idPelanggan}* / SR: ${noSr}) sebesar *Rp ${biaya}* telah *LUNAS & TERVERIFIKASI* di sistem Aetra Connect.\n\nSurat Perintah Kerja (SPK) pemasangan pipa dinas dan water meter telah diterbitkan ke tim teknisi lapangan.\n\nPantau live progres sambungan Anda di portal resmi Aetra Connect:\nhttps://aetra-connect.co.id/tracking\n\nTerima kasih atas kepercayaan Anda.\n*Customer Care Aetra Connect*`;
+      return `*PT AETRA AIR TANGERANG - KONFIRMASI PEMBAYARAN*\n\nYth. Bpk/Ibu *${nama}*,\n\nPembayaran biaya pasang sambungan baru air minum untuk *No. Form #${noForm}* (ID Pelanggan: *${idPelanggan}* / SR: ${noSr}) sebesar *Rp ${biaya}* telah *LUNAS & TERVERIFIKASI* di sistem PT Aetra Air Tangerang.\n\nSurat Perintah Kerja (SPK) pemasangan pipa dinas dan water meter telah diterbitkan ke tim teknisi lapangan.\n\nPantau live progres sambungan Anda di portal resmi:\nhttps://aetra-tangerang.co.id/tracking\n\nTerima kasih atas kepercayaan Anda.\n*Customer Care PT Aetra Air Tangerang*`;
     }
 
     if (templateKey === 'install_schedule') {
-      return `*AETRA CONNECT - JADWAL INSTALASI PIPA & METER*\n\nYth. Bpk/Ibu *${nama}*,\n\nPemberitahuan: Permohonan sambungan air No. Form: *#${noForm}* (ID Pelanggan: *${idPelanggan}*) telah dijadwalkan untuk pekerjaan fisik instalasi meter air dan pipa dinas.\n\nPetugas Teknisi: *${teknisi}*\nNomor Segel: *${segel}*\nLokasi Pemasangan: *${alamat}*\n\nMohon pastikan ada perwakilan di rumah saat petugas hadir. Seluruh pemasangan standar resmi *BEBAS BIAYA TAMBAHAN* di lapangan (Bebas Pungli).\n\n*Divisi Operasional & Distribusi Aetra Connect*`;
+      return `*PT AETRA AIR TANGERANG - JADWAL INSTALASI PIPA & METER*\n\nYth. Bpk/Ibu *${nama}*,\n\nPemberitahuan: Permohonan sambungan air No. Form: *#${noForm}* (ID Pelanggan: *${idPelanggan}*) telah dijadwalkan untuk pekerjaan fisik instalasi meter air dan pipa dinas.\n\nPetugas Teknisi: *${teknisi}*\nNomor Segel: *${segel}*\nLokasi Pemasangan: *${alamat}*\n\nMohon pastikan ada perwakilan di rumah saat petugas hadir. Seluruh pemasangan standar resmi *BEBAS BIAYA TAMBAHAN* di lapangan (Bebas Pungli).\n\n*Divisi Operasional & Distribusi Aetra*`;
     }
 
     if (templateKey === 'active_flow') {
-      return `*AETRA CONNECT - SAMBUNGAN RESMI AKTIF*\n\nSelamat Bpk/Ibu *${nama}*!\n\nPemasangan sambungan baru untuk No. Form: *#${noForm}* telah *SELESAI*. Meter air nomor seri *${meter}* telah aktif dan air bersih siap pakai kini telah mengalir ke properti Anda di *${alamat}*.\n\nGunakan ID Pelanggan: *${idPelanggan}* untuk pembayaran rekening air bulanan rutin Anda.\n\nTerima kasih telah menjadi pelanggan setia Aetra Connect!`;
+      return `*PT AETRA AIR TANGERANG - SAMBUNGAN RESMI AKTIF*\n\nSelamat Bpk/Ibu *${nama}*!\n\nPemasangan sambungan baru untuk No. Form: *#${noForm}* telah *SELESAI*. Meter air nomor seri *${meter}* telah aktif dan air bersih siap pakai kini telah mengalir ke properti Anda di *${alamat}*.\n\nGunakan ID Pelanggan: *${idPelanggan}* untuk pembayaran rekening air bulanan rutin Anda.\n\nTerima kasih telah menjadi pelanggan setia PT Aetra Air Tangerang!`;
     }
 
-    return waCustomMessage || `Halo Bpk/Ibu *${nama}*, kami dari Aetra Connect menginformasikan bahwa status permohonan sambungan baru Anda No. Form *#${noForm}* telah kami verifikasi aktif. Terima kasih.`;
+    return waCustomMessage || `Halo Bpk/Ibu *${nama}*, kami dari PT Aetra Air Tangerang menginformasikan bahwa status permohonan sambungan baru Anda No. Form *#${noForm}* telah kami verifikasi aktif. Terima kasih.`;
   };
 
   const handleOpenWaBlastModal = () => {
@@ -541,7 +541,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               <ShieldCheck className="w-3.5 h-3.5" />
               BACKOFFICE &amp; OPERASIONAL
             </span>
-            <span className="text-xs text-blue-200">Aetra Connect</span>
+            <span className="text-xs text-blue-200">PT Aetra Air Tangerang</span>
           </div>
           <h2 className="text-xl font-black tracking-tight text-white">
             Portal Administrasi &amp; Pengendalian Sambungan Baru
@@ -2565,7 +2565,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                   <div className="bg-white rounded-xl rounded-tl-none p-3 shadow-sm border border-slate-200/80 text-[11px] leading-relaxed text-slate-800 max-w-[95%] space-y-1.5 self-start">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-1 mb-1">
                       <span className="font-bold text-[#005DAA] flex items-center gap-1 text-[10px]">
-                        <span>Aetra Connect</span>
+                        <span>PT Aetra Air Tangerang</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       </span>
                       <span className="text-[9px] text-slate-400">Pemberitahuan Resmi</span>

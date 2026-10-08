@@ -357,7 +357,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-3.5 border-t border-slate-100 bg-slate-50/70 text-center">
           <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-slate-700">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Aetra Connect</span>
+            <span>PT Aetra Air Tangerang</span>
           </div>
           <p className="text-[10px] text-slate-400 mt-0.5">Sistem Layanan Air Bersih Terpadu</p>
         </div>

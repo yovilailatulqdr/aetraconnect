@@ -178,7 +178,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
           </div>
 
           <p className="text-xs font-semibold text-slate-600 mt-1">
-            Sistem Layanan Air Bersih Terpadu
+            PT Aetra Air Tangerang
           </p>
 
           {/* Modern Segmented Control / Tab Switcher */}
@@ -295,7 +295,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
                 disabled={isLoading}
                 className="w-full py-3 px-4 bg-[#005DAA] hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-700/25 transition duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] disabled:opacity-60"
               >
-                <span>{isLoading ? 'Memverifikasi Akun...' : 'Masuk Akun'}</span>
+                <span>{isLoading ? 'Memverifikasi Akun...' : 'Masuk ke Aetra Connect'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -425,7 +425,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Koneksi Aman Terenkripsi SSL</span>
           </span>
-          <span>&copy; 2026 Aetra Connect</span>
+          <span>&copy; 2026 PT Aetra Air Tangerang</span>
         </div>
       </div>
 

@@ -102,7 +102,7 @@ export const MeterReaderManagementSection: React.FC<MeterReaderManagementSection
           const rawKat = String(row['Kategori'] || row['kategori'] || '').toLowerCase();
           const isKeyAccount = rawKat.includes('key') || rawKat.includes('aetra');
           const kategoriVal: ReaderCategory = isKeyAccount ? 'Key Account' : (row['Kategori'] || 'Kontraktor');
-          const perusahaanVal = String(row['Perusahaan'] || row['perusahaan'] || row['Mitra'] || (isKeyAccount ? 'Aetra Connect (Key Account)' : 'Mitra Kontraktor')).trim();
+          const perusahaanVal = String(row['Perusahaan'] || row['perusahaan'] || row['Mitra'] || (isKeyAccount ? 'PT Aetra Air Tangerang (Key Account)' : 'Mitra Kontraktor')).trim();
 
           // Parse cycle assignment (e.g. "Cycle 1, Cycle 2" or "1, 2, 3")
           const rawCycles = String(row['Penugasan Cycle'] || row['Cycle'] || row['assignedCycles'] || row['siklus'] || '');

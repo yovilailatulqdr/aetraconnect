@@ -11,7 +11,7 @@ const INITIAL_DEFAULT_ACCOUNTS = [
   {
     id: 'acc-admin',
     idPelanggan: '10999999',
-    nama: 'Administrator Aetra Connect',
+    nama: 'Administrator Aetra Tangerang',
     email: 'admin@aetra.co.id',
     telp: '081199887766',
     password: 'aetra123',

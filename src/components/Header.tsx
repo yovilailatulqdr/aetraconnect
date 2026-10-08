@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   const tabTitles: Record<TabType, { title: string; subtitle: string; tag: string }> = {
     registration: {
       title: 'Register Pelanggan Baru',
-      subtitle: 'Formulir Pendaftaran Sambungan Rumah Tangga Aetra Connect',
+      subtitle: 'Formulir Pendaftaran Sambungan Rumah Tangga PT Aetra Air Tangerang',
       tag: 'Sambungan Baru',
     },
     tracking: {
@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
     },
     survey: {
       title: 'Survey Kepuasan Pelanggan',
-      subtitle: 'Evaluasi Mutu Pelayanan Air Bersih Aetra Connect',
+      subtitle: 'Evaluasi Mutu Pelayanan Air Bersih PT Aetra Air Tangerang',
       tag: 'Evaluasi Mutu',
     },
     faq: {
@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
     },
     billing: {
       title: 'Pembayaran Tagihan Bulanan',
-      subtitle: 'Inquiry Rekening Air, Pemakaian Kubikasi (m³) & Pelunasan Resmi Aetra Connect',
+      subtitle: 'Inquiry Rekening Air, Pemakaian Kubikasi (m³) & Pelunasan Resmi PT Aetra Air Tangerang',
       tag: 'Cek & Bayar Tagihan',
     },
     admin: {
@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#F37021] animate-pulse"></span>
           <span className="font-semibold text-slate-100">
-            Sistem Informasi Pelayanan Pelanggan &bull; Aetra Connect
+            Sistem Informasi Pelayanan Pelanggan &bull; PT Aetra Air Tangerang
           </span>
         </div>
         <div className="hidden sm:flex items-center gap-4 text-blue-100 text-[11px]">

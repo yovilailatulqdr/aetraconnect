@@ -56,7 +56,7 @@ const NEW_CONNECTION_QUESTIONS: QuestionDef[] = [
   { id: 5, key: 'q5_waktu_tunggu', text: 'Ketepatan waktu dan kecepatan dari proses mendaftar hingga pemasangan fisik pipa & meter air' },
   { id: 6, key: 'q6_kualitas_pekerjaan', text: 'Kerapian pekerjaan penggalian, penyambungan pipa dinas, dan penutupan kembali oleh teknisi' },
   { id: 7, key: 'q7_kualitas_instalasi', text: 'Kualitas instalasi water meter, segel resmi, serta kelancaran air bersih pertama kali mengalir' },
-  { id: 8, key: 'q8_kepuasan_keseluruhan', text: 'Tingkat kepuasan menyeluruh terhadap alur dan pelayanan pemasangan sambungan baru Aetra Connect' },
+  { id: 8, key: 'q8_kepuasan_keseluruhan', text: 'Tingkat kepuasan menyeluruh terhadap alur dan pelayanan pemasangan sambungan baru PT Aetra Air Tangerang' },
 ];
 
 // 18 Pertanyaan Survey Kepuasan Pelanggan Rutin (7 Kategori)
@@ -94,7 +94,7 @@ const REGULAR_SURVEY_CATEGORIES: CategoryDef[] = [
     icon: Wrench,
     badgeColor: 'bg-indigo-50 text-indigo-800 border-indigo-200',
     questions: [
-      { id: 8, key: 'q8_teknis_kecepatan', text: 'Kecepatan Aetra Connect dalam merespon jika terjadi gangguan' },
+      { id: 8, key: 'q8_teknis_kecepatan', text: 'Kecepatan Aetra Tangerang dalam merespon jika terjadi gangguan' },
       { id: 9, key: 'q9_teknis_sikap', text: 'Sikap dan perilaku petugas dalam berkoordinasi di lapangan' },
     ],
   },
@@ -324,7 +324,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#005DAA] text-xs font-bold border border-blue-200 mb-1">
             <ClipboardCheck className="w-3.5 h-3.5" />
-            <span>Kuesioner Mutu Layanan Aetra Connect</span>
+            <span>Kuesioner Mutu Layanan PT Aetra Air Tangerang</span>
           </div>
           <h2 className="text-xl font-black text-slate-900 tracking-tight">
             Survey Kepuasan Pelanggan &amp; Pemasangan Baru
@@ -431,7 +431,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
         <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-4.5 flex items-center gap-3 text-xs text-emerald-900 animate-in fade-in shadow-xs">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <div>
-            <strong>Terima kasih atas penilaian Anda!</strong> Seluruh jawaban survey kepuasan Anda telah berhasil tersimpan dan disinkronkan ke database portal admin untuk evaluasi peningkatan mutu layanan Aetra Connect.
+            <strong>Terima kasih atas penilaian Anda!</strong> Seluruh jawaban survey kepuasan Anda telah berhasil tersimpan dan disinkronkan ke database portal admin untuk evaluasi peningkatan mutu layanan PT Aetra Air Tangerang.
           </div>
         </div>
       )}

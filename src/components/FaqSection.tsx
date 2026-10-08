@@ -63,7 +63,7 @@ interface FaqSectionProps {
 const OFFICIAL_OFFICES = [
   {
     id: 'pusat',
-    name: 'Kantor Pusat Aetra Connect',
+    name: 'Kantor Pusat PT Aetra Air Tangerang',
     badge: 'Kantor Pusat & Operasional',
     badgeColor: 'bg-blue-100 text-[#005DAA] border-blue-200',
     address: 'Jl. Raya Curug No. 27, Kadu Jaya, Kec. Curug, Kabupaten Tangerang, Banten 15810',
@@ -98,7 +98,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
     {
       id: 'welcome-1',
       sender: 'bot',
-      text: 'Halo! Saya Asisten Virtual Resmi Aetra Connect. Silakan tanyakan hal seputar syarat pasang baru, batas pipa, kualitas air, pembayaran, atau tata cara pelaporan gangguan air.',
+      text: 'Halo! Saya Asisten Virtual Resmi PT Aetra Air Tangerang. Silakan tanyakan hal seputar syarat pasang baru, batas pipa, kualitas air, pembayaran, atau tata cara pelaporan gangguan air.',
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       suggestedQuestions: [
         'Bagaimana 3 langkah mudah berlangganan air?',
@@ -520,7 +520,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
                   <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded font-semibold">Online</span>
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  Data Buku Panduan Pelanggan Resmi Aetra Connect
+                  Data Buku Panduan Pelanggan Resmi PT Aetra Air Tangerang
                 </p>
               </div>
             </div>
@@ -713,7 +713,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
               Contact Center 24 Jam &amp; Kantor Pelayanan Resmi
             </h2>
             <p className="text-xs text-slate-500">
-              Saluran resmi komunikasi langsung, pengaduan gangguan, dan loket kas Aetra Connect
+              Saluran resmi komunikasi langsung, pengaduan gangguan, dan loket kas Aetra Air Tangerang
             </p>
           </div>
         </div>
@@ -743,7 +743,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
 
           {/* Card 2: WhatsApp Chatbot / Support */}
           <a
-            href="https://wa.me/6287788224645?text=Halo%20Aetra%20Connect,%20saya%20ingin%20bertanya%20mengenai%20layanan%20air%20bersih."
+            href="https://wa.me/6287788224645?text=Halo%20Aetra%20Tangerang,%20saya%20ingin%20bertanya%20mengenai%20layanan%20air%20bersih."
             target="_blank"
             rel="noopener noreferrer"
             className="group bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-400 hover:shadow-md transition flex items-start gap-4 cursor-pointer shadow-2xs"
@@ -766,7 +766,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
 
           {/* Card 3: Email Support */}
           <a
-            href="mailto:care@aetra-connect.co.id"
+            href="mailto:pengaduan@aetratangerang.co.id"
             className="group bg-white p-5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition flex items-start gap-4 cursor-pointer shadow-2xs sm:col-span-2 lg:col-span-1"
           >
             <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#005DAA] border border-blue-200 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 group-hover:bg-[#005DAA] group-hover:text-white transition">
@@ -777,7 +777,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
                 Surel / Email Resmi
               </span>
               <div className="text-xs font-bold text-slate-900 truncate max-w-[210px] group-hover:text-[#005DAA]">
-                care@aetra-connect.co.id
+                pengaduan@aetratangerang.co.id
               </div>
               <span className="text-xs text-slate-500 block leading-tight">
                 Kirim berkas resmi, permohonan tertulis &amp; legalitas
@@ -792,7 +792,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#005DAA]" />
               <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                Lokasi Kantor Pelayanan Resmi Aetra Connect
+                Lokasi Kantor Pelayanan Resmi PT Aetra Air Tangerang
               </h3>
             </div>
             <span className="text-[11px] text-slate-500 font-semibold bg-slate-100 px-2.5 py-0.5 rounded-lg">
@@ -877,7 +877,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
                 </div>
                 <div>
                   <h3 className="font-black text-sm sm:text-base">
-                    Buku Panduan Pelanggan Aetra Connect
+                    Buku Panduan Pelanggan PT Aetra Air Tangerang
                   </h3>
                   <p className="text-xs text-blue-100">
                     Dokumen Resmi Standar Pelayanan Pelanggan (Halaman {activeBookletPage} dari 11)
@@ -912,7 +912,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
                     </p>
                   </div>
                   <div className="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-left text-xs text-blue-900 space-y-2">
-                    <span className="font-bold block">Selamat Bergabung Bersama Aetra Connect!</span>
+                    <span className="font-bold block">Selamat Bergabung Bersama PT Aetra Air Tangerang!</span>
                     <p className="leading-relaxed">
                       Buku ini memuat panduan lengkap tata cara pendaftaran sambungan baru, batas pipa dinas dan persil, golongan tarif air minum, tips deteksi kebocoran mandiri, hingga saluran pengaduan 24 jam.
                     </p>
@@ -999,7 +999,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
                       <span className="text-[10px] font-black text-[#005DAA] uppercase block">Lokasi Kantor Pelayanan:</span>
                       <div className="space-y-2 text-[11px]">
                         <div className="p-2.5 bg-slate-50 rounded-lg border">
-                          <strong className="text-slate-900 block">1. Kantor Pusat Aetra Connect</strong>
+                          <strong className="text-slate-900 block">1. Kantor Pusat PT Aetra Air Tangerang</strong>
                           <span className="text-slate-600">Jl. Raya Curug No. 27, Kadu Jaya, Curug, Kab. Tangerang 15810</span>
                         </div>
                         <div className="p-2.5 bg-slate-50 rounded-lg border">
@@ -1063,7 +1063,7 @@ export const FaqSection: React.FC<FaqSectionProps> = () => {
                       <div className="space-y-2">
                         <h5 className="font-bold text-slate-900">Kualitas Air Minum Standar Permenkes RI</h5>
                         <p className="text-slate-600 leading-relaxed">
-                          Air minum Aetra Connect diproses dengan teknologi modern yang memenuhi baku mutu fisik, kimia, dan bakteriologis sesuai Permenkes No. 492/2010.
+                          Air minum Aetra Tangerang diproses dengan teknologi modern yang memenuhi baku mutu fisik, kimia, dan bakteriologis sesuai Permenkes No. 492/2010.
                         </p>
                       </div>
                     )}

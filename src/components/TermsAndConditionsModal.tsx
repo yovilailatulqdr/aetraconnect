@@ -77,7 +77,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
                   Dokumen Hukum Resmi
                 </span>
                 <span className="text-xs text-blue-200 font-semibold">
-                  Aetra Connect
+                  PT Aetra Air Tangerang
                 </span>
               </div>
               <h2 className="text-lg sm:text-xl font-black text-white tracking-tight mt-0.5">
@@ -402,7 +402,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
                 Pernyataan Persetujuan Berlangganan (Pasal 1 s/d Pasal 11):
               </span>
               <span className="text-[11px] text-slate-600 leading-relaxed block">
-                "Dengan menandatangani/mengirim formulir ini, Pelanggan menyatakan <strong>telah membaca, memahami, dan setuju tunduk</strong> kepada seluruh Syarat dan Ketentuan Berlangganan (Pasal 1 sampai dengan Pasal 11) yang berlaku dan merupakan hubungan kepelangganan yang sah menurut hukum dengan <strong>Aetra Connect</strong>."
+                "Dengan menandatangani/mengirim formulir ini, Pelanggan menyatakan <strong>telah membaca, memahami, dan setuju tunduk</strong> kepada seluruh Syarat dan Ketentuan Berlangganan (Pasal 1 sampai dengan Pasal 11) yang berlaku dan merupakan hubungan kepelangganan yang sah menurut hukum dengan <strong>PT Aetra Air Tangerang</strong>."
               </span>
             </div>
           </label>

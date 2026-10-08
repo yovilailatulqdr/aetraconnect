@@ -607,7 +607,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-                        Informasi Tagihan Resmi Aetra Connect
+                        Informasi Tagihan Resmi PT Aetra Air Tangerang
                       </span>
                       <h3 className="text-base font-black text-slate-900 tracking-tight">
                         Rekening Periode: {currentBill.periodeBulan}
