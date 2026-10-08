@@ -17,8 +17,8 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
     setFormData((prev) => {
       const updatedKondisi = {
         ...(prev.kondisiBangunan || {
-          jumlahLantai: 1,
-          jumlahPenghuni: 1,
+          jumlahLantai: '',
+          jumlahPenghuni: '',
         }),
         [field]: value,
       };
@@ -48,12 +48,12 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
       ...prev,
       lingkungan: {
         ...(prev.lingkungan || {
-          saluranPembuangan: 'Ada',
-          sanitasi: 'Ada',
-          halaman: 'Ada',
-          lebarJalan: '> 4 m',
-          lingkunganTertata: 'Ya',
-          realEstate: 'Bukan',
+          saluranPembuangan: '',
+          sanitasi: '',
+          halaman: '',
+          lebarJalan: '',
+          lingkunganTertata: '',
+          realEstate: '',
         }),
         [field]: value,
       },
@@ -61,17 +61,17 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
   };
 
   const kb = formData.kondisiBangunan || {
-    jumlahLantai: 1,
-    jumlahPenghuni: 1,
+    jumlahLantai: '',
+    jumlahPenghuni: '',
   };
 
   const ling = formData.lingkungan || {
-    saluranPembuangan: 'Ada',
-    sanitasi: 'Ada',
-    halaman: 'Ada',
-    lebarJalan: '> 4 m',
-    lingkunganTertata: 'Ya',
-    realEstate: 'Bukan',
+    saluranPembuangan: '',
+    sanitasi: '',
+    halaman: '',
+    lebarJalan: '',
+    lingkunganTertata: '',
+    realEstate: '',
   };
 
   return (
@@ -172,7 +172,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_saluranPembuangan"
-                  checked={ling.saluranPembuangan === 'Ada' || ling.saluranPembuangan?.includes('Ada')}
+                  checked={ling.saluranPembuangan === 'Ada'}
                   onChange={() => updateLingkungan('saluranPembuangan', 'Ada')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -199,7 +199,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_sanitasi"
-                  checked={ling.sanitasi === 'Ada' || ling.sanitasi?.includes('Baik') || ling.sanitasi?.includes('Ada')}
+                  checked={ling.sanitasi === 'Ada'}
                   onChange={() => updateLingkungan('sanitasi', 'Ada')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -209,7 +209,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_sanitasi"
-                  checked={ling.sanitasi === 'Tidak Ada' || ling.sanitasi?.includes('Kurang')}
+                  checked={ling.sanitasi === 'Tidak Ada'}
                   onChange={() => updateLingkungan('sanitasi', 'Tidak Ada')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -226,7 +226,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_halaman"
-                  checked={ling.halaman === 'Ada' || ling.halaman?.includes('Ada')}
+                  checked={ling.halaman === 'Ada'}
                   onChange={() => updateLingkungan('halaman', 'Ada')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -236,7 +236,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_halaman"
-                  checked={ling.halaman === 'Tidak Ada' || ling.halaman?.includes('Tanpa')}
+                  checked={ling.halaman === 'Tidak Ada'}
                   onChange={() => updateLingkungan('halaman', 'Tidak Ada')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -284,7 +284,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_lingkunganTertata"
-                  checked={ling.lingkunganTertata === 'Ya' || ling.lingkunganTertata?.includes('Tertata')}
+                  checked={ling.lingkunganTertata === 'Ya'}
                   onChange={() => updateLingkungan('lingkunganTertata', 'Ya')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -294,7 +294,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_lingkunganTertata"
-                  checked={ling.lingkunganTertata === 'Bukan' || ling.lingkunganTertata?.includes('Padat')}
+                  checked={ling.lingkunganTertata === 'Bukan'}
                   onChange={() => updateLingkungan('lingkunganTertata', 'Bukan')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -311,7 +311,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_realEstate"
-                  checked={ling.realEstate === 'Ya' || ling.realEstate?.includes('Kawasan')}
+                  checked={ling.realEstate === 'Ya'}
                   onChange={() => updateLingkungan('realEstate', 'Ya')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />
@@ -321,7 +321,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 <input
                   type="radio"
                   name="ling_realEstate"
-                  checked={ling.realEstate === 'Bukan' || ling.realEstate?.includes('Non')}
+                  checked={ling.realEstate === 'Bukan'}
                   onChange={() => updateLingkungan('realEstate', 'Bukan')}
                   className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
                 />

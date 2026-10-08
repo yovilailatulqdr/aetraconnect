@@ -26,7 +26,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#F37021]"></span>
             <span className="font-bold tracking-wide text-sm">
-              Tanda Terima Pendaftaran Sambungan Baru PT Aetra Air Tangerang
+              Tanda Terima Pendaftaran Sambungan Baru Aetra Connect
             </span>
           </div>
           <button
@@ -43,7 +43,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
           <div className="flex flex-wrap items-start justify-between border-b pb-4 border-slate-200 gap-4">
             <div>
               <AetraLogo size="md" variant="horizontal" />
-              <p className="text-[11px] text-slate-700 font-bold mt-1">PT AETRA AIR TANGERANG</p>
+              <p className="text-[11px] text-slate-700 font-bold mt-1">AETRA CONNECT</p>
               <p className="text-[11px] text-slate-500">Jl. Raya Curug No.27, Kadu Jaya, Curug, Tangerang Banten 15810</p>
               <p className="text-[10px] text-slate-400">Call Center: 021-5985477 &bull; WA: 087788224645 &bull; Email: contact.center@aat.co.id</p>
             </div>
@@ -152,7 +152,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
               <span className="font-bold block uppercase text-[11px] text-red-950">
                 Peringatan Resmi Pembayaran:
               </span>
-              Dilarang keras melakukan pembayaran tunai apapun kepada petugas lapangan. Pembayaran hanya sah dilakukan melalui External Payment Point resmi PT Aetra Air Tangerang menggunakan <strong>ID Pelanggan ({data.idPelanggan || '10842918'})</strong> Anda.
+              Dilarang keras melakukan pembayaran tunai apapun kepada petugas lapangan. Pembayaran hanya sah dilakukan melalui External Payment Point resmi Aetra Connect menggunakan <strong>ID Pelanggan ({data.idPelanggan || '10842918'})</strong> Anda.
             </div>
           </div>
 

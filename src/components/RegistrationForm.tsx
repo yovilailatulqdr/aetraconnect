@@ -97,25 +97,29 @@ export const getEmptyFormData = (
     namaKtp: user?.nama || '',
     noKtp: '',
     alamatKtp: '',
+    rtKtp: '',
+    rwKtp: '',
     rtRwKtp: '',
     kecamatanKtp: '',
     desaKtp: '',
     kodePosKtp: '',
     kelurahanKtp: '',
     kotaKtp: '',
-    provinsiKtp: 'Banten',
+    provinsiKtp: '',
     telpHp: user?.telp || '',
     email: user?.email || '',
     alamatPasang: '',
+    rtPasang: '',
+    rwPasang: '',
     rtRwPasang: '',
-    kecamatanPasang: 'CIKUPA',
-    desaPasang: 'Cikupa',
-    kodePosPasang: '15710',
-    kelurahanPasang: 'Cikupa',
-    kotaPasang: 'Kabupaten Tangerang',
-    provinsiPasang: 'Banten',
+    kecamatanPasang: '',
+    desaPasang: '',
+    kodePosPasang: '',
+    kelurahanPasang: '',
+    kotaPasang: '',
+    provinsiPasang: '',
     pekerjaan: '',
-    statusKepemilikan: 'Milik Sendiri',
+    statusKepemilikan: '',
     statusKepemilikanLainnya: '',
     persyaratan: {
       ktp: false,
@@ -130,35 +134,35 @@ export const getEmptyFormData = (
     luasTanah: '',
     luasBangunan: '',
     totalLuasBangunan: 0,
-    fungsiBangunan: 'Rumah Tangga',
+    fungsiBangunan: '',
     kondisiBangunan: {
       luasBangunan: '',
       totalLuasBangunan: '',
-      jumlahLantai: '1',
-      jumlahPenghuni: '4',
+      jumlahLantai: '',
+      jumlahPenghuni: '',
     },
     lingkungan: {
-      saluranPembuangan: 'Ada',
-      sanitasi: 'Ada',
-      halaman: 'Ada',
-      lebarJalan: '> 4 m',
-      lingkunganTertata: 'Ya',
-      realEstate: 'Bukan',
+      saluranPembuangan: '',
+      sanitasi: '',
+      halaman: '',
+      lebarJalan: '',
+      lingkunganTertata: '',
+      realEstate: '',
     },
     dataPasang: {
-      namaSales: 'Bpk. Hendra Gunawan (Surveyor)',
-      tanggalSurvey: new Date().toISOString().split('T')[0],
-      noWorkOrder: 'WO-2026-AET-' + Math.floor(1000 + Math.random() * 9000),
-      gpsLat: '-6.236600',
-      gpsLong: '106.562100',
+      namaSales: '',
+      tanggalSurvey: '',
+      noWorkOrder: '',
+      gpsLat: '',
+      gpsLong: '',
       namaKontraktor: '',
-      dataAlamat: 'Benar',
+      dataAlamat: '',
       dataAlamatKoreksi: '',
-      dataJaringan: 'Ada Jaringan Pipa Distribusi',
-      dataGalian: ['Tanah'],
+      dataJaringan: '',
+      dataGalian: [],
       luasBangunanSurvey: '',
       kualitasBangunan: '',
-      fotoProperti: 'Ada',
+      fotoProperti: '',
       diameterPipa: '',
       panjangPipa: '',
       panjangPipaTipe: '',
@@ -174,7 +178,7 @@ export const getEmptyFormData = (
     skemaPembayaran: 'Pembayaran Penuh',
     keteranganSkema: 'Pembayaran Penuh',
     biayaSambungan: 1371545,
-    golonganTarif: '2A1 - Rumah Tangga Standard (R2)',
+    golonganTarif: '',
     persetujuan: false,
     trackingStep: 1,
     createdAt: new Date().toISOString(),
@@ -227,9 +231,24 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [notification, setNotification] = useState<string | null>(null);
   const [submittedRecord, setSubmittedRecord] = useState<RegistrationFormData | null>(null);
   const [forceShowForm, setForceShowForm] = useState(false);
-  const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [errorFields, setErrorFields] = useState<Record<string, boolean>>({});
+
+  // Manual input toggles for custom regions/villages if not in standard list
+  const [manualKtpKota, setManualKtpKota] = useState(false);
+  const [manualKtpKec, setManualKtpKec] = useState(false);
+  const [manualKtpKel, setManualKtpKel] = useState(false);
+  const [manualPasangDesa, setManualPasangDesa] = useState(false);
+
+  // Background Auto-Save (Sistem menyimpan otomatis secara hening tanpa teks/simbol)
+  useEffect(() => {
+    const draftKey = getDraftKey(currentUser);
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    } catch {
+      // silent
+    }
+  }, [formData, currentUser]);
 
   // Terms & Conditions Modal State
   const [isTermsModalOpen, setIsTermsModalOpen] = useState<boolean>(false);
@@ -249,6 +268,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   });
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [selectedPaymentTab, setSelectedPaymentTab] = useState<string>('bca');
+
+  // Manual input toggles for administrative regions (KTP & Installation)
+  const [manualKotaKtp, setManualKotaKtp] = useState(false);
+  const [manualKecamatanKtp, setManualKecamatanKtp] = useState(false);
+  const [manualDesaKtp, setManualDesaKtp] = useState(false);
+  const [manualDesaPasang, setManualDesaPasang] = useState(false);
 
   const [cameraModalConfig, setCameraModalConfig] = useState<{
     isOpen: boolean;
@@ -605,9 +630,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         errors.push('Alamat Lengkap KTP wajib diisi');
         fields.alamatKtp = true;
       }
-      if (!formData.rtRwKtp?.trim()) {
-        errors.push('RT / RW KTP wajib diisi');
-        fields.rtRwKtp = true;
+      if (!formData.rtKtp?.trim() && !formData.rtRwKtp?.trim()) {
+        errors.push('RT KTP wajib diisi');
+        fields.rtKtp = true;
+      }
+      if (!formData.rwKtp?.trim() && !formData.rtRwKtp?.trim()) {
+        errors.push('RW KTP wajib diisi');
+        fields.rwKtp = true;
       }
       if (!formData.provinsiKtp?.trim()) {
         errors.push('Provinsi KTP wajib dipilih');
@@ -634,9 +663,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         errors.push('Alamat Lengkap Pemasangan wajib diisi');
         fields.alamatPasang = true;
       }
-      if (!formData.rtRwPasang?.trim()) {
-        errors.push('RT / RW Pemasangan wajib diisi');
-        fields.rtRwPasang = true;
+      if (!formData.rtPasang?.trim() && !formData.rtRwPasang?.trim()) {
+        errors.push('RT Pemasangan wajib diisi');
+        fields.rtPasang = true;
+      }
+      if (!formData.rwPasang?.trim() && !formData.rtRwPasang?.trim()) {
+        errors.push('RW Pemasangan wajib diisi');
+        fields.rwPasang = true;
       }
       if (!formData.kecamatanPasang?.trim()) {
         errors.push('Kecamatan Pemasangan wajib dipilih');
@@ -672,10 +705,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         }
       }
     } else if (stepNum === 6) {
-      if (!formData.persetujuan) {
-        errors.push('Anda wajib menyetujui Syarat dan Ketentuan Berlangganan PT Aetra Air Tangerang');
-        fields.persetujuan = true;
-      }
+      // Step 6: Validasi form teknis sudah lengkap sebelum S&K
     }
 
     setValidationErrors(errors);
@@ -690,7 +720,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const hasAlamatKtp = Boolean(formData.alamatKtp?.trim() && (formData.kelurahanKtp?.trim() || formData.desaKtp?.trim()));
     const hasAlamatPasang = Boolean(formData.alamatPasang?.trim() && formData.kecamatanPasang?.trim());
     const hasKtpDoc = Boolean(formData.persyaratanFiles?.ktp);
-    const hasPersetujuan = Boolean(formData.persetujuan);
 
     let hasCategoryValid = true;
     if (kategoriFungsi === 'rumah_tangga') {
@@ -699,7 +728,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       hasCategoryValid = Boolean(formData.fungsiBangunan?.trim());
     }
 
-    return hasName && hasKtp && hasTelp && hasAlamatKtp && hasAlamatPasang && hasKtpDoc && hasCategoryValid && hasPersetujuan;
+    return hasName && hasKtp && hasTelp && hasAlamatKtp && hasAlamatPasang && hasKtpDoc && hasCategoryValid;
   }, [formData, kategoriFungsi]);
 
   const handleNextStep = () => {
@@ -719,7 +748,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     const draftKey = getDraftKey(currentUser);
     try {
       localStorage.setItem(draftKey, JSON.stringify(formData));
-      setLastSavedTime(new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
     } catch {
       // ignore
     }
@@ -751,26 +779,23 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateCurrentSection(6)) return;
-    if (!isAllRequiredFieldsFilled) return;
-
-    const noFormVal = formData.noForm || Math.floor(100000 + Math.random() * 900000).toString();
-    const noSrVal = formData.noSr || calculateNextSrNumber(existingRegistrations);
+  const executeFinalSubmit = (recordToSubmit: RegistrationFormData) => {
+    const noFormVal = recordToSubmit.noForm || Math.floor(100000 + Math.random() * 900000).toString();
+    const noSrVal = recordToSubmit.noSr || calculateNextSrNumber(existingRegistrations);
 
     const finalizedRecord: RegistrationFormData = {
-      ...formData,
+      ...recordToSubmit,
       noForm: noFormVal,
       noSr: noSrVal,
       idPelanggan: '', // Akan diisi admin setelah verifikasi dan pembayaran
+      persetujuan: true,
       statusPendaftaran: 'VERIFYING',
       status_pendaftaran: 'VERIFYING',
       statusPembayaran: 'Belum Ditagihkan',
       isSkAccepted: true,
       is_sk_accepted: true,
       trackingStep: 1,
-      tanggal: formData.tanggal || new Date().toISOString().split('T')[0],
+      tanggal: recordToSubmit.tanggal || new Date().toISOString().split('T')[0],
       createdAt: new Date().toISOString(),
     };
 
@@ -786,6 +811,22 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
     setNotification('Pendaftaran Sambungan Baru Berhasil Disimpan! Status: Menunggu Verifikasi Admin.');
     setTimeout(() => setNotification(null), 5000);
+  };
+
+  const handleFinalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateCurrentSection(1) || !validateCurrentSection(2) || !validateCurrentSection(3) || !validateCurrentSection(4) || !validateCurrentSection(5)) {
+      return;
+    }
+    if (!isAllRequiredFieldsFilled) return;
+
+    // Jika belum disetujui di modal S&K, buka modal S&K dan checkbox pernyataan
+    if (!formData.persetujuan) {
+      setIsTermsModalOpen(true);
+      return;
+    }
+
+    executeFinalSubmit(formData);
   };
 
   const handleReset = () => {
@@ -844,7 +885,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   Profil Pelanggan Anda
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Data identitas sambungan resmi PT Aetra Air Tangerang. Air bersih telah aktif mengalir ke persil Anda.
+                  Data identitas sambungan resmi Aetra Connect. Air bersih telah aktif mengalir ke persil Anda.
                 </p>
               </div>
 
@@ -1113,7 +1154,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   <div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide flex items-center gap-2">
                       <CreditCard className="w-4 h-4 text-[#005DAA]" />
-                      <span>9 Kanal Pembayaran Resmi Aetra Air Tangerang</span>
+                      <span>9 Kanal Pembayaran Resmi Aetra Connect</span>
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       Pilih kanal di bawah untuk melihat instruksi dan panduan cara pembayaran:
@@ -1437,7 +1478,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   Pendaftaran Sambungan Baru
                 </h1>
                 <p className="text-xs sm:text-sm text-blue-100 font-medium">
-                  Surat Permohonan Sambungan Rumah (SR) PT Aetra Air Tangerang
+                  Surat Permohonan Sambungan Rumah (SR) Aetra Connect
                 </p>
               </div>
 
@@ -1653,22 +1694,47 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        RT / RW <span className="text-red-500">*</span>
+                        RT (KTP) <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
-                        value={formData.rtRwKtp}
+                        value={formData.rtKtp || ''}
                         onChange={(e) => {
-                          setFormData({ ...formData, rtRwKtp: e.target.value });
-                          setErrorFields((prev) => ({ ...prev, rtRwKtp: false }));
+                          const val = e.target.value;
+                          const currentRw = formData.rwKtp || '';
+                          const combined = val && currentRw ? `${val}/${currentRw}` : val || currentRw;
+                          setFormData({ ...formData, rtKtp: val, rtRwKtp: combined });
+                          setErrorFields((prev) => ({ ...prev, rtKtp: false, rtRwKtp: false }));
                         }}
-                        placeholder="Contoh: 003/004"
+                        placeholder="Contoh: 003"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.rtRwKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.rtKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        RW (KTP) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.rwKtp || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const currentRt = formData.rtKtp || '';
+                          const combined = currentRt && val ? `${currentRt}/${val}` : currentRt || val;
+                          setFormData({ ...formData, rwKtp: val, rtRwKtp: combined });
+                          setErrorFields((prev) => ({ ...prev, rwKtp: false, rtRwKtp: false }));
+                        }}
+                        placeholder="Contoh: 004"
+                        className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
+                          errorFields.rwKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
                         }`}
                       />
                     </div>
@@ -1691,6 +1757,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             kelurahanKtp: '',
                             kodePosKtp: '',
                           });
+                          setManualKotaKtp(false);
+                          setManualKecamatanKtp(false);
+                          setManualDesaKtp(false);
                           setErrorFields((prev) => ({ ...prev, provinsiKtp: false }));
                         }}
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
@@ -1706,103 +1775,240 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       </select>
                     </div>
 
-                    {/* 2. Dropdown Kota / Kabupaten (Cascading) */}
+                    {/* 2. Dropdown Kota / Kabupaten (Cascading with manual toggle) */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        2. Kabupaten / Kota <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.kotaKtp || ''}
-                        disabled={!formData.provinsiKtp}
-                        onChange={(e) => {
-                          const newCity = e.target.value;
-                          setFormData({
-                            ...formData,
-                            kotaKtp: newCity,
-                            kecamatanKtp: '',
-                            desaKtp: '',
-                            kelurahanKtp: '',
-                            kodePosKtp: '',
-                          });
-                          setErrorFields((prev) => ({ ...prev, kotaKtp: false }));
-                        }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
-                      >
-                        <option value="">-- Pilih Kabupaten / Kota --</option>
-                        {INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)?.cities.map((city) => (
-                          <option key={city.name} value={city.name}>
-                            {city.name}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          2. Kabupaten / Kota <span className="text-red-500">*</span>
+                        </label>
+                        {formData.provinsiKtp && (
+                          <button
+                            type="button"
+                            onClick={() => setManualKotaKtp(!manualKotaKtp)}
+                            className="text-[10px] text-[#005DAA] font-bold hover:underline cursor-pointer"
+                          >
+                            {manualKotaKtp ? '← Pilih dari Daftar' : '✎ Ketik Manual'}
+                          </button>
+                        )}
+                      </div>
+                      {manualKotaKtp ? (
+                        <input
+                          type="text"
+                          required
+                          value={formData.kotaKtp || ''}
+                          onChange={(e) => {
+                            setFormData({
+                              ...formData,
+                              kotaKtp: e.target.value,
+                            });
+                            setErrorFields((prev) => ({ ...prev, kotaKtp: false }));
+                          }}
+                          placeholder="Ketik nama Kabupaten / Kota"
+                          className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                        />
+                      ) : (
+                        <select
+                          value={formData.kotaKtp || ''}
+                          disabled={!formData.provinsiKtp}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '__manual__') {
+                              setManualKotaKtp(true);
+                              setFormData({
+                                ...formData,
+                                kotaKtp: '',
+                                kecamatanKtp: '',
+                                desaKtp: '',
+                                kelurahanKtp: '',
+                                kodePosKtp: '',
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                kotaKtp: val,
+                                kecamatanKtp: '',
+                                desaKtp: '',
+                                kelurahanKtp: '',
+                                kodePosKtp: '',
+                              });
+                              setErrorFields((prev) => ({ ...prev, kotaKtp: false }));
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
+                        >
+                          <option value="">-- Pilih Kabupaten / Kota --</option>
+                          {(
+                            INDONESIA_PROVINCES_DATA.find(
+                              (p) => p.name.toLowerCase().trim() === (formData.provinsiKtp || '').toLowerCase().trim()
+                            )?.cities || []
+                          ).map((city) => (
+                            <option key={city.name} value={city.name}>
+                              {city.name}
+                            </option>
+                          ))}
+                          <option value="__manual__">+ Ketik Manual (Jika tidak tercantum)</option>
+                        </select>
+                      )}
                     </div>
 
-                    {/* 3. Dropdown Kecamatan (Cascading) */}
+                    {/* 3. Dropdown Kecamatan (Cascading with manual toggle) */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        3. Kecamatan <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.kecamatanKtp || ''}
-                        disabled={!formData.kotaKtp}
-                        onChange={(e) => {
-                          const newKec = e.target.value;
-                          const districtObj = INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)
-                            ?.cities.find((c) => c.name === formData.kotaKtp)
-                            ?.districts.find((d) => d.name === newKec);
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          3. Kecamatan <span className="text-red-500">*</span>
+                        </label>
+                        {formData.kotaKtp && (
+                          <button
+                            type="button"
+                            onClick={() => setManualKecamatanKtp(!manualKecamatanKtp)}
+                            className="text-[10px] text-[#005DAA] font-bold hover:underline cursor-pointer"
+                          >
+                            {manualKecamatanKtp ? '← Pilih dari Daftar' : '✎ Ketik Manual'}
+                          </button>
+                        )}
+                      </div>
+                      {manualKecamatanKtp ? (
+                        <input
+                          type="text"
+                          required
+                          value={formData.kecamatanKtp || ''}
+                          onChange={(e) => {
+                            setFormData({
+                              ...formData,
+                              kecamatanKtp: e.target.value,
+                            });
+                            setErrorFields((prev) => ({ ...prev, kecamatanKtp: false }));
+                          }}
+                          placeholder="Ketik nama Kecamatan"
+                          className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                        />
+                      ) : (
+                        <select
+                          value={formData.kecamatanKtp || ''}
+                          disabled={!formData.kotaKtp}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '__manual__') {
+                              setManualKecamatanKtp(true);
+                              setFormData({
+                                ...formData,
+                                kecamatanKtp: '',
+                                desaKtp: '',
+                                kelurahanKtp: '',
+                              });
+                            } else {
+                              const foundCity = INDONESIA_PROVINCES_DATA.find(
+                                (p) => p.name.toLowerCase().trim() === (formData.provinsiKtp || '').toLowerCase().trim()
+                              )?.cities.find(
+                                (c) => c.name.toLowerCase().trim() === (formData.kotaKtp || '').toLowerCase().trim()
+                              );
+                              const districtObj = foundCity?.districts.find(
+                                (d) => d.name.toLowerCase().trim() === val.toLowerCase().trim()
+                              );
 
-                          setFormData({
-                            ...formData,
-                            kecamatanKtp: newKec,
-                            desaKtp: '',
-                            kelurahanKtp: '',
-                            kodePosKtp: districtObj?.postalCode || formData.kodePosKtp || '',
-                          });
-                          setErrorFields((prev) => ({ ...prev, kecamatanKtp: false }));
-                        }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
-                      >
-                        <option value="">-- Pilih Kecamatan --</option>
-                        {INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)
-                          ?.cities.find((c) => c.name === formData.kotaKtp)
-                          ?.districts.map((dist) => (
+                              setFormData({
+                                ...formData,
+                                kecamatanKtp: val,
+                                desaKtp: '',
+                                kelurahanKtp: '',
+                                kodePosKtp: districtObj?.postalCode || formData.kodePosKtp || '',
+                              });
+                              setErrorFields((prev) => ({ ...prev, kecamatanKtp: false }));
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
+                        >
+                          <option value="">-- Pilih Kecamatan --</option>
+                          {(
+                            INDONESIA_PROVINCES_DATA.find(
+                              (p) => p.name.toLowerCase().trim() === (formData.provinsiKtp || '').toLowerCase().trim()
+                            )?.cities.find(
+                              (c) => c.name.toLowerCase().trim() === (formData.kotaKtp || '').toLowerCase().trim()
+                            )?.districts || []
+                          ).map((dist) => (
                             <option key={dist.name} value={dist.name}>
                               {dist.name}
                             </option>
                           ))}
-                      </select>
+                          <option value="__manual__">+ Ketik Manual (Jika tidak tercantum)</option>
+                        </select>
+                      )}
                     </div>
 
-                    {/* 4. Dropdown Kelurahan / Desa (Cascading) */}
+                    {/* 4. Dropdown Kelurahan / Desa (Cascading with manual toggle) */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        4. Kelurahan / Desa <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.kelurahanKtp || formData.desaKtp || ''}
-                        disabled={!formData.kecamatanKtp}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFormData({
-                            ...formData,
-                            kelurahanKtp: val,
-                            desaKtp: val,
-                          });
-                          setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
-                        }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
-                      >
-                        <option value="">-- Pilih Kelurahan / Desa --</option>
-                        {(
-                          INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)
-                            ?.cities.find((c) => c.name === formData.kotaKtp)
-                            ?.districts.find((d) => d.name === formData.kecamatanKtp)?.villages || []
-                        ).map((v: string) => (
-                          <option key={v} value={v}>
-                            {v}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          4. Kelurahan / Desa <span className="text-red-500">*</span>
+                        </label>
+                        {formData.kecamatanKtp && (
+                          <button
+                            type="button"
+                            onClick={() => setManualDesaKtp(!manualDesaKtp)}
+                            className="text-[10px] text-[#005DAA] font-bold hover:underline cursor-pointer"
+                          >
+                            {manualDesaKtp ? '← Pilih dari Daftar' : '✎ Ketik Manual'}
+                          </button>
+                        )}
+                      </div>
+                      {manualDesaKtp ? (
+                        <input
+                          type="text"
+                          required
+                          value={formData.kelurahanKtp || formData.desaKtp || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData({
+                              ...formData,
+                              kelurahanKtp: val,
+                              desaKtp: val,
+                            });
+                            setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
+                          }}
+                          placeholder="Ketik nama Kelurahan / Desa"
+                          className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                        />
+                      ) : (
+                        <select
+                          value={formData.kelurahanKtp || formData.desaKtp || ''}
+                          disabled={!formData.kecamatanKtp}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '__manual__') {
+                              setManualDesaKtp(true);
+                              setFormData({
+                                ...formData,
+                                kelurahanKtp: '',
+                                desaKtp: '',
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                kelurahanKtp: val,
+                                desaKtp: val,
+                              });
+                              setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
+                        >
+                          <option value="">-- Pilih Kelurahan / Desa --</option>
+                          {(
+                            INDONESIA_PROVINCES_DATA.find(
+                              (p) => p.name.toLowerCase().trim() === (formData.provinsiKtp || '').toLowerCase().trim()
+                            )?.cities.find(
+                              (c) => c.name.toLowerCase().trim() === (formData.kotaKtp || '').toLowerCase().trim()
+                            )?.districts.find(
+                              (d) => d.name.toLowerCase().trim() === (formData.kecamatanKtp || '').toLowerCase().trim()
+                            )?.villages || []
+                          ).map((v: string) => (
+                            <option key={v} value={v}>
+                              {v}
+                            </option>
+                          ))}
+                          <option value="__manual__">+ Ketik Manual (Jika tidak tercantum)</option>
+                        </select>
+                      )}
                     </div>
 
                     {/* Kode Pos */}
@@ -1882,22 +2088,47 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        RT / RW <span className="text-red-500">*</span>
+                        RT Pasang <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
-                        value={formData.rtRwPasang}
+                        value={formData.rtPasang || ''}
                         onChange={(e) => {
-                          setFormData({ ...formData, rtRwPasang: e.target.value });
-                          setErrorFields((prev) => ({ ...prev, rtRwPasang: false }));
+                          const val = e.target.value;
+                          const currentRw = formData.rwPasang || '';
+                          const combined = val && currentRw ? `${val}/${currentRw}` : val || currentRw;
+                          setFormData({ ...formData, rtPasang: val, rtRwPasang: combined });
+                          setErrorFields((prev) => ({ ...prev, rtPasang: false, rtRwPasang: false }));
                         }}
-                        placeholder="003/004"
+                        placeholder="003"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.rtRwPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.rtPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        }`}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        RW Pasang <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.rwPasang || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const currentRt = formData.rtPasang || '';
+                          const combined = currentRt && val ? `${currentRt}/${val}` : currentRt || val;
+                          setFormData({ ...formData, rwPasang: val, rtRwPasang: combined });
+                          setErrorFields((prev) => ({ ...prev, rwPasang: false, rtRwPasang: false }));
+                        }}
+                        placeholder="004"
+                        className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
+                          errorFields.rwPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
                         }`}
                       />
                     </div>
@@ -1911,7 +2142,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         value={formData.kecamatanPasang || ''}
                         onChange={(e) => {
                           const newKec = e.target.value;
-                          const found = AETRA_TANGERANG_INSTALLATION_REGIONS.find((k) => k.name === newKec);
+                          const found = AETRA_TANGERANG_INSTALLATION_REGIONS.find(
+                            (k) => k.name.toLowerCase().trim() === newKec.toLowerCase().trim()
+                          );
                           setFormData({
                             ...formData,
                             kecamatanPasang: newKec,
@@ -1919,6 +2152,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             desaPasang: '',
                             kodePosPasang: found?.postalCode || formData.kodePosPasang || '',
                           });
+                          setManualDesaPasang(false);
                           setErrorFields((prev) => ({ ...prev, kecamatanPasang: false }));
                         }}
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
@@ -1934,34 +2168,76 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       </select>
                     </div>
 
-                    {/* Kelurahan / Desa Pasang */}
+                    {/* Kelurahan / Desa Pasang (dengan Kuta Bumi & Opsi Ketik Manual) */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Kelurahan / Desa <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.kelurahanPasang || formData.desaPasang || ''}
-                        disabled={!formData.kecamatanPasang}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFormData({
-                            ...formData,
-                            kelurahanPasang: val,
-                            desaPasang: val,
-                          });
-                          setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
-                        }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
-                      >
-                        <option value="">-- Pilih Kelurahan / Desa --</option>
-                        {(
-                          AETRA_TANGERANG_INSTALLATION_REGIONS.find((k) => k.name === formData.kecamatanPasang)?.villages || []
-                        ).map((kel: string) => (
-                          <option key={`inst-vil-${kel}`} value={kel}>
-                            {kel}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Kelurahan / Desa <span className="text-red-500">*</span>
+                        </label>
+                        {formData.kecamatanPasang && (
+                          <button
+                            type="button"
+                            onClick={() => setManualDesaPasang(!manualDesaPasang)}
+                            className="text-[10px] text-[#005DAA] font-bold hover:underline cursor-pointer"
+                          >
+                            {manualDesaPasang ? '← Pilih dari Daftar' : '✎ Ketik Manual'}
+                          </button>
+                        )}
+                      </div>
+                      {manualDesaPasang ? (
+                        <input
+                          type="text"
+                          required
+                          value={formData.kelurahanPasang || formData.desaPasang || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData({
+                              ...formData,
+                              kelurahanPasang: val,
+                              desaPasang: val,
+                            });
+                            setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
+                          }}
+                          placeholder="Ketik nama Kelurahan / Desa"
+                          className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                        />
+                      ) : (
+                        <select
+                          value={formData.kelurahanPasang || formData.desaPasang || ''}
+                          disabled={!formData.kecamatanPasang}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '__manual__') {
+                              setManualDesaPasang(true);
+                              setFormData({
+                                ...formData,
+                                kelurahanPasang: '',
+                                desaPasang: '',
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                kelurahanPasang: val,
+                                desaPasang: val,
+                              });
+                              setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
+                        >
+                          <option value="">-- Pilih Kelurahan / Desa --</option>
+                          {(
+                            AETRA_TANGERANG_INSTALLATION_REGIONS.find(
+                              (k) => k.name.toLowerCase().trim() === (formData.kecamatanPasang || '').toLowerCase().trim()
+                            )?.villages || []
+                          ).map((kel: string) => (
+                            <option key={`inst-vil-${kel}`} value={kel}>
+                              {kel}
+                            </option>
+                          ))}
+                          <option value="__manual__">+ Ketik Manual (Jika tidak tercantum)</option>
+                        </select>
+                      )}
                     </div>
 
                     {/* Kode Pos Pasang */}
@@ -2624,7 +2900,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           </span>
                         </div>
                         <h3 className="text-sm font-black text-slate-900 mt-0.5">
-                          Syarat &amp; Ketentuan Berlangganan PT Aetra Air Tangerang
+                          Syarat &amp; Ketentuan Berlangganan Aetra Connect
                         </h3>
                       </div>
                     </div>
@@ -2635,38 +2911,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       className="px-4 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer self-start sm:self-center"
                     >
                       <BookOpen className="w-4 h-4 text-amber-300" />
-                      <span>Buka &amp; Baca Dokumen S&amp;K (Pasal 1 - 11)</span>
+                      <span>Buka Dokumen S&amp;K (Pasal 1 - 11)</span>
                     </button>
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Dokumen ini memuat hak &amp; kewajiban Para Pihak, ketentuan tarif air, tagihan bulanan, larangan penyadapan ilegal, dan penyelesaian sengketa sesuai peraturan perundang-undangan.
                   </p>
-
-                  {/* Checkbox Pernyataan Persetujuan Berlangganan */}
-                  <div className="pt-2 border-t border-blue-200/80">
-                    <label className={`flex items-start gap-3 p-4 rounded-2xl cursor-pointer transition ${
-                      formData.persetujuan ? 'bg-white border-2 border-emerald-500 shadow-2xs' : 'bg-white/80 hover:bg-white border border-blue-200'
-                    } ${errorFields.persetujuan ? 'border-2 border-red-500 bg-red-50' : ''}`}>
-                      <input
-                        type="checkbox"
-                        required
-                        checked={Boolean(formData.persetujuan)}
-                        onChange={(e) => {
-                          const val = e.target.checked;
-                          setFormData({ ...formData, persetujuan: val });
-                          if (val) {
-                            setIsTermsRead(true);
-                            setErrorFields((prev) => ({ ...prev, persetujuan: false }));
-                          }
-                        }}
-                        className="mt-0.5 rounded text-[#005DAA] focus:ring-[#005DAA] w-4 h-4 cursor-pointer shrink-0"
-                      />
-                      <span className="text-xs text-slate-800 leading-relaxed font-medium">
-                        "Dengan menandatangani/mengirim formulir ini, Pelanggan menyatakan <strong>telah membaca, memahami, dan setuju tunduk</strong> kepada seluruh Syarat dan Ketentuan Berlangganan (Pasal 1 sampai dengan Pasal 11) yang berlaku dan merupakan hubungan kepelangganan yang sah menurut hukum dengan <strong>PT Aetra Air Tangerang</strong>." <span className="text-red-500 font-bold">*</span>
-                      </span>
-                    </label>
-                  </div>
                 </div>
               </section>
             )}
@@ -2737,9 +2988,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         onClose={() => setIsTermsModalOpen(false)}
         isAccepted={Boolean(formData.persetujuan)}
         onAccept={() => {
-          setFormData((prev) => ({ ...prev, persetujuan: true }));
+          const updated = { ...formData, persetujuan: true };
+          setFormData(updated);
           setIsTermsRead(true);
           setErrorFields((prev) => ({ ...prev, persetujuan: false }));
+          executeFinalSubmit(updated);
         }}
       />
 

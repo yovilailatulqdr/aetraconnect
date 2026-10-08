@@ -137,8 +137,8 @@ export default function App() {
     }
   });
 
-  // Admin sub-tab state ('registrations' | 'bills' | 'surveys' | 'field')
-  const [adminSubTab, setAdminSubTab] = useState<'registrations' | 'bills' | 'surveys' | 'field'>('registrations');
+  // Admin sub-tab state ('registrations' | 'bills' | 'surveys' | 'field' | 'accounts')
+  const [adminSubTab, setAdminSubTab] = useState<'registrations' | 'bills' | 'surveys' | 'field' | 'accounts'>('registrations');
 
   // Customer Status Workflow calculation based on registration record
   const currentCustomerReg = useMemo(() => {
@@ -1060,7 +1060,7 @@ export default function App() {
     const demoForm: RegistrationFormData = {
       id: 'reg-' + Date.now(),
       noForm: '572910',
-      noSr: '168392',
+      noSr: '165050',
       idPelanggan: '10842918',
       tanggal: new Date().toISOString().split('T')[0],
       namaKtp: 'Bpk. Suryadi Pratama',
@@ -1352,7 +1352,7 @@ export default function App() {
                 <AetraLogo size="sm" variant="horizontal" />
                 <div className="border-l border-slate-200 pl-3">
                   <span className="font-bold text-slate-900 text-xs block">
-                    PT AETRA AIR TANGERANG
+                    AETRA CONNECT
                   </span>
                   <p className="text-[11px] text-slate-500">
                     Penyedia Layanan Air Bersih Terpercaya Kabupaten &amp; Kota Tangerang
@@ -1374,8 +1374,8 @@ export default function App() {
 
             <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
               <div>
-                <p className="text-slate-600 font-medium">PT Aetra Air Tangerang</p>
-                <p className="text-slate-500">Jl. Raya Curug No.27, Kadu Jaya, Curug, Tangerang Banten 15810 &bull; Email: contact.center@aat.co.id</p>
+                <p className="text-slate-600 font-medium">Aetra Connect</p>
+                <p className="text-slate-500">Jl. Raya Curug No.27, Kadu Jaya, Curug, Tangerang Banten 15810 &bull; Email: care@aetra-connect.co.id</p>
               </div>
               <p>&copy; 2026 Hak Cipta Dilindungi &bull; Sistem Layanan Pelanggan Terpadu</p>
             </div>

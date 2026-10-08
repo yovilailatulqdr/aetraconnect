@@ -12,6 +12,7 @@ import {
   MessageSquareHeart, 
   ShieldCheck, 
   User, 
+  UserCheck,
   LogOut, 
   ChevronRight, 
   Sparkles,
@@ -22,8 +23,8 @@ import {
 interface SidebarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
-  adminSubTab?: 'registrations' | 'bills' | 'surveys' | 'field';
-  onSelectAdminSubTab?: (subTab: 'registrations' | 'bills' | 'surveys' | 'field') => void;
+  adminSubTab?: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts';
+  onSelectAdminSubTab?: (subTab: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts') => void;
   registeredCount: number;
   isOpenMobile: boolean;
   setIsOpenMobile: (open: boolean) => void;
@@ -52,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   interface NavItem {
     id: TabType;
-    subTab?: 'registrations' | 'bills' | 'surveys' | 'field';
+    subTab?: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts';
     label: string;
     sublabel: string;
     icon: any;
@@ -167,6 +168,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Data Registrasi Baru',
       sublabel: 'Verifikasi Berkas & SPKO',
       icon: Users,
+    },
+    {
+      id: 'admin',
+      subTab: 'accounts',
+      label: 'Daftar Akun Aetra Connect',
+      sublabel: 'Pengguna & Akun Terdaftar',
+      icon: UserCheck,
     },
     {
       id: 'admin',
@@ -349,7 +357,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-3.5 border-t border-slate-100 bg-slate-50/70 text-center">
           <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-slate-700">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>PT Aetra Air Tangerang</span>
+            <span>Aetra Connect</span>
           </div>
           <p className="text-[10px] text-slate-400 mt-0.5">Sistem Layanan Air Bersih Terpadu</p>
         </div>

@@ -167,6 +167,8 @@ export interface RegistrationFormData {
   namaKtp: string;
   noKtp: string;
   alamatKtp: string;
+  rtKtp?: string;
+  rwKtp?: string;
   rtRwKtp: string;
   kodePosKtp: string;
   kecamatanKtp?: string;
@@ -177,6 +179,8 @@ export interface RegistrationFormData {
   telpHp: string;
   email: string;
   alamatPasang: string;
+  rtPasang?: string;
+  rwPasang?: string;
   rtRwPasang: string;
   kodePosPasang: string;
   kecamatanPasang?: string;

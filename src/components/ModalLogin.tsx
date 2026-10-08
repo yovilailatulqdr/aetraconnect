@@ -33,7 +33,7 @@ export const ModalLogin: React.FC<ModalLoginProps> = ({ isOpen, onLogin }) => {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Sistem Informasi Monitoring Billing Air Industri
           </p>
-          <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500">PT Aetra Air Tangerang</p>
+          <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Aetra Connect</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

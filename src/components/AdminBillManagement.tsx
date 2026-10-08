@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { MonthlyBillRecord, RegistrationFormData } from '../types';
 import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
+import { calculateNextSrNumber } from '../utils/srGenerator';
 import {
   CreditCard,
   Plus,
@@ -269,7 +270,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
     } else {
       setFormData({
         idPelanggan: '10' + Math.floor(100000 + Math.random() * 900000),
-        noSr: '16' + Math.floor(1000 + Math.random() * 9000),
+        noSr: calculateNextSrNumber(registrations),
         nama: '',
         alamat: 'Jl. Pemukiman RT 001/002, Tangerang',
         golonganTarif: '2A1 - Rumah Tangga Standard (R2)',
@@ -467,7 +468,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
             idPelanggan,
             noSr: String(row['no_sr'] || row['No. SR'] || row['sr'] || ''),
             nama,
-            alamat: String(row['alamat'] || row['Alamat'] || 'Wilayah Pelayanan Aetra Tangerang'),
+            alamat: String(row['alamat'] || row['Alamat'] || 'Wilayah Pelayanan Aetra Connect'),
             golonganTarif: String(row['golongan_tarif'] || row['Golongan Tarif'] || '2A1 - Rumah Tangga Standard (R2)'),
             nomorMeter: String(row['nomor_meter'] || row['Nomor Meter'] || 'AET-2609-001'),
             periodeBulan: String(row['periode_bulan'] || row['Periode'] || row['Periode Tagihan'] || 'Maret 2026'),

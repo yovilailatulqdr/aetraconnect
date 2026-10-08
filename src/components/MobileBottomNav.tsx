@@ -18,8 +18,8 @@ interface MobileBottomNavProps {
   userRole: UserRole;
   registeredCount: number;
   customerStatus?: RegistrationStatus;
-  adminSubTab?: 'registrations' | 'bills' | 'surveys' | 'field';
-  onSelectAdminSubTab?: (subTab: 'registrations' | 'bills' | 'surveys' | 'field') => void;
+  adminSubTab?: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts';
+  onSelectAdminSubTab?: (subTab: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts') => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
@@ -33,7 +33,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   interface TabItem {
     id: TabType;
-    subTab?: 'registrations' | 'bills' | 'surveys' | 'field';
+    subTab?: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts';
     label: string;
     icon: any;
     isCenter?: boolean;

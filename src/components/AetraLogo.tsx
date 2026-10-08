@@ -11,25 +11,23 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
   variant = 'horizontal',
   className = '',
 }) => {
-  // Dimensions calibrated to preserve the 4:3 authentic Aetra brand lockup
+  // Dimensions for modern Aetra Connect lockup
   const lockupDimensions = {
-    sm: { w: 148, h: 76 },
-    md: { w: 188, h: 96 },
-    lg: { w: 240, h: 124 },
-    xl: { w: 320, h: 164 },
+    sm: { w: 156, h: 48 },
+    md: { w: 196, h: 58 },
+    lg: { w: 248, h: 72 },
+    xl: { w: 310, h: 90 },
   }[size];
 
   const iconDimensions = {
     sm: { w: 36, h: 36 },
-    md: { w: 48, h: 48 },
-    lg: { w: 64, h: 64 },
-    xl: { w: 88, h: 88 },
+    md: { w: 46, h: 46 },
+    lg: { w: 60, h: 60 },
+    xl: { w: 78, h: 78 },
   }[size];
 
-  // Authentic Aetra Emblem (Identical to uploaded image):
-  // 1. Top Royal Blue Water Droplet with white flame/ripple cutout & blue inner droplet
-  // 2. Stylized Blue Upraised Arms (fountain / joy figure)
-  // 3. Pair of Vibrant Orange Cupped Hands cradling the blue water figure
+  // Clean, Simple & Modern Aetra Connect Emblem:
+  // Minimalist stylized dual-stream loop symbolizing water flow & digital connectivity
   const EmblemSvg = (
     <svg
       viewBox="0 0 100 100"
@@ -38,67 +36,37 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
       className="w-full h-full"
     >
       <defs>
-        <linearGradient id="aetraOrange" x1="50" y1="20" x2="50" y2="95" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#F7721A" />
-          <stop offset="55%" stopColor="#F15A24" />
-          <stop offset="100%" stopColor="#DE4B0D" />
+        <linearGradient id="modernBlue" x1="10%" y1="10%" x2="90%" y2="90%">
+          <stop offset="0%" stopColor="#007ACC" />
+          <stop offset="100%" stopColor="#005DAA" />
         </linearGradient>
-        <linearGradient id="aetraBlue" x1="50" y1="4" x2="50" y2="88" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#0066B8" />
-          <stop offset="100%" stopColor="#005399" />
+        <linearGradient id="modernOrange" x1="10%" y1="10%" x2="90%" y2="90%">
+          <stop offset="0%" stopColor="#FF7A38" />
+          <stop offset="100%" stopColor="#F15A24" />
         </linearGradient>
       </defs>
 
-      {/* 1. Top Blue Water Droplet / Flame */}
+      {/* Primary Clean Water Droplet Wave (Blue) */}
       <path
-        d="M50 4C50 4 60 13.2 60 21.2C60 26.8 55.5 30.8 50 30.8C44.5 30.8 40 26.8 40 21.2C40 13.2 50 4 50 4Z"
-        fill="url(#aetraBlue)"
+        d="M50 12C36 34 26 50 26 65C26 78.25 36.75 89 50 89C63.25 89 74 78.25 74 65C74 50 64 34 50 12Z"
+        fill="url(#modernBlue)"
       />
-      {/* White Flame / Negative Cutout inside Top Droplet */}
+
+      {/* Inner Flow Ring / Dynamic Connection Loop */}
       <path
-        d="M50 8.8C50.8 11.6 54.8 16 54.8 20.8C54.8 23.8 52.8 26.2 50 26.2C47.2 26.2 45.2 23.8 45.2 20.8C45.2 17.2 47.8 13.2 49 10.8L50 8.8Z"
+        d="M50 28C41 44 38 54 38 64C38 70.6 43.4 76 50 76C56.6 76 62 70.6 62 64C62 54 59 44 50 28Z"
         fill="#FFFFFF"
       />
-      {/* Inner Blue Center Spark (classic Aetra droplet detail) */}
-      <path
-        d="M50 15.5C50 15.5 52.2 18 52.2 20.5C52.2 21.8 51.2 22.8 50 22.8C48.8 22.8 47.8 21.8 47.8 20.5C47.8 18 50 15.5 50 15.5Z"
-        fill="#005DAA"
-      />
 
-      {/* 2. Blue Upraised Fountain Arms / Human Figure */}
-      <path
-        d="M50 44C47.2 44 43.8 41.2 38.8 36.8C33.8 32.4 27.5 25.5 23.5 20.5C21.5 18 23.8 15.5 26.8 17.5C32.2 21.5 39 29.5 44.5 33.8C47 35.8 48.8 36.8 50 36.8C51.2 36.8 53 35.8 55.5 33.8C61 29.5 67.8 21.5 73.2 17.5C76.2 15.5 78.5 18 76.5 20.5C72.5 25.5 66.2 32.4 61.2 36.8C56.2 41.2 52.8 44 50 44Z"
-        fill="url(#aetraBlue)"
-      />
-      {/* Central Blue Trunk Stem */}
-      <path
-        d="M47.2 43.8L47.8 77C48.4 82.5 49.3 86.5 50 88.5C50.7 86.5 51.6 82.5 52.2 77L52.8 43.8Z"
-        fill="url(#aetraBlue)"
-      />
-
-      {/* 3. Left Orange Cupped Hand (Outer Finger + Inner Thumb + Palm Cutout) */}
-      <path
-        d="M50 93.5C44 87 34 75 25 62C16.8 50 11.2 37.5 11.5 27C11.6 24 14.2 23 16 24.8C19.8 28.8 25.2 38 29.8 45C32.4 49 36.2 50.5 38.6 47.8C41 45 42.5 39.8 44 38C45.2 36.5 46.5 37.8 46 40C44.5 46 40 52.5 35.5 55.5C31 58.5 26.5 55 22 47C17 38.2 12.2 28 13.5 26C12.5 31 16 43 22.5 53.5C29.2 64.5 39.2 78 50 93.5Z"
-        fill="url(#aetraOrange)"
-      />
-      <path
-        d="M50 93.5C47 88 40.5 77 36 66C32 57.5 32.2 51 35 46.5C37.5 42.5 41.5 39 43 40.5C44.5 42 43 46.5 40 50.5C37 54.5 37.2 61.5 41 69.5C44.5 77 48.2 86 50 93.5Z"
-        fill="url(#aetraOrange)"
-      />
-
-      {/* 4. Right Orange Cupped Hand (Exact Symmetrical Mirror) */}
-      <path
-        d="M50 93.5C56 87 66 75 75 62C83.2 50 88.8 37.5 88.5 27C88.4 24 85.8 23 84 24.8C80.2 28.8 74.8 38 70.2 45C67.6 49 63.8 50.5 61.4 47.8C59 45 57.5 39.8 56 38C54.8 36.5 53.5 37.8 54 40C55.5 46 60 52.5 64.5 55.5C69 58.5 73.5 55 78 47C83 38.2 87.8 28 86.5 26C87.5 31 84 43 77.5 53.5C70.8 64.5 60.8 78 50 93.5Z"
-        fill="url(#aetraOrange)"
-      />
-      <path
-        d="M50 93.5C53 88 59.5 77 64 66C68 57.5 67.8 51 65 46.5C62.5 42.5 58.5 39 57 40.5C55.5 42 57 46.5 60 50.5C63 54.5 62.8 61.5 59 69.5C55.5 77 51.8 86 50 93.5Z"
-        fill="url(#aetraOrange)"
-      />
+      {/* Vibrant Orange Connect Link Arc */}
+      <circle cx="50" cy="62" r="9" fill="url(#modernOrange)" />
+      
+      {/* Dynamic Digital Spark Dot */}
+      <circle cx="68" cy="38" r="5" fill="url(#modernOrange)" />
     </svg>
   );
 
-  // Return only the emblem if icon variant requested
+  // Return only the emblem if icon variant is requested
   if (variant === 'icon') {
     return (
       <div
@@ -110,110 +78,54 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
     );
   }
 
-  // Official & Horizontal Lockup: Exactly matching the uploaded photo "lambang aetra.png"
-  // - Wordmark "aetra" on the lower left (custom rounded typography)
-  // - Subtitle "tangerang" directly below "aetra", indented under the 'e'
-  // - Official emblem sitting at the upper right directly above "tra"
+  // Modern Horizontal Lockup: Simple, Sleek & Professional "aetra connect"
   return (
     <div
-      className={`inline-flex items-center justify-start shrink-0 select-none ${className}`}
+      className={`inline-flex items-center gap-3 shrink-0 select-none ${className}`}
       style={{ width: lockupDimensions.w, height: lockupDimensions.h }}
-      title="PT Aetra Air Tangerang"
+      title="Aetra Connect"
     >
-      <svg
-        viewBox="0 0 310 160"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full overflow-visible"
+      <div
+        className="shrink-0 flex items-center justify-center"
+        style={{ width: iconDimensions.w, height: iconDimensions.h }}
       >
-        <defs>
-          <linearGradient id="aetraOrangeLockup" x1="50" y1="20" x2="50" y2="95" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#F7721A" />
-            <stop offset="55%" stopColor="#F15A24" />
-            <stop offset="100%" stopColor="#DE4B0D" />
-          </linearGradient>
-          <linearGradient id="aetraBlueLockup" x1="50" y1="4" x2="50" y2="88" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#0066B8" />
-            <stop offset="100%" stopColor="#005399" />
-          </linearGradient>
-        </defs>
+        {EmblemSvg}
+      </div>
 
-        {/* 1. Official Emblem positioned at Top-Right above 't', 'r', 'a' */}
-        <g transform="translate(172, 2) scale(1.18)">
-          {/* Top Blue Water Droplet */}
-          <path
-            d="M50 4C50 4 60 13.2 60 21.2C60 26.8 55.5 30.8 50 30.8C44.5 30.8 40 26.8 40 21.2C40 13.2 50 4 50 4Z"
-            fill="url(#aetraBlueLockup)"
-          />
-          {/* White Flame Cutout */}
-          <path
-            d="M50 8.8C50.8 11.6 54.8 16 54.8 20.8C54.8 23.8 52.8 26.2 50 26.2C47.2 26.2 45.2 23.8 45.2 20.8C45.2 17.2 47.8 13.2 49 10.8L50 8.8Z"
-            fill="#FFFFFF"
-          />
-          {/* Blue Droplet Spark Detail */}
-          <path
-            d="M50 15.5C50 15.5 52.2 18 52.2 20.5C52.2 21.8 51.2 22.8 50 22.8C48.8 22.8 47.8 21.8 47.8 20.5C47.8 18 50 15.5 50 15.5Z"
-            fill="#005DAA"
-          />
+      <div className="flex flex-col justify-center min-w-0">
+        <div className="flex items-baseline gap-1.5 leading-none">
+          <span
+            className="text-[#005DAA] font-black tracking-tight"
+            style={{
+              fontSize: size === 'sm' ? '22px' : size === 'md' ? '27px' : size === 'lg' ? '33px' : '40px',
+              fontFamily: "'Nunito', 'Plus Jakarta Sans', sans-serif",
+              letterSpacing: '-0.04em',
+            }}
+          >
+            aetra
+          </span>
+          <span
+            className="text-[#F15A24] font-black tracking-tight"
+            style={{
+              fontSize: size === 'sm' ? '18px' : size === 'md' ? '22px' : size === 'lg' ? '27px' : '33px',
+              fontFamily: "'Plus Jakarta Sans', 'Nunito', sans-serif",
+              letterSpacing: '-0.03em',
+            }}
+          >
+            connect
+          </span>
+        </div>
 
-          {/* Blue Upraised Arms */}
-          <path
-            d="M50 44C47.2 44 43.8 41.2 38.8 36.8C33.8 32.4 27.5 25.5 23.5 20.5C21.5 18 23.8 15.5 26.8 17.5C32.2 21.5 39 29.5 44.5 33.8C47 35.8 48.8 36.8 50 36.8C51.2 36.8 53 35.8 55.5 33.8C61 29.5 67.8 21.5 73.2 17.5C76.2 15.5 78.5 18 76.5 20.5C72.5 25.5 66.2 32.4 61.2 36.8C56.2 41.2 52.8 44 50 44Z"
-            fill="url(#aetraBlueLockup)"
-          />
-          {/* Blue Trunk Stem */}
-          <path
-            d="M47.2 43.8L47.8 77C48.4 82.5 49.3 86.5 50 88.5C50.7 86.5 51.6 82.5 52.2 77L52.8 43.8Z"
-            fill="url(#aetraBlueLockup)"
-          />
-
-          {/* Left Orange Hand */}
-          <path
-            d="M50 93.5C44 87 34 75 25 62C16.8 50 11.2 37.5 11.5 27C11.6 24 14.2 23 16 24.8C19.8 28.8 25.2 38 29.8 45C32.4 49 36.2 50.5 38.6 47.8C41 45 42.5 39.8 44 38C45.2 36.5 46.5 37.8 46 40C44.5 46 40 52.5 35.5 55.5C31 58.5 26.5 55 22 47C17 38.2 12.2 28 13.5 26C12.5 31 16 43 22.5 53.5C29.2 64.5 39.2 78 50 93.5Z"
-            fill="url(#aetraOrangeLockup)"
-          />
-          <path
-            d="M50 93.5C47 88 40.5 77 36 66C32 57.5 32.2 51 35 46.5C37.5 42.5 41.5 39 43 40.5C44.5 42 43 46.5 40 50.5C37 54.5 37.2 61.5 41 69.5C44.5 77 48.2 86 50 93.5Z"
-            fill="url(#aetraOrangeLockup)"
-          />
-
-          {/* Right Orange Hand */}
-          <path
-            d="M50 93.5C56 87 66 75 75 62C83.2 50 88.8 37.5 88.5 27C88.4 24 85.8 23 84 24.8C80.2 28.8 74.8 38 70.2 45C67.6 49 63.8 50.5 61.4 47.8C59 45 57.5 39.8 56 38C54.8 36.5 53.5 37.8 54 40C55.5 46 60 52.5 64.5 55.5C69 58.5 73.5 55 78 47C83 38.2 87.8 28 86.5 26C87.5 31 84 43 77.5 53.5C70.8 64.5 60.8 78 50 93.5Z"
-            fill="url(#aetraOrangeLockup)"
-          />
-          <path
-            d="M50 93.5C53 88 59.5 77 64 66C68 57.5 67.8 51 65 46.5C62.5 42.5 58.5 39 57 40.5C55.5 42 57 46.5 60 50.5C63 54.5 62.8 61.5 59 69.5C55.5 77 51.8 86 50 93.5Z"
-            fill="url(#aetraOrangeLockup)"
-          />
-        </g>
-
-        {/* 2. Authentic Typography "aetra" (Bold Rounded Sans-serif) */}
-        <text
-          x="10"
-          y="118"
-          fill="#005DAA"
-          fontSize="92"
-          fontWeight="900"
-          fontFamily="'Nunito', 'Arial Rounded MT Bold', 'VAG Rounded', -apple-system, sans-serif"
-          letterSpacing="-0.038em"
-        >
-          aetra
-        </text>
-
-        {/* 3. Subtitle "tangerang" (Directly below "aetra", indented under the 'e') */}
-        <text
-          x="50"
-          y="152"
-          fill="#005DAA"
-          fontSize="31"
-          fontWeight="700"
-          fontFamily="'Nunito', 'Plus Jakarta Sans', -apple-system, sans-serif"
-          letterSpacing="0.045em"
-        >
-          tangerang
-        </text>
-      </svg>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span
+            className="text-slate-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"
+            style={{ letterSpacing: '0.12em' }}
+          >
+            PORTAL AIR BERSIH
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { RegistrationFormData, CustomerTrackingRecord, SurveySubmission, MonthlyBillRecord } from '../types';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { RegistrationFormData, CustomerTrackingRecord, SurveySubmission, MonthlyBillRecord, UserAccount } from '../types';
 import {
   Users,
   Clock,
@@ -46,6 +46,8 @@ import {
   ThumbsUp,
   Database,
   Gauge,
+  UserCheck,
+  User,
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { exportCustomersToExcel, downloadExcelTemplate, exportSurveysToExcel } from '../utils/excelService';
@@ -54,6 +56,7 @@ import { AdminBillManagement } from './AdminBillManagement';
 import { AdminApprovalModal } from './AdminApprovalModal';
 import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
 import { AETRA_SERVICE_AREAS } from '../data/serviceAreas';
+import { fetchUserAccountsFromDb } from '../services/supabaseService';
 
 interface AdminSectionProps {
   registrations: RegistrationFormData[];
@@ -84,8 +87,8 @@ interface AdminSectionProps {
   onOpenSupabaseModal?: () => void;
   bills?: MonthlyBillRecord[];
   onUpdateBills?: (updatedBills: MonthlyBillRecord[]) => void;
-  activeSubTab?: 'registrations' | 'bills' | 'surveys' | 'field';
-  onChangeSubTab?: (subTab: 'registrations' | 'bills' | 'surveys' | 'field') => void;
+  activeSubTab?: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts';
+  onChangeSubTab?: (subTab: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts') => void;
 }
 
 export const AdminSection: React.FC<AdminSectionProps> = ({
@@ -114,12 +117,12 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   const [isExcelImportModalOpen, setIsExcelImportModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Sub-tab: 'registrations' | 'bills' | 'surveys' | 'field'
-  const [adminSubTab, setAdminSubTabState] = useState<'registrations' | 'bills' | 'surveys' | 'field'>(
+  // Sub-tab: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts'
+  const [adminSubTab, setAdminSubTabState] = useState<'registrations' | 'bills' | 'surveys' | 'field' | 'accounts'>(
     activeSubTab || 'registrations'
   );
 
-  const setAdminSubTab = (tab: 'registrations' | 'bills' | 'surveys' | 'field') => {
+  const setAdminSubTab = (tab: 'registrations' | 'bills' | 'surveys' | 'field' | 'accounts') => {
     setAdminSubTabState(tab);
     onChangeSubTab?.(tab);
   };
@@ -129,6 +132,41 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
       setAdminSubTabState(activeSubTab);
     }
   }, [activeSubTab]);
+
+  // Accounts state
+  const [accountsList, setAccountsList] = useState<UserAccount[]>([]);
+  const [accountsSearch, setAccountsSearch] = useState('');
+  const [accountsLoading, setAccountsLoading] = useState(false);
+
+  const loadAccounts = useCallback(async () => {
+    setAccountsLoading(true);
+    try {
+      const dbAccounts = await fetchUserAccountsFromDb();
+      if (dbAccounts && dbAccounts.length > 0) {
+        setAccountsList(dbAccounts);
+      } else {
+        const local = localStorage.getItem('aetra_user_accounts');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed)) setAccountsList(parsed);
+        }
+      }
+    } catch {
+      const local = localStorage.getItem('aetra_user_accounts');
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed)) setAccountsList(parsed);
+        } catch {}
+      }
+    } finally {
+      setAccountsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAccounts();
+  }, [loadAccounts]);
   const [surveySearchTerm, setSurveySearchTerm] = useState('');
   const [surveyFilterCat, setSurveyFilterCat] = useState<'all' | 'Puas' | 'Perlu Perbaikan Air' | 'Keluhan Tekanan' | 'Apresiasi Petugas'>('all');
   const [surveyTypeFilter, setSurveyTypeFilter] = useState<'all' | 'new_connection' | 'regular_customer'>('all');
@@ -354,18 +392,18 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
     const teknisi = item.trackingRecord?.petugasTeknisi?.nama || 'Bpk. Agus Santoso (Teknisi Aetra)';
 
     if (templateKey === 'paid_confirm') {
-      return `*PT AETRA AIR TANGERANG - KONFIRMASI PEMBAYARAN*\n\nYth. Bpk/Ibu *${nama}*,\n\nPembayaran biaya pasang sambungan baru air minum untuk *No. Form #${noForm}* (ID Pelanggan: *${idPelanggan}* / SR: ${noSr}) sebesar *Rp ${biaya}* telah *LUNAS & TERVERIFIKASI* di sistem PT Aetra Air Tangerang.\n\nSurat Perintah Kerja (SPK) pemasangan pipa dinas dan water meter telah diterbitkan ke tim teknisi lapangan.\n\nPantau live progres sambungan Anda di portal resmi:\nhttps://aetra-tangerang.co.id/tracking\n\nTerima kasih atas kepercayaan Anda.\n*Customer Care PT Aetra Air Tangerang*`;
+      return `*AETRA CONNECT - KONFIRMASI PEMBAYARAN*\n\nYth. Bpk/Ibu *${nama}*,\n\nPembayaran biaya pasang sambungan baru air minum untuk *No. Form #${noForm}* (ID Pelanggan: *${idPelanggan}* / SR: ${noSr}) sebesar *Rp ${biaya}* telah *LUNAS & TERVERIFIKASI* di sistem Aetra Connect.\n\nSurat Perintah Kerja (SPK) pemasangan pipa dinas dan water meter telah diterbitkan ke tim teknisi lapangan.\n\nPantau live progres sambungan Anda di portal resmi Aetra Connect:\nhttps://aetra-connect.co.id/tracking\n\nTerima kasih atas kepercayaan Anda.\n*Customer Care Aetra Connect*`;
     }
 
     if (templateKey === 'install_schedule') {
-      return `*PT AETRA AIR TANGERANG - JADWAL INSTALASI PIPA & METER*\n\nYth. Bpk/Ibu *${nama}*,\n\nPemberitahuan: Permohonan sambungan air No. Form: *#${noForm}* (ID Pelanggan: *${idPelanggan}*) telah dijadwalkan untuk pekerjaan fisik instalasi meter air dan pipa dinas.\n\nPetugas Teknisi: *${teknisi}*\nNomor Segel: *${segel}*\nLokasi Pemasangan: *${alamat}*\n\nMohon pastikan ada perwakilan di rumah saat petugas hadir. Seluruh pemasangan standar resmi *BEBAS BIAYA TAMBAHAN* di lapangan (Bebas Pungli).\n\n*Divisi Operasional & Distribusi Aetra*`;
+      return `*AETRA CONNECT - JADWAL INSTALASI PIPA & METER*\n\nYth. Bpk/Ibu *${nama}*,\n\nPemberitahuan: Permohonan sambungan air No. Form: *#${noForm}* (ID Pelanggan: *${idPelanggan}*) telah dijadwalkan untuk pekerjaan fisik instalasi meter air dan pipa dinas.\n\nPetugas Teknisi: *${teknisi}*\nNomor Segel: *${segel}*\nLokasi Pemasangan: *${alamat}*\n\nMohon pastikan ada perwakilan di rumah saat petugas hadir. Seluruh pemasangan standar resmi *BEBAS BIAYA TAMBAHAN* di lapangan (Bebas Pungli).\n\n*Divisi Operasional & Distribusi Aetra Connect*`;
     }
 
     if (templateKey === 'active_flow') {
-      return `*PT AETRA AIR TANGERANG - SAMBUNGAN RESMI AKTIF*\n\nSelamat Bpk/Ibu *${nama}*!\n\nPemasangan sambungan baru untuk No. Form: *#${noForm}* telah *SELESAI*. Meter air nomor seri *${meter}* telah aktif dan air bersih siap pakai kini telah mengalir ke properti Anda di *${alamat}*.\n\nGunakan ID Pelanggan: *${idPelanggan}* untuk pembayaran rekening air bulanan rutin Anda.\n\nTerima kasih telah menjadi pelanggan setia PT Aetra Air Tangerang!`;
+      return `*AETRA CONNECT - SAMBUNGAN RESMI AKTIF*\n\nSelamat Bpk/Ibu *${nama}*!\n\nPemasangan sambungan baru untuk No. Form: *#${noForm}* telah *SELESAI*. Meter air nomor seri *${meter}* telah aktif dan air bersih siap pakai kini telah mengalir ke properti Anda di *${alamat}*.\n\nGunakan ID Pelanggan: *${idPelanggan}* untuk pembayaran rekening air bulanan rutin Anda.\n\nTerima kasih telah menjadi pelanggan setia Aetra Connect!`;
     }
 
-    return waCustomMessage || `Halo Bpk/Ibu *${nama}*, kami dari PT Aetra Air Tangerang menginformasikan bahwa status permohonan sambungan baru Anda No. Form *#${noForm}* telah kami verifikasi aktif. Terima kasih.`;
+    return waCustomMessage || `Halo Bpk/Ibu *${nama}*, kami dari Aetra Connect menginformasikan bahwa status permohonan sambungan baru Anda No. Form *#${noForm}* telah kami verifikasi aktif. Terima kasih.`;
   };
 
   const handleOpenWaBlastModal = () => {
@@ -503,7 +541,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               <ShieldCheck className="w-3.5 h-3.5" />
               BACKOFFICE &amp; OPERASIONAL
             </span>
-            <span className="text-xs text-blue-200">PT Aetra Air Tangerang</span>
+            <span className="text-xs text-blue-200">Aetra Connect</span>
           </div>
           <h2 className="text-xl font-black tracking-tight text-white">
             Portal Administrasi &amp; Pengendalian Sambungan Baru
@@ -564,6 +602,28 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
             }`}
           >
             {billsState.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAdminSubTab('accounts')}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+            adminSubTab === 'accounts'
+              ? 'bg-[#005DAA] text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+          }`}
+        >
+          <UserCheck className="w-4 h-4 text-cyan-300" />
+          <span>Daftar Akun Aetra Connect</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              adminSubTab === 'accounts'
+                ? 'bg-white/20 text-white'
+                : 'bg-slate-200 text-slate-700'
+            }`}
+          >
+            {accountsList.length}
           </span>
         </button>
 
@@ -1068,6 +1128,193 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         onUpdateBills={handleUpdateBills}
         registrations={registrations}
       />
+    ) : adminSubTab === 'accounts' ? (
+      <div className="space-y-6">
+        {/* KPI Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500">Total Akun Terdaftar</p>
+              <h3 className="text-2xl font-black text-slate-900 mt-1">{accountsList.length}</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">Pengguna Aetra Connect</p>
+            </div>
+            <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#005DAA] flex items-center justify-center">
+              <Users className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500">Akun Pelanggan</p>
+              <h3 className="text-2xl font-black text-emerald-600 mt-1">
+                {accountsList.filter((a) => a.role === 'customer').length}
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">Pemohon Sambungan &amp; Warga</p>
+            </div>
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <UserCheck className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500">Akun Administrator</p>
+              <h3 className="text-2xl font-black text-blue-800 mt-1">
+                {accountsList.filter((a) => a.role === 'admin').length}
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">Staf Internal &amp; Manajemen</p>
+            </div>
+            <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500">ID Pelanggan Terbit</p>
+              <h3 className="text-2xl font-black text-amber-600 mt-1">
+                {accountsList.filter((a) => a.idPelanggan && a.idPelanggan.trim().length > 3).length}
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">Sambungan Aktif</p>
+            </div>
+            <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Droplets className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Actions Bar */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="relative w-full sm:w-96">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <input
+              type="text"
+              placeholder="Cari nama, email, nomor HP, ID Pelanggan..."
+              value={accountsSearch}
+              onChange={(e) => setAccountsSearch(e.target.value)}
+              className="w-full pl-10 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#005DAA]"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
+            <button
+              type="button"
+              onClick={loadAccounts}
+              disabled={accountsLoading}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <span>{accountsLoading ? 'Memuat...' : 'Segarkan Data'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Table of Registered Accounts */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-[#005DAA]" />
+              <span>Daftar Akun yang Mendaftar Aetra Connect</span>
+            </h3>
+            <span className="text-xs text-slate-500 font-medium">
+              Total {accountsList.length} Akun
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200/80">
+                <tr>
+                  <th className="py-3 px-4">No</th>
+                  <th className="py-3 px-4">Pengguna / Nama Lengkap</th>
+                  <th className="py-3 px-4">Email / No. Telepon</th>
+                  <th className="py-3 px-4">ID Pelanggan</th>
+                  <th className="py-3 px-4">Peran (Role)</th>
+                  <th className="py-3 px-4">Tanggal Daftar</th>
+                  <th className="py-3 px-4">Status Akun</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {accountsList
+                  .filter((acc) => {
+                    if (!accountsSearch.trim()) return true;
+                    const q = accountsSearch.toLowerCase().trim();
+                    const n = (acc.nama || '').toLowerCase();
+                    const e = (acc.email || '').toLowerCase();
+                    const t = (acc.telp || '').toLowerCase();
+                    const id = (acc.idPelanggan || '').toLowerCase();
+                    return n.includes(q) || e.includes(q) || t.includes(q) || id.includes(q);
+                  })
+                  .map((acc, idx) => (
+                    <tr key={acc.id || `acc-${idx}`} className="hover:bg-blue-50/30 transition">
+                      <td className="py-3.5 px-4 text-slate-400 font-mono">{idx + 1}</td>
+                      <td className="py-3.5 px-4 font-bold text-slate-900">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 text-[#005DAA] font-black text-xs flex items-center justify-center shrink-0">
+                            {(acc.nama || 'A')[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <span className="block">{acc.nama || 'Pengguna Aetra'}</span>
+                            <span className="text-[10px] text-slate-400 font-mono block">ID: {acc.id ? acc.id.slice(0, 12) : '-'}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="space-y-0.5">
+                          <span className="block font-medium text-slate-800">{acc.email}</span>
+                          {acc.telp && (
+                            <span className="text-[11px] text-slate-500 block">{acc.telp}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        {acc.idPelanggan && acc.idPelanggan.trim().length > 3 ? (
+                          <span className="px-2 py-0.5 bg-blue-50 border border-blue-200 text-[#005DAA] rounded-md font-bold text-[11px]">
+                            #{acc.idPelanggan}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 italic">Belum terbit</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {acc.role === 'admin' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-50 border border-indigo-200 text-indigo-700">
+                            <ShieldCheck className="w-3 h-3" />
+                            Administrator
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 border border-slate-200 text-slate-700">
+                            <User className="w-3 h-3" />
+                            Pelanggan
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-500 text-[11px]">
+                        {acc.createdAt ? new Date(acc.createdAt).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        }) : '-'}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          Aktif
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                {accountsList.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-400 text-xs">
+                      Tidak ada akun terdaftar ditemukan.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     ) : (
       <>
         {/* Survey Type Selector Tabs */}
@@ -2318,7 +2565,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                   <div className="bg-white rounded-xl rounded-tl-none p-3 shadow-sm border border-slate-200/80 text-[11px] leading-relaxed text-slate-800 max-w-[95%] space-y-1.5 self-start">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-1 mb-1">
                       <span className="font-bold text-[#005DAA] flex items-center gap-1 text-[10px]">
-                        <span>PT Aetra Air Tangerang</span>
+                        <span>Aetra Connect</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       </span>
                       <span className="text-[9px] text-slate-400">Pemberitahuan Resmi</span>

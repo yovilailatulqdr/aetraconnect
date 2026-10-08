@@ -123,14 +123,14 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
       attributionControl: false,
     });
 
-    // Modern Crisp Tile Layers (CartoDB Voyager: modern Apple Maps / Google Maps look)
-    const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Official Google Maps Street Tiles (Roads, Street Names, Gang, Tol, Landmarks)
+    const googleStreetsLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
       maxZoom: 20,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: ['0', '1', '2', '3'],
+      attribution: '&copy; Google Maps',
     });
 
-    voyagerLayer.addTo(map);
+    googleStreetsLayer.addTo(map);
 
     // Add Draggable Marker
     const marker = L.marker([lat, lng], {
@@ -168,11 +168,24 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     mapInstanceRef.current = map;
     markerRef.current = marker;
 
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 250);
+    // Repeated invalidateSize checks to ensure streets and tiles render properly in any viewport
+    setTimeout(() => { map.invalidateSize(); }, 150);
+    setTimeout(() => { map.invalidateSize(); }, 400);
+    setTimeout(() => { map.invalidateSize(); }, 800);
+
+    // ResizeObserver to automatically resize map whenever container or tab becomes active
+    let resizeObserver: ResizeObserver | null = null;
+    if (window.ResizeObserver && mapContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      });
+      resizeObserver.observe(mapContainerRef.current);
+    }
 
     return () => {
+      if (resizeObserver) resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -194,7 +207,7 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     }
   }, [initialLat, initialLng]);
 
-  // Handle Layer Toggle
+  // Handle Layer Toggle (Google Streets vs Google Hybrid Satellite with Roads)
   const toggleLayer = (layer: 'streets' | 'satellite') => {
     if (!mapInstanceRef.current) return;
     setMapLayer(layer);
@@ -206,15 +219,22 @@ export const InteractiveMapPicker: React.FC<InteractiveMapPickerProps> = ({
     });
 
     if (layer === 'streets') {
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
         maxZoom: 20,
-        subdomains: 'abcd',
+        subdomains: ['0', '1', '2', '3'],
+        attribution: '&copy; Google Maps',
       }).addTo(mapInstanceRef.current);
     } else {
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
+      // Google Hybrid: Satellite imagery + Roads/Streets overlay with labels
+      L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['0', '1', '2', '3'],
+        attribution: '&copy; Google Maps Satellite',
       }).addTo(mapInstanceRef.current);
     }
+    setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize();
+    }, 100);
   };
 
   // Jump to specific area

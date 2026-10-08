@@ -18,7 +18,7 @@ export const INITIAL_BILLS_DATA: MonthlyBillRecord[] = [
   {
     id: 'bill-10842918-032026',
     idPelanggan: '10842918',
-    noSr: '168392',
+    noSr: '165050',
     nama: 'Yovi Lailatul',
     alamat: 'Jl. Merpati No. 24 RT 003/004, Kel. Cikupa, Kec. Cikupa, Tangerang',
     golonganTarif: '2A1 - Rumah Tangga Standard (R2)',
@@ -50,7 +50,7 @@ export const INITIAL_BILLS_DATA: MonthlyBillRecord[] = [
   {
     id: 'bill-10928371-032026',
     idPelanggan: '10928371',
-    noSr: '172839',
+    noSr: '165051',
     nama: 'Amara Putri',
     alamat: 'Jl. Raya Serang Km 14 No. 88, Balaraja, Tangerang',
     golonganTarif: '2A2 - Rumah Tangga Menengah (R3)',
@@ -85,7 +85,7 @@ export const INITIAL_BILLS_DATA: MonthlyBillRecord[] = [
   {
     id: 'bill-10739182-032026',
     idPelanggan: '10739182',
-    noSr: '183920',
+    noSr: '165052',
     nama: 'Nabila Syahrani',
     alamat: 'Perumahan Lavon Swan City Cluster Allura No. 12, Pasar Kemis, Tangerang',
     golonganTarif: '2A3 - Rumah Tangga Atas (R4)',
@@ -120,7 +120,7 @@ export const DEFAULT_ACCOUNTS: UserAccount[] = [
   {
     id: 'acc-admin',
     idPelanggan: '10999999',
-    nama: 'Administrator Aetra Tangerang',
+    nama: 'Administrator Aetra Connect',
     email: 'admin@aetra.co.id',
     telp: '081199887766',
     password: 'aetra123',
