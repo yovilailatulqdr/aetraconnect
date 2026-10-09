@@ -1,8 +1,24 @@
-import { RegistrationFormData, CustomerTrackingRecord, SurveySubmission, UserAccount, MonthlyBillRecord } from '../types';
-import { INITIAL_REGISTRATIONS, INITIAL_TRACKING_DATABASE, INITIAL_SURVEY_RESPONSES } from '../data/mockData';
-
-// Dedicated Persistent Cloud Object on restful-api.dev for cross-device multi-client sync
-const MASTER_SYNC_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a0e8a02f4e3619';
+import {
+  RegistrationFormData,
+  CustomerTrackingRecord,
+  SurveySubmission,
+  UserAccount,
+  MonthlyBillRecord,
+} from '../types';
+import {
+  fetchRegistrationsFromDb,
+  saveRegistrationToDb,
+  deleteRegistrationFromDb,
+  fetchTrackingRecordsFromDb,
+  saveTrackingRecordToDb,
+  fetchSurveysFromDb,
+  saveSurveyToDb,
+  fetchMonthlyBillsFromDb,
+  saveMonthlyBillToDb,
+  deleteMonthlyBillFromDb,
+  fetchUserAccountsFromDb,
+  saveUserAccountToDb,
+} from './supabaseService';
 
 export interface CloudSyncPayload {
   version: number;
@@ -14,579 +30,119 @@ export interface CloudSyncPayload {
   surveys: SurveySubmission[];
 }
 
-export const INITIAL_BILLS_DATA: MonthlyBillRecord[] = [
-  {
-    id: 'bill-10842918-032026',
-    idPelanggan: '10842918',
-    noSr: '168392',
-    nama: 'Yovi Lailatul',
-    alamat: 'Jl. Merpati No. 24 RT 003/004, Kel. Cikupa, Kec. Cikupa, Tangerang',
-    golonganTarif: '2A1 - Rumah Tangga Standard (R2)',
-    nomorMeter: 'AET-2609-8472',
-    periodeBulan: 'Maret 2026',
-    tanggalJatuhTempo: '20 Maret 2026',
-    standLalu: 142,
-    standKini: 165,
-    pemakaianM3: 23,
-    rincianBlok: {
-      blok1M3: 10,
-      blok1Tarif: 4250,
-      blok1Total: 42500,
-      blok2M3: 10,
-      blok2Tarif: 5800,
-      blok2Total: 58000,
-      blok3M3: 3,
-      blok3Tarif: 8200,
-      blok3Total: 24600,
-    },
-    biayaAir: 125100,
-    biayaPemeliharaanMeter: 12500,
-    biayaAdministrasi: 5000,
-    retribusi: 0,
-    denda: 0,
-    totalTagihan: 142600,
-    status: 'BELUM LUNAS',
-  },
-  {
-    id: 'bill-10928371-032026',
-    idPelanggan: '10928371',
-    noSr: '172839',
-    nama: 'Amara Putri',
-    alamat: 'Jl. Raya Serang Km 14 No. 88, Balaraja, Tangerang',
-    golonganTarif: '2A2 - Rumah Tangga Menengah (R3)',
-    nomorMeter: 'AET-2609-8473',
-    periodeBulan: 'Maret 2026',
-    tanggalJatuhTempo: '20 Maret 2026',
-    standLalu: 210,
-    standKini: 242,
-    pemakaianM3: 32,
-    rincianBlok: {
-      blok1M3: 10,
-      blok1Tarif: 5200,
-      blok1Total: 52000,
-      blok2M3: 10,
-      blok2Tarif: 7100,
-      blok2Total: 71000,
-      blok3M3: 12,
-      blok3Tarif: 9500,
-      blok3Total: 114000,
-    },
-    biayaAir: 237000,
-    biayaPemeliharaanMeter: 15000,
-    biayaAdministrasi: 5000,
-    retribusi: 0,
-    denda: 0,
-    totalTagihan: 218400,
-    status: 'LUNAS',
-    tanggalBayar: '15 Maret 2026',
-    metodeBayar: 'Bank BCA (Virtual Account)',
-    noReferensi: 'BCA-8839201948',
-  },
-  {
-    id: 'bill-10739182-032026',
-    idPelanggan: '10739182',
-    noSr: '183920',
-    nama: 'Nabila Syahrani',
-    alamat: 'Perumahan Lavon Swan City Cluster Allura No. 12, Pasar Kemis, Tangerang',
-    golonganTarif: '2A3 - Rumah Tangga Atas (R4)',
-    nomorMeter: 'AET-2609-8474',
-    periodeBulan: 'Maret 2026',
-    tanggalJatuhTempo: '20 Maret 2026',
-    standLalu: 88,
-    standKini: 102,
-    pemakaianM3: 14,
-    rincianBlok: {
-      blok1M3: 10,
-      blok1Tarif: 5200,
-      blok1Total: 52000,
-      blok2M3: 4,
-      blok2Tarif: 7100,
-      blok2Total: 28400,
-      blok3M3: 0,
-      blok3Tarif: 0,
-      blok3Total: 0,
-    },
-    biayaAir: 80400,
-    biayaPemeliharaanMeter: 12500,
-    biayaAdministrasi: 5000,
-    retribusi: 0,
-    denda: 0,
-    totalTagihan: 96500,
-    status: 'BELUM LUNAS',
-  },
-];
-
-export const DEFAULT_ACCOUNTS: UserAccount[] = [
-  {
-    id: 'acc-admin',
-    idPelanggan: '10999999',
-    nama: 'Administrator Aetra Tangerang',
-    email: 'admin@aetra.co.id',
-    telp: '081199887766',
-    password: 'aetra123',
-    role: 'admin',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'acc-nabila',
-    idPelanggan: '10739182',
-    nama: 'Nabila Kusumaningsih',
-    email: 'nabilakusumaningsih@gmail.com',
-    telp: '081298765432',
-    password: '1234',
-    role: 'customer',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'acc-amara',
-    idPelanggan: '10928371',
-    nama: 'Amara Maharani',
-    email: 'amaramaharani@gmail.com',
-    telp: '081322334455',
-    password: '1234',
-    role: 'customer',
-    createdAt: new Date().toISOString(),
-  },
-];
+export const INITIAL_BILLS_DATA: MonthlyBillRecord[] = [];
 
 class CloudSyncService {
-  private isSyncing = false;
-  private syncListeners: Array<() => void> = [];
-  private lastSyncTime: Date | null = null;
-  private isOnline = navigator.onLine;
+  private listeners: Array<() => void> = [];
+  private cache: CloudSyncPayload = {
+    version: 1,
+    lastSync: new Date().toISOString(),
+    accounts: [],
+    registrations: [],
+    trackingRecords: [],
+    bills: [],
+    surveys: [],
+  };
 
-  constructor() {
-    window.addEventListener('online', () => {
-      this.isOnline = true;
-      this.syncNow();
-    });
-    window.addEventListener('offline', () => {
-      this.isOnline = false;
-    });
-    window.addEventListener('focus', () => {
-      this.syncNow();
-    });
-  }
-
-  public getStatus() {
-    return {
-      isSyncing: this.isSyncing,
-      lastSyncTime: this.lastSyncTime,
-      isOnline: this.isOnline,
-    };
-  }
-
-  public addListener(cb: () => void) {
-    this.syncListeners.push(cb);
+  public addListener(listener: () => void) {
+    this.listeners.push(listener);
     return () => {
-      this.syncListeners = this.syncListeners.filter((l) => l !== cb);
+      this.listeners = this.listeners.filter((l) => l !== listener);
     };
   }
 
   private notify() {
-    this.syncListeners.forEach((cb) => {
+    this.listeners.forEach((l) => {
       try {
-        cb();
+        l();
       } catch (err) {
-        console.warn('Sync listener err:', err);
+        console.warn('Listener error in CloudSyncService:', err);
       }
     });
   }
 
-  // Load local state snapshot
   public getLocalSnapshot(): CloudSyncPayload {
-    let accounts: UserAccount[] = [];
-    let registrations: RegistrationFormData[] = [];
-    let trackingRecords: CustomerTrackingRecord[] = [];
-    let bills: MonthlyBillRecord[] = [];
-    let surveys: SurveySubmission[] = [];
-
-    try {
-      const accStr = localStorage.getItem('aetra_accounts');
-      if (accStr) accounts = JSON.parse(accStr);
-    } catch { accounts = []; }
-
-    try {
-      const regStr = localStorage.getItem('aetra_registrations');
-      if (regStr) registrations = JSON.parse(regStr);
-    } catch { registrations = []; }
-
-    try {
-      const trackStr = localStorage.getItem('aetra_tracking');
-      if (trackStr) trackingRecords = JSON.parse(trackStr);
-    } catch { trackingRecords = []; }
-
-    try {
-      const billStr = localStorage.getItem('aetra_customer_bills');
-      if (billStr) bills = JSON.parse(billStr);
-    } catch { bills = []; }
-
-    try {
-      const survStr = localStorage.getItem('aetra_surveys');
-      if (survStr) surveys = JSON.parse(survStr);
-    } catch { surveys = []; }
-
-    if (!Array.isArray(accounts)) accounts = [];
-
-    // Ensure default accounts (Admin, Nabila, Amara) exist
-    DEFAULT_ACCOUNTS.forEach((defAcc) => {
-      const idx = accounts.findIndex(
-        (a) =>
-          (a.email && a.email.toLowerCase() === defAcc.email.toLowerCase()) ||
-          (a.idPelanggan && a.idPelanggan === defAcc.idPelanggan)
-      );
-      if (idx >= 0) {
-        accounts[idx] = { ...accounts[idx], ...defAcc };
-      } else {
-        accounts.push(defAcc);
-      }
-    });
-
-    if (!Array.isArray(registrations) || registrations.length === 0) {
-      registrations = [...INITIAL_REGISTRATIONS];
-    }
-
-    if (!Array.isArray(trackingRecords) || trackingRecords.length === 0) {
-      trackingRecords = [...INITIAL_TRACKING_DATABASE];
-    }
-
-    if (!Array.isArray(bills) || bills.length === 0) {
-      bills = [...INITIAL_BILLS_DATA];
-    }
-
-    if (!Array.isArray(surveys) || surveys.length === 0) {
-      surveys = [...INITIAL_SURVEY_RESPONSES];
-    }
-
-    return {
-      version: 1,
-      lastSync: new Date().toISOString(),
-      accounts,
-      registrations,
-      trackingRecords,
-      bills,
-      surveys,
-    };
+    return this.cache;
   }
 
-  // Save snapshot to local storage
-  public saveLocalSnapshot(payload: Partial<CloudSyncPayload>) {
-    if (payload.accounts) {
-      localStorage.setItem('aetra_accounts', JSON.stringify(payload.accounts));
-    }
-    if (payload.registrations) {
-      localStorage.setItem('aetra_registrations', JSON.stringify(payload.registrations));
-    }
-    if (payload.trackingRecords) {
-      localStorage.setItem('aetra_tracking', JSON.stringify(payload.trackingRecords));
-    }
-    if (payload.bills) {
-      localStorage.setItem('aetra_customer_bills', JSON.stringify(payload.bills));
-    }
-    if (payload.surveys) {
-      localStorage.setItem('aetra_surveys', JSON.stringify(payload.surveys));
-    }
+  public setCache(partial: Partial<CloudSyncPayload>) {
+    this.cache = { ...this.cache, ...partial, lastSync: new Date().toISOString() };
+    this.notify();
   }
 
-  // Pull latest from Cloud and Server, and merge with local data
+  // Pull latest data directly from Supabase (Source of Truth)
   public async pullFromCloud(): Promise<CloudSyncPayload | null> {
-    let remoteData: CloudSyncPayload | null = null;
-
-    // 1. Try local server endpoint first
     try {
-      const srvResp = await fetch('/api/sync/all', {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-      });
-      if (srvResp.ok) {
-        const srvJson = await srvResp.json();
-        if (srvJson?.data) {
-          remoteData = srvJson.data as CloudSyncPayload;
-        }
-      }
-    } catch {
-      // ignore
-    }
+      const [regs, trackings, bills, surveys, accounts] = await Promise.all([
+        fetchRegistrationsFromDb(),
+        fetchTrackingRecordsFromDb(),
+        fetchMonthlyBillsFromDb(),
+        fetchSurveysFromDb(),
+        fetchUserAccountsFromDb(),
+      ]);
 
-    // 2. Also try master cloud sync URL if remoteData is empty or to get global data
-    try {
-      const resp = await fetch(MASTER_SYNC_URL, {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-      });
-      if (resp.ok) {
-        const json = await resp.json();
-        if (json?.data) {
-          const cloudRemote = json.data as CloudSyncPayload;
-          if (!remoteData) {
-            remoteData = cloudRemote;
-          } else {
-            // Merge both
-            const mergedAccountsMap = new Map<string, UserAccount>();
-            (remoteData.accounts || []).forEach((a) => mergedAccountsMap.set(a.email.toLowerCase(), a));
-            (cloudRemote.accounts || []).forEach((a) => {
-              const k = a.email.toLowerCase();
-              if (!mergedAccountsMap.has(k)) mergedAccountsMap.set(k, a);
-            });
-            remoteData.accounts = Array.from(mergedAccountsMap.values());
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('Master cloud pull warning:', err);
-    }
+      if (regs !== null) this.cache.registrations = regs;
+      if (trackings !== null) this.cache.trackingRecords = trackings;
+      if (bills !== null) this.cache.bills = bills;
+      if (surveys !== null) this.cache.surveys = surveys;
+      if (accounts !== null) this.cache.accounts = accounts;
 
-    if (!remoteData) return null;
-
-    const local = this.getLocalSnapshot();
-
-    // Merge Accounts: keep all unique accounts by email / idPelanggan
-    const mergedAccounts = [...local.accounts];
-    if (Array.isArray(remoteData.accounts)) {
-      remoteData.accounts.forEach((ra) => {
-        const idx = mergedAccounts.findIndex(
-          (la) =>
-            (ra.email && la.email && la.email.toLowerCase() === ra.email.toLowerCase()) ||
-            (ra.idPelanggan && la.idPelanggan && la.idPelanggan === ra.idPelanggan)
-        );
-        if (idx >= 0) {
-          mergedAccounts[idx] = { ...mergedAccounts[idx], ...ra };
-        } else {
-          mergedAccounts.push(ra);
-        }
-      });
-    }
-
-    // Merge Registrations: keep unique by noForm / id
-    const mergedRegistrations = [...local.registrations];
-    if (Array.isArray(remoteData.registrations)) {
-      remoteData.registrations.forEach((rr) => {
-        const idx = mergedRegistrations.findIndex(
-          (lr) => lr.noForm === rr.noForm || (rr.id && lr.id === rr.id)
-        );
-        if (idx >= 0) {
-          mergedRegistrations[idx] = { ...mergedRegistrations[idx], ...rr };
-        } else {
-          mergedRegistrations.unshift(rr);
-        }
-      });
-    }
-
-    // Merge Tracking: unique by noForm
-    const mergedTracking = [...local.trackingRecords];
-    if (Array.isArray(remoteData.trackingRecords)) {
-      remoteData.trackingRecords.forEach((rt) => {
-        const idx = mergedTracking.findIndex((lt) => lt.noForm === rt.noForm);
-        if (idx >= 0) {
-          mergedTracking[idx] = { ...mergedTracking[idx], ...rt };
-        } else {
-          mergedTracking.unshift(rt);
-        }
-      });
-    }
-
-    // Merge Bills: unique by idPelanggan + periodeBulan or id
-    const mergedBills = [...local.bills];
-    if (Array.isArray(remoteData.bills)) {
-      remoteData.bills.forEach((rb) => {
-        const idx = mergedBills.findIndex(
-          (lb) =>
-            (lb.id && rb.id && lb.id === rb.id) ||
-            (lb.idPelanggan === rb.idPelanggan && lb.periodeBulan === rb.periodeBulan)
-        );
-        if (idx >= 0) {
-          mergedBills[idx] = { ...mergedBills[idx], ...rb };
-        } else {
-          mergedBills.unshift(rb);
-        }
-      });
-    }
-
-    // Merge Surveys
-    const mergedSurveys = [...local.surveys];
-    if (Array.isArray(remoteData.surveys)) {
-      remoteData.surveys.forEach((rs) => {
-        const idx = mergedSurveys.findIndex((ls) => ls.id === rs.id);
-        if (idx >= 0) {
-          mergedSurveys[idx] = rs;
-        } else {
-          mergedSurveys.unshift(rs);
-        }
-      });
-    }
-
-    const mergedPayload: CloudSyncPayload = {
-      version: 1,
-      lastSync: new Date().toISOString(),
-      accounts: mergedAccounts,
-      registrations: mergedRegistrations,
-      trackingRecords: mergedTracking,
-      bills: mergedBills,
-      surveys: mergedSurveys,
-    };
-
-    this.saveLocalSnapshot(mergedPayload);
-    this.lastSyncTime = new Date();
-    this.notify();
-    return mergedPayload;
-  }
-
-  // Push local data snapshot to Server and Cloud
-  public async pushToCloud(snapshot?: Partial<CloudSyncPayload>): Promise<boolean> {
-    try {
-      const current = this.getLocalSnapshot();
-      const updated: CloudSyncPayload = {
-        version: 1,
-        lastSync: new Date().toISOString(),
-        accounts: snapshot?.accounts || current.accounts,
-        registrations: snapshot?.registrations || current.registrations,
-        trackingRecords: snapshot?.trackingRecords || current.trackingRecords,
-        bills: snapshot?.bills || current.bills,
-        surveys: snapshot?.surveys || current.surveys,
-      };
-
-      // 1. Post to local server endpoint
-      fetch('/api/sync/all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated),
-      }).catch(() => {});
-
-      // 2. Post to master cloud store
-      const resp = await fetch(MASTER_SYNC_URL, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          name: 'aetra_air_tangerang_production_sync',
-          data: updated,
-        }),
-      });
-
-      if (resp.ok) {
-        this.saveLocalSnapshot(updated);
-        this.lastSyncTime = new Date();
-        this.notify();
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.warn('Cloud push error:', err);
-      return false;
-    }
-  }
-
-  // Fast single-record add helpers
-  public async saveAccount(acc: UserAccount): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const accounts = [...current.accounts];
-    const idx = accounts.findIndex(
-      (a) =>
-        (a.email && acc.email && a.email.toLowerCase() === acc.email.toLowerCase()) ||
-        (a.idPelanggan && acc.idPelanggan && a.idPelanggan === acc.idPelanggan)
-    );
-    if (idx >= 0) {
-      accounts[idx] = { ...accounts[idx], ...acc };
-    } else {
-      accounts.push(acc);
-    }
-    this.saveLocalSnapshot({ accounts });
-    this.pushToCloud({ accounts });
-  }
-
-  public async saveRegistration(reg: RegistrationFormData): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const registrations = [...current.registrations];
-    const idx = registrations.findIndex((r) => r.noForm === reg.noForm || r.id === reg.id);
-    if (idx >= 0) {
-      registrations[idx] = { ...registrations[idx], ...reg };
-    } else {
-      registrations.unshift(reg);
-    }
-    this.saveLocalSnapshot({ registrations });
-    this.pushToCloud({ registrations });
-  }
-
-  public async saveTrackingRecord(track: CustomerTrackingRecord): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const trackingRecords = [...current.trackingRecords];
-    const idx = trackingRecords.findIndex((t) => t.noForm === track.noForm);
-    if (idx >= 0) {
-      trackingRecords[idx] = { ...trackingRecords[idx], ...track };
-    } else {
-      trackingRecords.unshift(track);
-    }
-    this.saveLocalSnapshot({ trackingRecords });
-    this.pushToCloud({ trackingRecords });
-  }
-
-  public async saveTracking(track: CustomerTrackingRecord): Promise<void> {
-    return this.saveTrackingRecord(track);
-  }
-
-  public async deleteRegistration(noForm: string): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const registrations = current.registrations.filter((r) => r.noForm !== noForm);
-    const trackingRecords = current.trackingRecords.filter((t) => t.noForm !== noForm);
-    this.saveLocalSnapshot({ registrations, trackingRecords });
-    this.pushToCloud({ registrations, trackingRecords });
-  }
-
-  public async saveSurvey(survey: SurveySubmission): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const surveys = [survey, ...current.surveys.filter((s) => s.id !== survey.id)];
-    this.saveLocalSnapshot({ surveys });
-    this.pushToCloud({ surveys });
-  }
-
-  public async saveBills(bills: MonthlyBillRecord[]): Promise<void> {
-    this.saveLocalSnapshot({ bills });
-    this.pushToCloud({ bills });
-  }
-
-  public async saveSingleBill(bill: MonthlyBillRecord): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const bills = [...current.bills];
-    const idx = bills.findIndex((b) => b.id === bill.id || (b.idPelanggan === bill.idPelanggan && b.periodeBulan === bill.periodeBulan));
-    if (idx >= 0) {
-      bills[idx] = { ...bills[idx], ...bill };
-    } else {
-      bills.unshift(bill);
-    }
-    this.saveLocalSnapshot({ bills });
-    this.pushToCloud({ bills });
-  }
-
-  public async deleteBill(billId: string): Promise<void> {
-    const current = this.getLocalSnapshot();
-    const bills = current.bills.filter((b) => b.id !== billId);
-    this.saveLocalSnapshot({ bills });
-    this.pushToCloud({ bills });
-  }
-
-  public async syncNow(): Promise<void> {
-    if (this.isSyncing) return;
-    this.isSyncing = true;
-    this.notify();
-    try {
-      await this.pullFromCloud();
-    } finally {
-      this.isSyncing = false;
+      this.cache.lastSync = new Date().toISOString();
       this.notify();
+      return this.cache;
+    } catch (err) {
+      console.error('Error fetching data from Supabase in CloudSyncService:', err);
+      return null;
     }
   }
 
-  // Auto-poll interval for live cross-device updates
-  public startAutoSync(intervalMs = 8000) {
-    this.syncNow();
-    const timer = setInterval(() => {
-      if (document.visibilityState === 'visible' && navigator.onLine) {
-        this.pullFromCloud();
-      }
-    }, intervalMs);
-    return () => clearInterval(timer);
+  public async saveRegistration(reg: RegistrationFormData) {
+    this.cache.registrations = [reg, ...this.cache.registrations.filter((r) => r.noForm !== reg.noForm)];
+    this.notify();
+    await saveRegistrationToDb(reg);
+  }
+
+  public async deleteRegistration(noForm: string) {
+    this.cache.registrations = this.cache.registrations.filter((r) => r.noForm !== noForm);
+    this.cache.trackingRecords = this.cache.trackingRecords.filter((t) => t.noForm !== noForm);
+    this.notify();
+    await deleteRegistrationFromDb(noForm);
+  }
+
+  public async saveTracking(track: CustomerTrackingRecord) {
+    this.cache.trackingRecords = [track, ...this.cache.trackingRecords.filter((t) => t.noForm !== track.noForm)];
+    this.notify();
+    await saveTrackingRecordToDb(track);
+  }
+
+  public async saveBills(bills: MonthlyBillRecord[]) {
+    this.cache.bills = bills;
+    this.notify();
+    for (const b of bills) {
+      await saveMonthlyBillToDb(b);
+    }
+  }
+
+  public async deleteBill(id: string) {
+    this.cache.bills = this.cache.bills.filter((b) => b.id !== id);
+    this.notify();
+    await deleteMonthlyBillFromDb(id);
+  }
+
+  public async saveSurvey(survey: SurveySubmission) {
+    this.cache.surveys = [survey, ...this.cache.surveys.filter((s) => s.id !== survey.id)];
+    this.notify();
+    await saveSurveyToDb(survey);
+  }
+
+  public async saveAccount(account: UserAccount) {
+    this.cache.accounts = [account, ...this.cache.accounts.filter((a) => a.id !== account.id && a.email !== account.email)];
+    this.notify();
+    await saveUserAccountToDb(account);
+  }
+
+  public async syncNow() {
+    return this.pullFromCloud();
   }
 }
 

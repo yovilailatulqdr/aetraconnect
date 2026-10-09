@@ -33,7 +33,7 @@ export const DomesticTariffResultCard: React.FC<DomesticTariffResultCardProps> =
     clauseBorder: string;
   }> = {
     R1: {
-      bg: 'bg-gradient-to-r from-emerald-50/90 via-teal-50/50 to-white',
+      bg: 'bg-linear-to-r from-emerald-50/90 via-teal-50/50 to-white',
       border: 'border-emerald-300',
       badgeBg: 'bg-emerald-100 text-emerald-800 border-emerald-300',
       badgeText: 'text-emerald-900',
@@ -43,7 +43,7 @@ export const DomesticTariffResultCard: React.FC<DomesticTariffResultCardProps> =
       clauseBorder: 'border-emerald-200',
     },
     R2: {
-      bg: 'bg-gradient-to-r from-amber-50/90 via-orange-50/40 to-white',
+      bg: 'bg-linear-to-r from-amber-50/90 via-orange-50/40 to-white',
       border: 'border-amber-300',
       badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
       badgeText: 'text-amber-950',
@@ -53,7 +53,7 @@ export const DomesticTariffResultCard: React.FC<DomesticTariffResultCardProps> =
       clauseBorder: 'border-amber-200',
     },
     R3: {
-      bg: 'bg-gradient-to-r from-blue-50/90 via-indigo-50/40 to-white',
+      bg: 'bg-linear-to-r from-blue-50/90 via-indigo-50/40 to-white',
       border: 'border-blue-300',
       badgeBg: 'bg-blue-100 text-blue-900 border-blue-300',
       badgeText: 'text-blue-950',
@@ -63,14 +63,14 @@ export const DomesticTariffResultCard: React.FC<DomesticTariffResultCardProps> =
       clauseBorder: 'border-blue-200',
     },
     R4: {
-      bg: 'bg-gradient-to-r from-purple-50/90 via-fuchsia-50/40 to-white',
-      border: 'border-purple-300',
-      badgeBg: 'bg-purple-100 text-purple-900 border-purple-300',
-      badgeText: 'text-purple-950',
-      pillBg: 'bg-purple-600 text-white',
-      titleColor: 'text-purple-950',
-      clauseBg: 'bg-purple-50/90',
-      clauseBorder: 'border-purple-200',
+      bg: 'bg-linear-to-r from-slate-100/90 via-slate-50 to-white',
+      border: 'border-slate-300',
+      badgeBg: 'bg-slate-200 text-slate-900 border-slate-300',
+      badgeText: 'text-slate-950',
+      pillBg: 'bg-[#0F2744] text-white',
+      titleColor: 'text-slate-950',
+      clauseBg: 'bg-slate-50/90',
+      clauseBorder: 'border-slate-200',
     },
   };
 

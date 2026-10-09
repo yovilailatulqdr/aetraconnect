@@ -221,7 +221,7 @@ export const MeterReaderProgressSection: React.FC<MeterReaderProgressSectionProp
                   <div
                     className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs text-white shadow-xs ${
                       reader.kategori === 'Key Account'
-                        ? 'bg-gradient-to-tr from-purple-700 to-indigo-500'
+                        ? 'bg-linear-to-tr from-[#143833] to-[#1C4A42]'
                         : 'bg-gradient-to-tr from-[#0055A5] to-blue-500'
                     }`}
                   >
@@ -239,7 +239,7 @@ export const MeterReaderProgressSection: React.FC<MeterReaderProgressSectionProp
                 <span
                   className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                     reader.kategori === 'Key Account'
-                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
+                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
                       : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                   }`}
                 >
@@ -425,7 +425,7 @@ export const MeterReaderProgressSection: React.FC<MeterReaderProgressSectionProp
                       <span
                         className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           row.kategori === 'Key Account'
-                            ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
                             : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                         }`}
                       >
@@ -514,7 +514,7 @@ export const MeterReaderProgressSection: React.FC<MeterReaderProgressSectionProp
                   <span
                     className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                       row.kategori === 'Key Account'
-                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-200'
                         : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                     }`}
                   >

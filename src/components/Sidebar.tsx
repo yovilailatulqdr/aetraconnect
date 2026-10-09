@@ -208,16 +208,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main Sidebar */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-50 w-72 bg-white border-r border-slate-200/90 flex flex-col justify-between transition-transform duration-250 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 bottom-0 z-50 w-72 sm:w-80 flex flex-col justify-between transition-transform duration-250 ease-in-out lg:translate-x-0 ${
+          isAdminAccount
+            ? 'bg-[#143833] text-white border-r border-[#1D4A43]'
+            : 'bg-[#FAF7F2] text-slate-800 border-r border-[#E7E0D5]'
+        } ${
           isOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
         {/* Brand Header */}
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <AetraLogo size="sm" variant="horizontal" />
+        <div className={`p-4 sm:p-5 border-b flex items-center justify-between ${
+          isAdminAccount ? 'border-[#1D4A43]' : 'border-[#E7E0D5]'
+        }`}>
+          <AetraLogo
+            size="sm"
+            variant="horizontal"
+            textColorMode={isAdminAccount ? 'white' : 'default'}
+          />
           <button
             onClick={() => setIsOpenMobile(false)}
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+            className={`lg:hidden p-1.5 rounded-xl transition cursor-pointer ${
+              isAdminAccount
+                ? 'text-[#A6C4BE] hover:text-white hover:bg-white/10'
+                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+            }`}
           >
             <X className="w-4 h-4" />
           </button>
@@ -225,36 +239,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Portal Status Header Badge */}
         {isAdminAccount ? (
-          <div className="px-3 pt-3">
-            <div className="py-2.5 px-3.5 bg-linear-to-r from-slate-900 via-[#004B8A] to-[#003868] text-white rounded-2xl flex items-center justify-between shadow-xs border border-blue-900/30">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-amber-400/20 flex items-center justify-center text-amber-300">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="px-4 pt-3.5">
+            <div className="py-2.5 px-3.5 bg-[#1B453E] border border-[#23534B] text-white rounded-2xl flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-white/15 flex items-center justify-center text-[#E56D3B] shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-black tracking-wide">PORTAL ADMIN</span>
+                <div>
+                  <span className="text-xs font-black tracking-wide block leading-tight text-white">PORTAL ADMIN</span>
+                  <span className="text-[10px] text-[#A6C4BE] block">Sistem Kendali Backoffice</span>
+                </div>
               </div>
-              <span className="text-[10px] bg-white/20 text-white font-mono px-2 py-0.5 rounded-md font-bold">
-                BACKOFFICE
+              <span className="text-[9px] bg-[#DC602E] text-white font-mono px-2 py-0.5 rounded-lg font-black shadow-xs">
+                ADMIN
               </span>
             </div>
           </div>
         ) : (
-          <div className="px-3 pt-3">
-            <div className="py-2 px-3 bg-linear-to-r from-blue-50/80 to-sky-50/60 border border-blue-200/70 rounded-2xl flex items-center gap-2 text-xs font-bold text-[#005DAA]">
-              <div className="w-6 h-6 rounded-lg bg-[#005DAA]/10 flex items-center justify-center text-[#005DAA]">
-                <User className="w-3.5 h-3.5" />
+          <div className="px-4 pt-3.5">
+            <div className="py-2.5 px-3.5 bg-[#EDE7DC] border border-[#DDD3C4] text-[#143833] rounded-2xl flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-[#143833] text-white flex items-center justify-center shrink-0">
+                  <User className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <span className="text-xs font-black block leading-tight text-[#143833]">Portal Pelanggan</span>
+                  <span className="text-[10px] text-slate-500 font-medium block">Layanan Resmi Aetra Air</span>
+                </div>
               </div>
-              <span>Portal Pelanggan Resmi</span>
+              <span className="text-[9px] bg-[#143833] text-white font-black px-2 py-0.5 rounded-md shadow-xs">
+                ONLINE
+              </span>
             </div>
           </div>
         )}
 
         {/* Primary Navigation */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
-          <div className="px-2 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-            <span>{isAdminAccount ? 'Menu Backoffice Admin' : 'Menu Layanan'}</span>
-            <span className="text-[10px] font-bold text-slate-500 uppercase">
-              {isAdminAccount ? 'Admin' : 'Pelanggan'}
+        <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-1.5">
+          <div className={`px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider flex items-center justify-between ${
+            isAdminAccount ? 'text-[#87A8A2]' : 'text-slate-400'
+          }`}>
+            <span>{isAdminAccount ? 'Menu Operasional Backoffice' : 'Layanan Pemasangan'}</span>
+            <span className={`text-[9px] font-black ${isAdminAccount ? 'text-[#DC602E]' : 'text-[#143833]'}`}>
+              {isAdminAccount ? 'ADMINISTRATOR' : 'PELANGGAN'}
             </span>
           </div>
 
@@ -276,17 +303,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }
                     setIsOpenMobile(false);
                   }}
-                  className={`w-full text-left px-3 py-2.5 rounded-2xl flex items-center gap-3 transition-all duration-150 group cursor-pointer ${
+                  className={`w-full text-left px-3.5 py-2.5 rounded-2xl flex items-center gap-3 transition-all duration-200 group cursor-pointer ${
                     isActive
-                      ? 'bg-[#005DAA] text-white shadow-md shadow-blue-900/20 font-medium'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-[#DC602E] text-white shadow-md shadow-[#DC602E]/25 font-bold'
+                      : (isAdminAccount
+                          ? 'text-[#C2D6D2] hover:bg-white/10 hover:text-white'
+                          : 'text-slate-700 hover:bg-[#EFE9DF] hover:text-slate-900')
                   }`}
                 >
                   <div
                     className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       isActive
                         ? 'bg-white/20 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-[#005DAA]'
+                        : (isAdminAccount
+                            ? 'bg-[#1C4740] text-[#A6C4BE] group-hover:bg-white/15 group-hover:text-white'
+                            : 'bg-[#EBE4D8] text-slate-700 group-hover:bg-[#DC602E]/10 group-hover:text-[#DC602E]')
                     }`}
                   >
                     <Icon className="w-4.5 h-4.5" />
@@ -294,7 +325,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1.5">
-                      <span className={`text-xs font-bold truncate ${isActive ? 'text-white' : 'text-slate-800'}`}>
+                      <span className={`text-xs font-bold truncate ${
+                        isActive
+                          ? 'text-white'
+                          : (isAdminAccount ? 'text-[#FAF6EE]' : 'text-slate-800')
+                      }`}>
                         {item.label}
                       </span>
                       {item.isLiveDot && (
@@ -306,7 +341,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                     <p
                       className={`text-[11px] truncate leading-tight mt-0.5 ${
-                        isActive ? 'text-blue-100' : 'text-slate-400'
+                        isActive 
+                          ? 'text-orange-100'
+                          : (isAdminAccount ? 'text-[#87A8A2]' : 'text-slate-400')
                       }`}
                     >
                       {item.sublabel}
@@ -315,7 +352,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                   <ChevronRight
                     className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                      isActive ? 'text-white translate-x-0.5' : 'text-slate-300 group-hover:text-slate-500'
+                      isActive
+                        ? 'text-white translate-x-0.5'
+                        : (isAdminAccount ? 'text-[#6C8F89] group-hover:text-white' : 'text-slate-300 group-hover:text-slate-500')
                     }`}
                   />
                 </button>
@@ -326,27 +365,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* User Account Info & Logout */}
         {currentUser && (
-          <div className="p-3 mx-3 mb-2 rounded-2xl bg-slate-50 border border-slate-200/80 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 pr-2">
-                <div className="text-xs font-bold text-slate-900 truncate">
-                  {currentUser.nama}
+          <div className={`p-3 mx-3.5 mb-2 rounded-2xl border shadow-2xs ${
+            isAdminAccount
+              ? 'bg-[#1B453E] border-[#23534B] text-white'
+              : 'bg-[#FAF5EC] border-[#E7E0D5] text-slate-800'
+          }`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={`w-8 h-8 rounded-xl text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${
+                  isAdminAccount ? 'bg-[#DC602E]' : 'bg-[#143833]'
+                }`}>
+                  {currentUser.nama?.slice(0, 2).toUpperCase() || 'PL'}
                 </div>
-                <div className="text-[10px] text-slate-500 truncate">
-                  {currentUser.email}
-                </div>
-                <div className="text-[10px] font-mono font-bold text-[#005DAA] mt-0.5">
-                  ID: #{currentUser.idPelanggan}
+                <div className="min-w-0">
+                  <div className={`text-xs font-black truncate ${isAdminAccount ? 'text-white' : 'text-slate-900'}`}>
+                    {currentUser.nama}
+                  </div>
+                  <div className="text-[10px] truncate">
+                    {currentUser.role === 'admin' ? (
+                      <span className="text-[#E56D3B] font-bold">Admin Terverifikasi</span>
+                    ) : currentUser.idPelanggan ? (
+                      <span className="font-mono text-emerald-700 font-bold">#{currentUser.idPelanggan}</span>
+                    ) : (
+                      <span className={isAdminAccount ? 'text-[#A6C4BE]' : 'text-slate-500'}>Calon Pelanggan</span>
+                    )}
+                  </div>
                 </div>
               </div>
+
               {onLogout && (
                 <button
                   type="button"
                   onClick={onLogout}
                   title="Keluar Akun"
-                  className="p-2 rounded-xl bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-200 transition shrink-0 cursor-pointer shadow-2xs"
+                  className={`p-2 rounded-xl transition shrink-0 cursor-pointer shadow-2xs ${
+                    isAdminAccount
+                      ? 'bg-[#143833] text-[#A6C4BE] hover:text-red-400 hover:bg-white/10 border border-[#23534B]'
+                      : 'bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200'
+                  }`}
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -354,12 +412,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Bottom Status / Copyright */}
-        <div className="p-3.5 border-t border-slate-100 bg-slate-50/70 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-slate-700">
+        <div className={`p-3.5 border-t text-center ${
+          isAdminAccount
+            ? 'border-[#1D4A43] bg-[#102F2B] text-[#A6C4BE]'
+            : 'border-[#E7E0D5] bg-[#F4EFE6] text-slate-600'
+        }`}>
+          <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>PT Aetra Air Tangerang</span>
+            <span className={isAdminAccount ? 'text-[#FAF6EE]' : 'text-slate-700'}>PT Aetra Air Tangerang</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">Sistem Layanan Air Bersih Terpadu</p>
+          <p className="text-[10px] opacity-70 mt-0.5">Layanan Distribusi Air Bersih Bersertifikasi</p>
         </div>
       </aside>
     </>

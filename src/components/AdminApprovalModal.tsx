@@ -483,7 +483,7 @@ export const AdminApprovalModal: React.FC<AdminApprovalModalProps> = ({
                   className={`px-6 py-2.5 rounded-xl font-black text-xs transition flex items-center gap-2 shadow-lg cursor-pointer ${
                     isPaymentVerificationStage
                       ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'
-                      : 'bg-[#005DAA] hover:bg-[#004A88] text-white shadow-blue-600/30'
+                      : 'bg-[#143833] hover:bg-[#1C4A42] text-white shadow-blue-600/30'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4" />

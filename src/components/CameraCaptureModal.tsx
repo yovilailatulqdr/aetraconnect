@@ -203,7 +203,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         {/* Top Header */}
         <div className="bg-slate-800/90 px-4 py-3 flex items-center justify-between border-b border-slate-700">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#005DAA] flex items-center justify-center text-white">
+            <div className="w-7 h-7 rounded-lg bg-[#0f766e] flex items-center justify-center text-white">
               <Camera className="w-4 h-4" />
             </div>
             <div>
@@ -347,7 +347,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
               <button
                 type="button"
                 onClick={handleConfirmPhoto}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-md shadow-blue-500/30 transition"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0f766e] hover:bg-[#115e59] text-white text-xs font-bold shadow-md shadow-blue-500/30 transition"
               >
                 <Check className="w-4 h-4 stroke-[3]" />
                 Gunakan Foto Ini

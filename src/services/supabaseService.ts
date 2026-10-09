@@ -1,16 +1,25 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
-import { RegistrationFormData, CustomerTrackingRecord, SurveySubmission, UserAccount, MonthlyBillRecord } from '../types';
+import {
+  RegistrationFormData,
+  CustomerTrackingRecord,
+  SurveySubmission,
+  UserAccount,
+  MonthlyBillRecord,
+  IndustryCustomer,
+  MeterReader,
+  CycleSchedule,
+  AuditLog,
+} from '../types';
 import { sanitizeRegistrationForPersistence } from '../utils/imageCompressor';
-import { cloudSyncService } from './cloudSyncService';
 
-// Helper to always obtain active client
+// Helper to always obtain active client or throw if unconfigured
 const getDb = () => getSupabaseClient();
 
 // Convert frontend RegistrationFormData to Supabase registrations table row (snake_case)
 const mapRegistrationToDb = (rawReg: RegistrationFormData) => {
   const reg = sanitizeRegistrationForPersistence(rawReg);
 
-  // Strip all base64 dataUrls for Supabase storage - keep only light metadata
+  // Strip huge base64 dataUrls for Supabase storage - keep light metadata
   const cleanPersyaratanFiles: Record<string, any> = {};
   if (reg.persyaratanFiles && typeof reg.persyaratanFiles === 'object') {
     Object.entries(reg.persyaratanFiles).forEach(([k, v]: [string, any]) => {
@@ -40,13 +49,14 @@ const mapRegistrationToDb = (rawReg: RegistrationFormData) => {
 
   return {
     id: reg.id || `reg-${Date.now()}`,
+    user_id: reg.userId || null,
     no_form: reg.noForm,
     no_sr: reg.noSr,
-    id_pelanggan: reg.idPelanggan,
+    id_pelanggan: reg.idPelanggan || null,
     tanggal: reg.tanggal || new Date().toISOString().split('T')[0],
     nama_ktp: reg.namaKtp,
     no_ktp: reg.noKtp,
-    email: reg.email || null,
+    email: reg.email ? reg.email.toLowerCase().trim() : null,
     telp_hp: reg.telpHp || null,
     alamat_ktp: reg.alamatKtp,
     rt_rw_ktp: reg.rtRwKtp,
@@ -87,6 +97,7 @@ const mapRegistrationToDb = (rawReg: RegistrationFormData) => {
 // Convert database row to frontend RegistrationFormData
 const mapDbToRegistration = (row: any): RegistrationFormData => ({
   id: row.id,
+  userId: row.user_id || undefined,
   noForm: row.no_form,
   noSr: row.no_sr || '',
   idPelanggan: row.id_pelanggan || '',
@@ -123,7 +134,29 @@ const mapDbToRegistration = (row: any): RegistrationFormData => ({
   lingkungan: row.lingkungan || { saluranPembuangan: '', sanitasi: '', halaman: '', lebarJalan: '', lingkunganTertata: '', realEstate: '' },
   persyaratan: row.persyaratan || { ktp: false, kk: false, pbb: false, suratDomisili: false, suratKuasaSewa: false, lainnya: false, keteranganLainnya: '' },
   persyaratanFiles: row.persyaratan_files || {},
-  dataPasang: row.data_pasang || { namaSales: '', tanggalSurvey: '', noWorkOrder: '', gpsLat: '', gpsLong: '', namaKontraktor: '', dataAlamat: '', dataAlamatKoreksi: '', dataJaringan: '', dataGalian: [], luasBangunanSurvey: '', kualitasBangunan: '', fotoProperti: '', diameterPipa: '', panjangPipa: '', panjangPipaTipe: '', materialTambahan: '', materialStatus: '', tanggalPasangMeter: '', noSegel: '', noSeriMeter: '' },
+  dataPasang: row.data_pasang || {
+    namaSales: '',
+    tanggalSurvey: '',
+    noWorkOrder: '',
+    gpsLat: '',
+    gpsLong: '',
+    namaKontraktor: '',
+    dataAlamat: '',
+    dataAlamatKoreksi: '',
+    dataJaringan: '',
+    dataGalian: [],
+    luasBangunanSurvey: '',
+    kualitasBangunan: '',
+    fotoProperti: '',
+    diameterPipa: '',
+    panjangPipa: '',
+    panjangPipaTipe: '',
+    materialTambahan: '',
+    materialStatus: '',
+    tanggalPasangMeter: '',
+    noSegel: '',
+    noSeriMeter: '',
+  },
   fotoPropertiFiles: row.foto_properti_files || [],
   persetujuan: Boolean(row.persetujuan),
   trackingStep: row.tracking_step || 1,
@@ -133,9 +166,10 @@ const mapDbToRegistration = (row: any): RegistrationFormData => ({
 // Convert frontend CustomerTrackingRecord to database row
 const mapTrackingToDb = (rec: CustomerTrackingRecord) => ({
   no_form: rec.noForm,
+  user_id: (rec as any).userId || null,
   no_sr: rec.noSr || null,
   id_pelanggan: rec.idPelanggan || null,
-  email: rec.email || null,
+  email: rec.email ? rec.email.toLowerCase().trim() : null,
   nama: rec.nama,
   telp: rec.telp || null,
   alamat: rec.alamat,
@@ -159,6 +193,7 @@ const mapTrackingToDb = (rec: CustomerTrackingRecord) => ({
 // Convert database row to frontend CustomerTrackingRecord
 const mapDbToTracking = (row: any): CustomerTrackingRecord => ({
   noForm: row.no_form,
+  userId: row.user_id || undefined,
   noSr: row.no_sr || '',
   idPelanggan: row.id_pelanggan || '',
   email: row.email || '',
@@ -182,7 +217,7 @@ const mapDbToTracking = (row: any): CustomerTrackingRecord => ({
 });
 
 // ==========================================
-// REGISTRATION OPERATIONS
+// 1. REGISTRATION OPERATIONS (Supabase Only)
 // ==========================================
 export const fetchRegistrationsFromDb = async (): Promise<RegistrationFormData[] | null> => {
   if (!isSupabaseConfigured()) return null;
@@ -193,61 +228,57 @@ export const fetchRegistrationsFromDb = async (): Promise<RegistrationFormData[]
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('Error fetching registrations from Supabase:', error.message);
+      console.error('Supabase error fetching registrations:', error.message);
       return null;
     }
     return (data || []).map(mapDbToRegistration);
-  } catch (err) {
-    console.warn('Network error fetching registrations from Supabase:', err);
+  } catch (err: any) {
+    console.error('Network error fetching registrations from Supabase:', err?.message || err);
     return null;
   }
 };
 
-export const saveRegistrationToDb = async (record: RegistrationFormData): Promise<boolean> => {
-  if (!isSupabaseConfigured()) return false;
+export const saveRegistrationToDb = async (record: RegistrationFormData): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi. Data pendaftaran tidak dapat disimpan.' };
+  }
   try {
     const dbData = mapRegistrationToDb(record);
-    
-    // Safety timeout promise of 6 seconds
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase save operation timed out (6s)')), 6000)
-    );
-
-    const upsertPromise = getDb()
+    const { error } = await getDb()
       .from('registrations')
       .upsert(dbData, { onConflict: 'no_form' });
 
-    const result = await Promise.race([upsertPromise, timeoutPromise]) as any;
-
-    if (result?.error) {
-      console.warn('Notice saving registration to Supabase:', result.error.message);
-      return false;
+    if (error) {
+      console.error('Supabase save registration error:', error.message);
+      return { success: false, error: error.message };
     }
-    return true;
-  } catch (err) {
-    console.warn('Notice saving registration to Supabase:', err);
-    return false;
+    return { success: true };
+  } catch (err: any) {
+    console.error('Network error saving registration:', err);
+    return { success: false, error: err?.message || 'Gagal menyimpan pendaftaran ke Supabase.' };
   }
 };
 
-export const deleteRegistrationFromDb = async (noForm: string): Promise<boolean> => {
-  if (!isSupabaseConfigured()) return false;
+export const deleteRegistrationFromDb = async (noForm: string): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
   try {
     await getDb().from('tracking_records').delete().eq('no_form', noForm);
     const { error } = await getDb().from('registrations').delete().eq('no_form', noForm);
     if (error) {
-      console.warn('Notice deleting registration in Supabase:', error.message);
-      return false;
+      console.error('Error deleting registration from Supabase:', error.message);
+      return { success: false, error: error.message };
     }
-    return true;
-  } catch (err) {
-    console.warn('Notice deleting registration in Supabase:', err);
-    return false;
+    return { success: true };
+  } catch (err: any) {
+    console.error('Network error deleting registration from Supabase:', err);
+    return { success: false, error: err?.message || 'Gagal menghapus pendaftaran di Supabase.' };
   }
 };
 
 // ==========================================
-// TRACKING RECORD OPERATIONS
+// 2. TRACKING RECORD OPERATIONS (Supabase Only)
 // ==========================================
 export const fetchTrackingRecordsFromDb = async (): Promise<CustomerTrackingRecord[] | null> => {
   if (!isSupabaseConfigured()) return null;
@@ -258,45 +289,39 @@ export const fetchTrackingRecordsFromDb = async (): Promise<CustomerTrackingReco
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.warn('Notice fetching tracking records from Supabase:', error.message);
+      console.error('Supabase error fetching tracking records:', error.message);
       return null;
     }
     return (data || []).map(mapDbToTracking);
-  } catch (err) {
-    console.warn('Notice fetching tracking records from Supabase:', err);
+  } catch (err: any) {
+    console.error('Network error fetching tracking records from Supabase:', err?.message || err);
     return null;
   }
 };
 
-export const saveTrackingRecordToDb = async (record: CustomerTrackingRecord): Promise<boolean> => {
-  if (!isSupabaseConfigured()) return false;
+export const saveTrackingRecordToDb = async (record: CustomerTrackingRecord): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
   try {
     const dbData = mapTrackingToDb(record);
-    
-    // Safety timeout promise of 6 seconds
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase save tracking timed out (6s)')), 6000)
-    );
-
-    const upsertPromise = getDb()
+    const { error } = await getDb()
       .from('tracking_records')
       .upsert(dbData, { onConflict: 'no_form' });
 
-    const result = await Promise.race([upsertPromise, timeoutPromise]) as any;
-
-    if (result?.error) {
-      console.warn('Notice saving tracking record to Supabase:', result.error.message);
-      return false;
+    if (error) {
+      console.error('Supabase save tracking record error:', error.message);
+      return { success: false, error: error.message };
     }
-    return true;
-  } catch (err) {
-    console.warn('Notice saving tracking record to Supabase:', err);
-    return false;
+    return { success: true };
+  } catch (err: any) {
+    console.error('Network error saving tracking record to Supabase:', err);
+    return { success: false, error: err?.message || 'Gagal menyimpan tracking ke Supabase.' };
   }
 };
 
 // ==========================================
-// SURVEY OPERATIONS
+// 3. SURVEY OPERATIONS (Supabase Only)
 // ==========================================
 export const fetchSurveysFromDb = async (): Promise<SurveySubmission[] | null> => {
   if (!isSupabaseConfigured()) return null;
@@ -307,7 +332,7 @@ export const fetchSurveysFromDb = async (): Promise<SurveySubmission[] | null> =
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('Error fetching surveys from Supabase:', error.message);
+      console.error('Error fetching surveys from Supabase:', error.message);
       return null;
     }
 
@@ -347,14 +372,16 @@ export const fetchSurveysFromDb = async (): Promise<SurveySubmission[] | null> =
       kategoriMasukan: row.kategori_masukan || 'Puas',
       createdAt: row.created_at,
     }));
-  } catch (err) {
-    console.warn('Network error fetching surveys from Supabase:', err);
+  } catch (err: any) {
+    console.error('Network error fetching surveys from Supabase:', err);
     return null;
   }
 };
 
-export const saveSurveyToDb = async (survey: SurveySubmission): Promise<boolean> => {
-  if (!isSupabaseConfigured()) return false;
+export const saveSurveyToDb = async (survey: SurveySubmission): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
   try {
     const row = {
       id: survey.id,
@@ -396,406 +423,28 @@ export const saveSurveyToDb = async (survey: SurveySubmission): Promise<boolean>
     const { error } = await getDb().from('surveys').upsert(row, { onConflict: 'id' });
     if (error) {
       console.error('Error saving survey to Supabase:', error.message);
-      return false;
+      return { success: false, error: error.message };
     }
-    return true;
-  } catch (err) {
+    return { success: true };
+  } catch (err: any) {
     console.error('Network error saving survey to Supabase:', err);
-    return false;
+    return { success: false, error: err?.message || 'Gagal menyimpan survey ke Supabase.' };
   }
 };
 
 // ==========================================
-// USER ACCOUNTS & AUTHENTICATION OPERATIONS
-// ==========================================
-export const fetchUserAccountById = async (userId: string): Promise<UserAccount | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data, error } = await getDb()
-      .from('user_accounts')
-      .select('*')
-      .or(`id.eq.${userId},user_id.eq.${userId}`)
-      .maybeSingle();
-
-    if (error || !data) return null;
-    return {
-      id: data.id,
-      userId: data.user_id || data.id,
-      email: data.email,
-      nama: data.nama,
-      idPelanggan: data.id_pelanggan || '',
-      telp: data.telp || undefined,
-      password: data.password || undefined,
-      role: data.role as 'admin' | 'customer',
-      createdAt: data.created_at,
-    };
-  } catch {
-    return null;
-  }
-};
-
-export const fetchUserAccountsFromDb = async (): Promise<UserAccount[] | null> => {
-  // 1. Try Supabase if configured
-  if (isSupabaseConfigured()) {
-    try {
-      const { data, error } = await getDb().from('user_accounts').select('*');
-      if (!error && data && data.length > 0) {
-        return (data || []).map((row: any) => ({
-          id: row.id,
-          userId: row.user_id || row.id,
-          email: row.email,
-          nama: row.nama,
-          idPelanggan: row.id_pelanggan || '',
-          telp: row.telp || undefined,
-          password: row.password || undefined,
-          role: row.role as 'admin' | 'customer',
-          createdAt: row.created_at,
-        }));
-      }
-    } catch (err) {
-      console.warn('Error fetching user accounts from Supabase:', err);
-    }
-  }
-
-  // 2. Also check server accounts endpoint /api/accounts
-  try {
-    const srvResp = await fetch('/api/accounts');
-    if (srvResp.ok) {
-      const srvJson = await srvResp.json();
-      if (srvJson?.accounts && Array.isArray(srvJson.accounts)) {
-        return srvJson.accounts;
-      }
-    }
-  } catch {
-    // ignore
-  }
-
-  return null;
-};
-
-export const fetchUserAccountByEmail = async (email: string): Promise<UserAccount | null> => {
-  const cleanEmail = email.trim().toLowerCase();
-  if (isSupabaseConfigured()) {
-    try {
-      const { data, error } = await getDb()
-        .from('user_accounts')
-        .select('*')
-        .ilike('email', cleanEmail)
-        .maybeSingle();
-
-      if (!error && data) {
-        return {
-          id: data.id,
-          userId: data.user_id || data.id,
-          email: data.email,
-          nama: data.nama,
-          idPelanggan: data.id_pelanggan || '',
-          telp: data.telp || undefined,
-          password: data.password || undefined,
-          role: data.role as 'admin' | 'customer',
-          createdAt: data.created_at,
-        };
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  const all = await fetchUserAccountsFromDb();
-  if (all) {
-    const match = all.find((a) => a.email.toLowerCase() === cleanEmail);
-    if (match) return match;
-  }
-  return null;
-};
-
-export const saveUserAccountToDb = async (acc: UserAccount): Promise<boolean> => {
-  let isSaved = false;
-  if (isSupabaseConfigured()) {
-    try {
-      const row = {
-        id: acc.id,
-        user_id: acc.userId || acc.id,
-        email: acc.email.toLowerCase().trim(),
-        nama: acc.nama,
-        id_pelanggan: acc.idPelanggan || null,
-        telp: acc.telp || null,
-        role: acc.role,
-        created_at: acc.createdAt || new Date().toISOString(),
-      };
-      const { error } = await getDb().from('user_accounts').upsert(row, { onConflict: 'id' });
-      if (!error) isSaved = true;
-    } catch (err) {
-      console.warn('Notice saving user account to Supabase:', err);
-    }
-  }
-
-  try {
-    const srvResp = await fetch('/api/accounts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(acc),
-    });
-    if (srvResp.ok) isSaved = true;
-  } catch {
-    // ignore
-  }
-
-  return isSaved;
-};
-
-// Real Supabase Authentication: signUp() with reliable fallback
-export const signUpWithSupabaseAuth = async (
-  email: string,
-  pass: string,
-  nama: string,
-  idPelanggan: string,
-  role: 'admin' | 'customer' = 'customer',
-  telp?: string
-): Promise<{ success: boolean; user?: UserAccount; error?: string }> => {
-  const cleanEmail = email.trim().toLowerCase();
-  let authUserId = `acc-${Date.now()}`;
-
-  // Check if account already exists in local / server store first
-  const localAccounts = cloudSyncService.getLocalSnapshot().accounts || [];
-  const existingLocal = localAccounts.find(
-    (a) => a.email && a.email.toLowerCase() === cleanEmail
-  );
-  if (existingLocal) {
-    return {
-      success: false,
-      error: `Alamat email "${cleanEmail}" sudah terdaftar. Silakan pilih tab "Masuk Akun" untuk login.`,
-    };
-  }
-
-  // 1. If Supabase is actively configured, attempt Supabase Auth
-  if (isSupabaseConfigured()) {
-    try {
-      const client = getDb();
-      const { data: authData, error: authErr } = await client.auth.signUp({
-        email: cleanEmail,
-        password: pass,
-        options: {
-          data: {
-            nama,
-            id_pelanggan: idPelanggan,
-            role,
-            telp: telp || '',
-          },
-        },
-      });
-
-      if (authErr) {
-        const msg = authErr.message.toLowerCase();
-        if (msg.includes('already registered') || msg.includes('user already exists')) {
-          return {
-            success: false,
-            error: `Alamat email "${cleanEmail}" sudah terdaftar. Silakan pilih tab "Masuk Akun" untuk login.`,
-          };
-        }
-        console.warn('Supabase auth.signUp notice:', authErr.message);
-      } else if (authData?.user?.id) {
-        authUserId = authData.user.id;
-      }
-    } catch (err: any) {
-      console.warn('Supabase auth network notice, proceeding with local/server account store:', err?.message || err);
-    }
-  }
-
-  const userProfile: UserAccount = {
-    id: authUserId,
-    userId: authUserId,
-    email: cleanEmail,
-    nama,
-    idPelanggan,
-    telp,
-    password: pass,
-    role,
-    createdAt: new Date().toISOString(),
-  };
-
-  // 2. Persist profile to Supabase Database table if configured
-  if (isSupabaseConfigured()) {
-    try {
-      await saveUserAccountToDb(userProfile);
-    } catch (e) {
-      console.warn('Supabase save notice:', e);
-    }
-  }
-
-  // 3. Persist to local & server storage for instant multi-browser availability
-  try {
-    await cloudSyncService.saveAccount(userProfile);
-  } catch (e) {
-    console.warn('Cloud sync account save notice:', e);
-  }
-
-  return { success: true, user: userProfile };
-};
-
-// Real Supabase Authentication: signInWithPassword() with reliable fallback
-export const signInWithSupabaseAuth = async (
-  identifier: string,
-  pass: string
-): Promise<{ success: boolean; user?: UserAccount; error?: string }> => {
-  const rawId = identifier.trim().toLowerCase();
-
-  // Resolve email format if user entered phone number or 'admin'
-  let targetEmail = rawId;
-  const cleanPhone = rawId.replace(/[^0-9]/g, '');
-  if (!targetEmail.includes('@')) {
-    if (cleanPhone.length >= 8) {
-      targetEmail = `${cleanPhone}@telepon.aetra`;
-    } else if (rawId === 'admin' || rawId === 'admin@aetra.co.id') {
-      targetEmail = 'admin@aetra.co.id';
-    }
-  }
-
-  // 1. Direct Supabase Auth signInWithPassword if configured
-  if (isSupabaseConfigured()) {
-    try {
-      const client = getDb();
-      const { data: authData, error: authErr } = await client.auth.signInWithPassword({
-        email: targetEmail,
-        password: pass,
-      });
-
-      if (!authErr && authData?.user) {
-        const authUser = authData.user;
-        const meta = authUser.user_metadata || {};
-
-        let profile = await fetchUserAccountById(authUser.id);
-        if (!profile) {
-          profile = await fetchUserAccountByEmail(authUser.email || targetEmail);
-        }
-
-        const finalUser: UserAccount = profile || {
-          id: authUser.id,
-          userId: authUser.id,
-          email: authUser.email || targetEmail,
-          nama: meta.nama || 'Pelanggan Aetra',
-          idPelanggan: meta.id_pelanggan || '10842918',
-          telp: meta.telp,
-          password: pass,
-          role: (meta.role as any) || (targetEmail.includes('admin') ? 'admin' : 'customer'),
-          createdAt: authUser.created_at || new Date().toISOString(),
-        };
-
-        await cloudSyncService.saveAccount(finalUser);
-        return { success: true, user: finalUser };
-      }
-    } catch (err: any) {
-      console.warn('Supabase auth login check notice:', err?.message || err);
-    }
-  }
-
-  // 2. Check local & server accounts
-  try {
-    await cloudSyncService.pullFromCloud().catch(() => {});
-  } catch {
-    // ignore
-  }
-
-  const snap = cloudSyncService.getLocalSnapshot();
-  const remoteAccounts = (await fetchUserAccountsFromDb()) || [];
-
-  const allAccounts: UserAccount[] = [...(snap.accounts || [])];
-  remoteAccounts.forEach((ra) => {
-    if (!allAccounts.some((a) => a.email.toLowerCase() === ra.email.toLowerCase() || (a.idPelanggan && a.idPelanggan === ra.idPelanggan))) {
-      allAccounts.push(ra);
-    }
-  });
-
-  const matched = allAccounts.find((acc) => {
-    if (acc.role === 'admin' && (rawId === 'admin' || rawId === 'admin@aetra.co.id')) return true;
-    if (acc.email && acc.email.toLowerCase() === targetEmail) return true;
-    if (acc.email && acc.email.toLowerCase() === rawId) return true;
-    if (acc.idPelanggan && acc.idPelanggan === rawId) return true;
-    if (acc.telp && cleanPhone.length >= 8 && acc.telp.replace(/[^0-9]/g, '').includes(cleanPhone)) return true;
-    if (cleanPhone.length >= 8 && acc.email && acc.email.startsWith(cleanPhone)) return true;
-    return false;
-  });
-
-  if (matched) {
-    if (matched.password === pass || !matched.password || (matched.role === 'admin' && (pass === 'aetra123' || pass === 'admin'))) {
-      await cloudSyncService.saveAccount(matched);
-      return { success: true, user: matched };
-    } else {
-      return {
-        success: false,
-        error: 'Kata sandi yang Anda masukkan tidak sesuai. Silakan periksa kembali.',
-      };
-    }
-  }
-
-  // Default admin fallback
-  if (rawId === 'admin' || rawId === 'admin@aetra.co.id') {
-    if (pass === 'aetra123' || pass === 'admin') {
-      const adminAcc: UserAccount = {
-        id: 'acc-admin',
-        email: 'admin@aetra.co.id',
-        nama: 'Administrator Aetra Tangerang',
-        idPelanggan: '10999999',
-        password: pass,
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-      };
-      await cloudSyncService.saveAccount(adminAcc);
-      return { success: true, user: adminAcc };
-    }
-  }
-
-  return {
-    success: false,
-    error: 'Akun belum terdaftar di sistem. Silakan pilih tab "Daftar Akun Baru" di atas untuk mendaftarkan akun Anda.',
-  };
-};
-
-export const signOutUserWithSupabase = async (): Promise<void> => {
-  if (isSupabaseConfigured()) {
-    try {
-      await getDb().auth.signOut();
-    } catch (e) {
-      console.warn('Supabase signOut error:', e);
-    }
-  }
-};
-
-export const getSupabaseSessionUser = async (): Promise<UserAccount | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data } = await getDb().auth.getSession();
-    const sessionUser = data?.session?.user;
-    if (!sessionUser || !sessionUser.id) return null;
-
-    const dbUser = await fetchUserAccountById(sessionUser.id);
-    if (dbUser) return dbUser;
-
-    const meta = sessionUser.user_metadata || {};
-    return {
-      id: sessionUser.id,
-      userId: sessionUser.id,
-      email: sessionUser.email || '',
-      nama: meta.nama || 'Pelanggan Aetra',
-      idPelanggan: meta.id_pelanggan || '10842918',
-      telp: meta.telp,
-      role: (meta.role as any) || (sessionUser.email?.includes('admin') ? 'admin' : 'customer'),
-      createdAt: sessionUser.created_at || new Date().toISOString(),
-    };
-  } catch {
-    return null;
-  }
-};
-
-// ==========================================
-// MONTHLY BILLS DATABASE OPERATIONS
+// 4. MONTHLY BILLS OPERATIONS (Supabase Only)
 // ==========================================
 export const fetchMonthlyBillsFromDb = async (): Promise<MonthlyBillRecord[] | null> => {
   if (!isSupabaseConfigured()) return null;
   try {
-    const { data, error } = await getDb().from('monthly_bills').select('*').order('created_at', { ascending: false });
+    const { data, error } = await getDb()
+      .from('monthly_bills')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     if (error) {
-      console.warn('Error fetching monthly bills from Supabase:', error.message);
+      console.error('Error fetching monthly bills from Supabase:', error.message);
       return null;
     }
     return (data || []).map((row: any): MonthlyBillRecord => ({
@@ -820,20 +469,22 @@ export const fetchMonthlyBillsFromDb = async (): Promise<MonthlyBillRecord[] | n
       biayaPembukaanSegel: Number(row.biaya_pembukaan_segel || 0),
       biayaLainnya: Number(row.biaya_lainnya || 0),
       totalTagihan: Number(row.total_tagihan || 0),
-      status: row.status as any || 'BELUM LUNAS',
+      status: (row.status as any) || 'BELUM LUNAS',
       tanggalBayar: row.tanggal_bayar || undefined,
       metodeBayar: row.metode_bayar || undefined,
       noReferensi: row.no_referensi || undefined,
       buktiBayarUrl: row.bukti_bayar_url || undefined,
     }));
-  } catch (err) {
-    console.warn('Network error fetching monthly bills from Supabase:', err);
+  } catch (err: any) {
+    console.error('Network error fetching monthly bills from Supabase:', err);
     return null;
   }
 };
 
-export const saveMonthlyBillToDb = async (bill: MonthlyBillRecord): Promise<boolean> => {
-  if (!isSupabaseConfigured()) return false;
+export const saveMonthlyBillToDb = async (bill: MonthlyBillRecord): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
   try {
     const row = {
       id: bill.id,
@@ -868,18 +519,448 @@ export const saveMonthlyBillToDb = async (bill: MonthlyBillRecord): Promise<bool
     const { error } = await getDb().from('monthly_bills').upsert(row, { onConflict: 'id' });
     if (error) {
       console.error('Error saving monthly bill to Supabase:', error.message);
-      return false;
+      return { success: false, error: error.message };
     }
-    return true;
-  } catch (err) {
+    return { success: true };
+  } catch (err: any) {
     console.error('Network error saving monthly bill to Supabase:', err);
-    return false;
+    return { success: false, error: err?.message || 'Gagal menyimpan tagihan ke Supabase.' };
+  }
+};
+
+export const deleteMonthlyBillFromDb = async (id: string): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
+  try {
+    const { error } = await getDb().from('monthly_bills').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting monthly bill in Supabase:', error.message);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('Network error deleting monthly bill in Supabase:', err);
+    return { success: false, error: err?.message || 'Gagal menghapus tagihan di Supabase.' };
+  }
+};
+
+// ==========================================
+// 5. USER ACCOUNTS & PROFILES (Supabase Only)
+// ==========================================
+export const fetchUserAccountById = async (userId: string): Promise<UserAccount | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb()
+      .from('user_accounts')
+      .select('*')
+      .or(`id.eq.${userId},user_id.eq.${userId}`)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return {
+      id: data.id,
+      userId: data.user_id || data.id,
+      email: data.email,
+      nama: data.nama,
+      idPelanggan: data.id_pelanggan || '',
+      telp: data.telp || undefined,
+      role: data.role as 'admin' | 'customer',
+      createdAt: data.created_at,
+    };
+  } catch {
+    return null;
+  }
+};
+
+export const fetchUserAccountByEmail = async (email: string): Promise<UserAccount | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const cleanEmail = email.toLowerCase().trim();
+    const { data, error } = await getDb()
+      .from('user_accounts')
+      .select('*')
+      .eq('email', cleanEmail)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return {
+      id: data.id,
+      userId: data.user_id || data.id,
+      email: data.email,
+      nama: data.nama,
+      idPelanggan: data.id_pelanggan || '',
+      telp: data.telp || undefined,
+      role: data.role as 'admin' | 'customer',
+      createdAt: data.created_at,
+    };
+  } catch {
+    return null;
+  }
+};
+
+export const fetchUserAccountsFromDb = async (): Promise<UserAccount[] | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb()
+      .from('user_accounts')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching user accounts from Supabase:', error.message);
+      return null;
+    }
+
+    return (data || []).map((row: any): UserAccount => ({
+      id: row.id,
+      userId: row.user_id || row.id,
+      email: row.email,
+      nama: row.nama,
+      idPelanggan: row.id_pelanggan || '',
+      telp: row.telp || undefined,
+      role: row.role as 'admin' | 'customer',
+      createdAt: row.created_at,
+    }));
+  } catch (err: any) {
+    console.error('Network error fetching user accounts from Supabase:', err);
+    return null;
+  }
+};
+
+export const saveUserAccountToDb = async (acc: UserAccount): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
+  try {
+    const row = {
+      id: acc.id,
+      user_id: acc.userId || acc.id,
+      email: acc.email.toLowerCase().trim(),
+      nama: acc.nama,
+      id_pelanggan: acc.idPelanggan || null,
+      telp: acc.telp || null,
+      role: acc.role,
+      created_at: acc.createdAt || new Date().toISOString(),
+    };
+    const { error } = await getDb().from('user_accounts').upsert(row, { onConflict: 'id' });
+    if (error) {
+      console.error('Error saving user account in Supabase:', error.message);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('Network error saving user account in Supabase:', err);
+    return { success: false, error: err?.message || 'Gagal menyimpan profil pengguna ke Supabase.' };
+  }
+};
+
+export const deleteUserAccountFromDb = async (id: string): Promise<{ success: boolean; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
+  try {
+    const { error } = await getDb().from('user_accounts').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting user account from Supabase:', error.message);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('Network error deleting user account from Supabase:', err);
+    return { success: false, error: err?.message || 'Gagal menghapus akun di Supabase.' };
+  }
+};
+
+// ==============================================================================
+// 6. REAL SUPABASE AUTHENTICATION: signUp() (Strictly No Local Fallback)
+// ==============================================================================
+export const signUpWithSupabaseAuth = async (
+  email: string,
+  pass: string,
+  nama: string,
+  idPelanggan: string,
+  role: 'admin' | 'customer' = 'customer',
+  telp?: string
+): Promise<{
+  success: boolean;
+  user?: UserAccount;
+  requiresEmailConfirmation?: boolean;
+  message?: string;
+  error?: string;
+}> => {
+  const cleanEmail = email.trim().toLowerCase();
+
+  // 1. Enforce Supabase Configuration
+  if (!isSupabaseConfigured()) {
+    return {
+      success: false,
+      error:
+        'Layanan Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di Environment Variables Vercel/Vite Anda.',
+    };
+  }
+
+  try {
+    const client = getDb();
+
+    // 2. Register strictly via Supabase Auth
+    const { data: authData, error: authErr } = await client.auth.signUp({
+      email: cleanEmail,
+      password: pass,
+      options: {
+        data: {
+          nama: nama.trim(),
+          id_pelanggan: idPelanggan?.trim() || '',
+          role,
+          telp: telp?.trim() || '',
+        },
+      },
+    });
+
+    if (authErr) {
+      return {
+        success: false,
+        error: authErr.message || 'Gagal mendaftarkan akun di Supabase Auth.',
+      };
+    }
+
+    if (!authData?.user?.id) {
+      return {
+        success: false,
+        error: 'Supabase tidak mengembalikan data pengguna setelah pendaftaran.',
+      };
+    }
+
+    const authUserId = authData.user.id; // Official UUID from Supabase auth.users
+    const requiresEmailConfirmation = !authData.session;
+
+    // 3. Persist profile strictly to Supabase 'user_accounts' table (WITHOUT password)
+    const userProfile: UserAccount = {
+      id: authUserId,
+      userId: authUserId,
+      email: cleanEmail,
+      nama: nama.trim(),
+      idPelanggan: idPelanggan?.trim() || '',
+      telp: telp?.trim() || undefined,
+      role,
+      createdAt: authData.user.created_at || new Date().toISOString(),
+    };
+
+    const rowToUpsert = {
+      id: authUserId,
+      user_id: authUserId,
+      email: cleanEmail,
+      nama: nama.trim(),
+      id_pelanggan: idPelanggan?.trim() || null,
+      telp: telp?.trim() || null,
+      role,
+      created_at: userProfile.createdAt,
+    };
+
+    const { error: profileErr } = await client
+      .from('user_accounts')
+      .upsert(rowToUpsert, { onConflict: 'id' });
+
+    if (profileErr) {
+      console.error('Error saving profile in user_accounts:', profileErr.message);
+      return {
+        success: false,
+        error: `Akun Auth berhasil dibuat di Supabase, namun gagal menyimpan profil ke tabel database: ${profileErr.message}`,
+      };
+    }
+
+    return {
+      success: true,
+      user: userProfile,
+      requiresEmailConfirmation,
+      message: requiresEmailConfirmation
+        ? 'Pendaftaran akun berhasil! Tautan konfirmasi email telah dikirimkan ke email Anda. Silakan verifikasi email Anda sebelum masuk.'
+        : 'Pendaftaran akun berhasil!',
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err?.message || 'Terjadi kesalahan sistem saat menghubungi Supabase Auth.',
+    };
+  }
+};
+
+// ==============================================================================
+// 7. REAL SUPABASE AUTHENTICATION: signInWithPassword() (Strictly No Local Fallback)
+// ==============================================================================
+export const signInWithSupabaseAuth = async (
+  identifier: string,
+  pass: string
+): Promise<{ success: boolean; user?: UserAccount; error?: string }> => {
+  const rawId = identifier.trim();
+
+  // 1. Enforce Supabase Configuration
+  if (!isSupabaseConfigured()) {
+    return {
+      success: false,
+      error:
+        'Layanan Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di Environment Variables Vercel/Vite Anda.',
+    };
+  }
+
+  let targetEmail = rawId.toLowerCase();
+
+  try {
+    const client = getDb();
+
+    // 2. Resolve non-email identifier (phone or customer ID) via Supabase user_accounts table
+    if (!targetEmail.includes('@')) {
+      const cleanPhone = rawId.replace(/[^0-9]/g, '');
+      const { data: matchedRows, error: searchErr } = await client
+        .from('user_accounts')
+        .select('email')
+        .or(`telp.eq.${rawId},telp.eq.${cleanPhone},id_pelanggan.eq.${rawId}`)
+        .limit(1);
+
+      if (searchErr) {
+        return {
+          success: false,
+          error: `Gagal mencari akun di Supabase: ${searchErr.message}`,
+        };
+      }
+
+      if (matchedRows && matchedRows.length > 0 && matchedRows[0].email) {
+        targetEmail = matchedRows[0].email.toLowerCase().trim();
+      } else {
+        return {
+          success: false,
+          error: 'Format email tidak valid atau akun dengan nomor telepon/ID Pelanggan tersebut tidak terdaftar di Supabase.',
+        };
+      }
+    }
+
+    // 3. Authenticate strictly via Supabase Auth signInWithPassword
+    const { data: authData, error: authErr } = await client.auth.signInWithPassword({
+      email: targetEmail,
+      password: pass,
+    });
+
+    if (authErr) {
+      const msg = authErr.message || '';
+      if (msg.toLowerCase().includes('invalid login credentials')) {
+        return {
+          success: false,
+          error: 'Email atau kata sandi tidak sesuai. Silakan periksa kembali kredensial Anda.',
+        };
+      }
+      if (msg.toLowerCase().includes('email not confirmed')) {
+        return {
+          success: false,
+          error: 'Email akun ini belum dikonfirmasi. Silakan buka tautan verifikasi yang dikirimkan ke email Anda.',
+        };
+      }
+      return {
+        success: false,
+        error: `Supabase Auth error: ${msg}`,
+      };
+    }
+
+    if (!authData?.user) {
+      return {
+        success: false,
+        error: 'Gagal memperoleh data sesi pengguna dari Supabase.',
+      };
+    }
+
+    const authUser = authData.user;
+    const meta = authUser.user_metadata || {};
+
+    // 4. Fetch profile from Supabase user_accounts table
+    let profile = await fetchUserAccountById(authUser.id);
+
+    // If profile not yet created in table (e.g. user created via Supabase console)
+    if (!profile) {
+      const inferredRole = (meta.role as any) || (authUser.email?.toLowerCase().includes('admin') ? 'admin' : 'customer');
+      profile = {
+        id: authUser.id,
+        userId: authUser.id,
+        email: authUser.email || targetEmail,
+        nama: meta.nama || (inferredRole === 'admin' ? 'Administrator Aetra' : 'Pelanggan Aetra'),
+        idPelanggan: meta.id_pelanggan || '',
+        telp: meta.telp || undefined,
+        role: inferredRole,
+        createdAt: authUser.created_at || new Date().toISOString(),
+      };
+
+      // Upsert profile into user_accounts table
+      try {
+        await client
+          .from('user_accounts')
+          .upsert(
+            {
+              id: profile.id,
+              user_id: profile.userId,
+              email: profile.email,
+              nama: profile.nama,
+              id_pelanggan: profile.idPelanggan || null,
+              telp: profile.telp || null,
+              role: profile.role,
+              created_at: profile.createdAt,
+            },
+            { onConflict: 'id' }
+          );
+      } catch (e: any) {
+        console.warn('Profile upsert notice:', e);
+      }
+    }
+
+    return {
+      success: true,
+      user: profile,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err?.message || 'Terjadi gangguan jaringan saat menghubungi server Supabase.',
+    };
+  }
+};
+
+export const signOutUserWithSupabase = async (): Promise<void> => {
+  if (isSupabaseConfigured()) {
+    try {
+      await getDb().auth.signOut();
+    } catch (e) {
+      console.warn('Supabase signOut error:', e);
+    }
+  }
+};
+
+export const getSupabaseSessionUser = async (): Promise<UserAccount | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb().auth.getSession();
+    if (error || !data?.session?.user) return null;
+
+    const sessionUser = data.session.user;
+    let profile = await fetchUserAccountById(sessionUser.id);
+    if (profile) return profile;
+
+    const meta = sessionUser.user_metadata || {};
+    const inferredRole = (meta.role as any) || (sessionUser.email?.toLowerCase().includes('admin') ? 'admin' : 'customer');
+    return {
+      id: sessionUser.id,
+      userId: sessionUser.id,
+      email: sessionUser.email || '',
+      nama: meta.nama || (inferredRole === 'admin' ? 'Administrator Aetra' : 'Pelanggan Aetra'),
+      idPelanggan: meta.id_pelanggan || '',
+      telp: meta.telp || undefined,
+      role: inferredRole,
+      createdAt: sessionUser.created_at || new Date().toISOString(),
+    };
+  } catch {
+    return null;
   }
 };
 
 export const testSupabaseConnection = async (): Promise<{ success: boolean; message: string }> => {
   if (!isSupabaseConfigured()) {
-    return { success: false, message: 'URL atau API Key Supabase belum dikonfigurasi.' };
+    return { success: false, message: 'URL atau API Key Supabase belum dikonfigurasi di environment variables.' };
   }
   try {
     const { error } = await getDb().from('registrations').select('count', { count: 'exact', head: true });
@@ -890,22 +971,80 @@ export const testSupabaseConnection = async (): Promise<{ success: boolean; mess
   }
 };
 
-export const pushAllDataToSupabase = async (..._args: any[]): Promise<{ success: boolean; message: string }> => {
-  return { success: true, message: 'Data berhasil disinkronkan ke Supabase.' };
+export const pushAllDataToSupabase = async (
+  customers: IndustryCustomer[],
+  meterReaders: MeterReader[],
+  cycleSchedules: CycleSchedule[],
+  auditLogs: AuditLog[]
+): Promise<{ success: boolean; message: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, message: 'Supabase belum dikonfigurasi di environment variables.' };
+  }
+  try {
+    const db = getDb();
+    if (customers.length > 0) {
+      await db.from('industry_customers').upsert(customers, { onConflict: 'id' });
+    }
+    if (meterReaders.length > 0) {
+      await db.from('meter_readers').upsert(meterReaders, { onConflict: 'id' });
+    }
+    if (cycleSchedules.length > 0) {
+      await db.from('cycle_schedules').upsert(cycleSchedules, { onConflict: 'id' });
+    }
+    if (auditLogs.length > 0) {
+      await db.from('audit_logs').upsert(auditLogs, { onConflict: 'id' });
+    }
+    return { success: true, message: 'Berhasil mengunggah data ke Supabase.' };
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Gagal mengunggah data ke Supabase.' };
+  }
 };
 
-export const fetchSupabaseCustomers = async (): Promise<any[]> => {
-  return [];
+export const fetchSupabaseCustomers = async (): Promise<IndustryCustomer[] | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb().from('industry_customers').select('*');
+    if (error) throw error;
+    return data as IndustryCustomer[];
+  } catch (e) {
+    console.warn('fetchSupabaseCustomers error:', e);
+    return null;
+  }
 };
 
-export const fetchSupabaseMeterReaders = async (): Promise<any[]> => {
-  return [];
+export const fetchSupabaseMeterReaders = async (): Promise<MeterReader[] | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb().from('meter_readers').select('*');
+    if (error) throw error;
+    return data as MeterReader[];
+  } catch (e) {
+    console.warn('fetchSupabaseMeterReaders error:', e);
+    return null;
+  }
 };
 
-export const fetchSupabaseCycleSchedules = async (): Promise<any[]> => {
-  return [];
+export const fetchSupabaseCycleSchedules = async (): Promise<CycleSchedule[] | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb().from('cycle_schedules').select('*');
+    if (error) throw error;
+    return data as CycleSchedule[];
+  } catch (e) {
+    console.warn('fetchSupabaseCycleSchedules error:', e);
+    return null;
+  }
 };
 
-export const fetchSupabaseAuditLogs = async (): Promise<any[]> => {
-  return [];
+export const fetchSupabaseAuditLogs = async (): Promise<AuditLog[] | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb().from('audit_logs').select('*');
+    if (error) throw error;
+    return data as AuditLog[];
+  } catch (e) {
+    console.warn('fetchSupabaseAuditLogs error:', e);
+    return null;
+  }
 };
+

@@ -50,7 +50,7 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
         return (
           <div className="flex items-center gap-1">
             <div className="bg-[#E11B22] text-white px-1.5 py-0.5 rounded font-black text-[11px] tracking-tighter">
-              Alfa<span className="text-[#005DAA] bg-white px-0.5 rounded-xs ml-0.5">mart</span>
+              Alfa<span className="text-[#0f766e] bg-white px-0.5 rounded-xs ml-0.5">mart</span>
             </div>
           </div>
         );
@@ -58,11 +58,11 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
         return (
           <div className="flex items-center border border-slate-200 rounded px-1.5 py-0.5 bg-white shadow-2xs">
             <div className="flex gap-0.5 mr-1">
-              <span className="w-1.5 h-3.5 bg-[#005DAA] rounded-xs" />
+              <span className="w-1.5 h-3.5 bg-[#0f766e] rounded-xs" />
               <span className="w-1.5 h-3.5 bg-[#E11B22] rounded-xs" />
               <span className="w-1.5 h-3.5 bg-[#FFCC00] rounded-xs" />
             </div>
-            <span className="font-black text-[11px] text-[#005DAA] tracking-tighter">
+            <span className="font-black text-[11px] text-[#0f766e] tracking-tighter">
               Indomaret
             </span>
           </div>
@@ -70,12 +70,12 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
       case 'bca':
         return (
           <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-[#005DAA] text-white flex items-center justify-center font-bold text-[9px] shadow-2xs">
+            <div className="w-5 h-5 rounded-full bg-[#0f766e] text-white flex items-center justify-center font-bold text-[9px] shadow-2xs">
               <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-current">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-1 4h2a3 3 0 010 6H9V6zm0 7h3a3 3 0 010 6H9v-6z" />
               </svg>
             </div>
-            <span className="font-black text-sm tracking-tight text-[#005DAA]">BCA</span>
+            <span className="font-black text-sm tracking-tight text-[#0f766e]">BCA</span>
           </div>
         );
       case 'mandiri':
@@ -138,7 +138,7 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#005DAA]" />
+              <ShieldCheck className="w-4 h-4 text-[#0f766e]" />
               {title}
             </h4>
             {subtitle && <p className="text-[11px] text-slate-500 mt-0.5">{subtitle}</p>}
@@ -147,11 +147,11 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
           {/* Quick Payment Code display */}
           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg shrink-0">
             <span className="text-[10px] text-slate-500 font-semibold uppercase">Kode Bayar:</span>
-            <span className="font-mono font-bold text-xs text-[#005DAA]">{paymentCode}</span>
+            <span className="font-mono font-bold text-xs text-[#0f766e]">{paymentCode}</span>
             <button
               type="button"
               onClick={handleCopyCode}
-              className="p-1 rounded text-slate-500 hover:text-[#005DAA] hover:bg-slate-200 transition"
+              className="p-1 rounded text-slate-500 hover:text-[#0f766e] hover:bg-slate-200 transition"
               title="Salin Kode Pembayaran"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -167,15 +167,15 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
             key={ch.id}
             type="button"
             onClick={() => setSelectedChannel(ch)}
-            className={`group text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white hover:bg-blue-50/40 shadow-2xs hover:shadow-xs transition flex flex-col justify-between ${
-              selectedChannel?.id === ch.id ? 'ring-2 ring-[#005DAA] border-transparent bg-blue-50/50' : ''
+            className={`group text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white hover:bg-teal-50/40 shadow-2xs hover:shadow-xs transition flex flex-col justify-between ${
+              selectedChannel?.id === ch.id ? 'ring-2 ring-[#0f766e] border-transparent bg-teal-50/50' : ''
             }`}
           >
             <div className="flex items-center justify-between gap-1 w-full mb-1">
               <div className="h-6 flex items-center">
                 {renderLogo(ch.logoType)}
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#005DAA] transition shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#0f766e] transition shrink-0" />
             </div>
 
             {!compact && (
@@ -183,7 +183,7 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
                 <p className="text-[10px] text-slate-500 line-clamp-1 group-hover:text-slate-700">
                   {ch.keterangan}
                 </p>
-                <span className="inline-block mt-1 text-[9px] font-semibold text-[#005DAA] group-hover:underline">
+                <span className="inline-block mt-1 text-[9px] font-semibold text-[#0f766e] group-hover:underline">
                   Lihat Cara Bayar &rarr;
                 </span>
               </div>
@@ -194,7 +194,7 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
 
       {/* Modal / Detail Drawer for selected channel */}
       {selectedChannel && (
-        <div className="p-4 bg-linear-to-r from-blue-50/80 to-indigo-50/60 rounded-xl border border-blue-200 text-xs animate-in fade-in duration-200 space-y-3">
+        <div className="p-4 bg-linear-to-r from-blue-50/80 to-indigo-50/60 rounded-xl border border-teal-200 text-xs animate-in fade-in duration-200 space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-2xs">
@@ -221,11 +221,11 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
             <div className="space-y-0.5">
               <span className="text-[10px] uppercase font-bold text-slate-400">Kode Pembayaran / No. Form / No. SR:</span>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-black text-sm text-[#005DAA] tracking-wider">{paymentCode}</span>
+                <span className="font-mono font-black text-sm text-[#0f766e] tracking-wider">{paymentCode}</span>
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-[#005DAA] rounded text-[10px] font-bold hover:bg-blue-100 transition"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 text-[#0f766e] rounded text-[10px] font-bold hover:bg-blue-100 transition"
                 >
                   {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                   <span>{copied ? 'Tersalin!' : 'Salin'}</span>
@@ -263,7 +263,7 @@ export const PaymentPartnersGrid: React.FC<PaymentPartnersGridProps> = ({
             <button
               type="button"
               onClick={() => setSelectedChannel(null)}
-              className="text-[#005DAA] font-bold hover:underline"
+              className="text-[#0f766e] font-bold hover:underline"
             >
               Tutup Panduan
             </button>

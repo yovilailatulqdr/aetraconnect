@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TabType, RegistrationFormData, CustomerTrackingRecord, TrackingTimelineEvent, SurveySubmission, UserRole, UserAccount, MonthlyBillRecord, RegistrationStatus } from './types';
 import { 
-  INITIAL_TRACKING_DATABASE, 
-  INITIAL_FAQS, 
-  INITIAL_SURVEY_RESPONSES,
-  INITIAL_REGISTRATIONS
+  INITIAL_FAQS 
 } from './data/mockData';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -19,7 +16,6 @@ import { AuthScreen } from './components/AuthScreen';
 import { SupabaseModal } from './components/SupabaseModal';
 import { MonthlyBillSection } from './components/MonthlyBillSection';
 import { MobileBottomNav } from './components/MobileBottomNav';
-import { cloudSyncService, INITIAL_BILLS_DATA } from './services/cloudSyncService';
 import {
   fetchRegistrationsFromDb,
   saveRegistrationToDb,
@@ -28,10 +24,13 @@ import {
   saveTrackingRecordToDb,
   fetchSurveysFromDb,
   saveSurveyToDb,
+  fetchMonthlyBillsFromDb,
+  saveMonthlyBillToDb,
   getSupabaseSessionUser,
   signOutUserWithSupabase,
 } from './services/supabaseService';
 import { getSupabaseClient, isSupabaseConfigured } from './lib/supabase';
+import { cloudSyncService } from './services/cloudSyncService';
 import { safeLocalStorageSetItem } from './utils/storageUtils';
 import { Droplets, ShieldCheck, HeartHandshake } from 'lucide-react';
 
@@ -54,88 +53,41 @@ export default function App() {
   const [activeTrackingForm, setActiveTrackingForm] = useState<string>('');
   const [isOpenMobile, setIsOpenMobile] = useState<boolean>(false);
 
-  // Registrations state - seeded with customer data (Yovi, Amara, Nabila)
+  // Registrations state (Supabase is single source of truth)
   const [registrations, setRegistrations] = useState<RegistrationFormData[]>(() => {
+    if (isSupabaseConfigured()) return [];
     try {
       const saved = localStorage.getItem('aetra_registrations');
-      let parsed: RegistrationFormData[] = saved ? JSON.parse(saved) : [];
-      if (!Array.isArray(parsed)) parsed = [];
-
-      // Clean old unwanted test names
-      parsed = parsed.filter(
-        (r) =>
-          !r.namaKtp?.toLowerCase().includes('ansori') &&
-          !r.namaKtp?.toLowerCase().includes('aan') &&
-          r.noSr !== '163784'
-      );
-
-      // Ensure the requested 3 customers exist with latest phone numbers
-      INITIAL_REGISTRATIONS.forEach((seed) => {
-        const existingIdx = parsed.findIndex(
-          (p) => p.noForm === seed.noForm || p.namaKtp?.toLowerCase() === seed.namaKtp?.toLowerCase()
-        );
-        if (existingIdx >= 0) {
-          parsed[existingIdx] = {
-            ...parsed[existingIdx],
-            namaKtp: seed.namaKtp,
-            telpHp: seed.telpHp,
-          };
-        } else {
-          parsed.push(seed);
-        }
-      });
-
-      return parsed;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_REGISTRATIONS;
+      return [];
     }
   });
 
-  // Tracking records state - synchronized with customer data
+  // Tracking records state (Supabase is single source of truth)
   const [trackingRecords, setTrackingRecords] = useState<CustomerTrackingRecord[]>(() => {
+    if (isSupabaseConfigured()) return [];
     try {
       const saved = localStorage.getItem('aetra_tracking');
-      let parsed: CustomerTrackingRecord[] = saved ? JSON.parse(saved) : [];
-      if (!Array.isArray(parsed)) parsed = [];
-
-      INITIAL_TRACKING_DATABASE.forEach((seed) => {
-        const existingIdx = parsed.findIndex((p) => p.noForm === seed.noForm);
-        if (existingIdx >= 0) {
-          parsed[existingIdx] = {
-            ...parsed[existingIdx],
-            nama: seed.nama,
-            telp: seed.telp,
-          };
-        } else {
-          parsed.push(seed);
-        }
-      });
-
-      return parsed;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_TRACKING_DATABASE;
+      return [];
     }
   });
 
-  // Survey Submissions state
+  // Survey Submissions state (Supabase is single source of truth)
   const [surveys, setSurveys] = useState<SurveySubmission[]>(() => {
+    if (isSupabaseConfigured()) return [];
     try {
       const saved = localStorage.getItem('aetra_surveys');
-      return saved ? JSON.parse(saved) : INITIAL_SURVEY_RESPONSES;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_SURVEY_RESPONSES;
+      return [];
     }
   });
 
-  // Monthly Bills state - persistent and cloud synced
-  const [bills, setBills] = useState<MonthlyBillRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('aetra_customer_bills');
-      return saved ? JSON.parse(saved) : INITIAL_BILLS_DATA;
-    } catch {
-      return INITIAL_BILLS_DATA;
-    }
-  });
+  // Monthly Bills state (Supabase is single source of truth)
+  const [bills, setBills] = useState<MonthlyBillRecord[]>([]);
 
   // Admin sub-tab state ('registrations' | 'bills' | 'surveys' | 'field' | 'accounts')
   const [adminSubTab, setAdminSubTab] = useState<'registrations' | 'bills' | 'surveys' | 'field' | 'accounts'>('registrations');
@@ -245,7 +197,7 @@ export default function App() {
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
   const [dbVersion, setDbVersion] = useState(0);
 
-  // Initial load from Cloud & Supabase for cross-device persistence anywhere (e.g. Vercel)
+  // Initial load from Supabase as single source of truth for all cross-browser data
   const loadFromSupabase = useCallback(async () => {
     try {
       // 0. Check Supabase auth session
@@ -256,28 +208,12 @@ export default function App() {
         localStorage.setItem('aetra_current_user', JSON.stringify(sessionUser));
       }
 
-      // 1. First pull from master cloud & server store
-      const cloudSnap = await cloudSyncService.pullFromCloud();
-      if (cloudSnap) {
-        if (cloudSnap.registrations && cloudSnap.registrations.length > 0) {
-          setRegistrations(cloudSnap.registrations);
-        }
-        if (cloudSnap.trackingRecords && cloudSnap.trackingRecords.length > 0) {
-          setTrackingRecords(cloudSnap.trackingRecords);
-        }
-        if (cloudSnap.surveys && cloudSnap.surveys.length > 0) {
-          setSurveys(cloudSnap.surveys);
-        }
-        if (cloudSnap.bills && cloudSnap.bills.length > 0) {
-          setBills(cloudSnap.bills);
-        }
-      }
-
-      // 2. Also query Supabase if configured
-      const [remoteRegs, remoteTrackings, remoteSurveys] = await Promise.all([
+      // 1. Query Supabase directly as the primary authoritative source of truth
+      const [remoteRegs, remoteTrackings, remoteSurveys, remoteBills] = await Promise.all([
         fetchRegistrationsFromDb(),
         fetchTrackingRecordsFromDb(),
         fetchSurveysFromDb(),
+        fetchMonthlyBillsFromDb(),
       ]);
 
       if (remoteRegs !== null) {
@@ -286,8 +222,11 @@ export default function App() {
       if (remoteTrackings !== null) {
         setTrackingRecords(remoteTrackings);
       }
-      if (remoteSurveys !== null && remoteSurveys.length > 0) {
+      if (remoteSurveys !== null) {
         setSurveys(remoteSurveys);
+      }
+      if (remoteBills !== null) {
+        setBills(remoteBills);
       }
     } catch (err) {
       console.warn('Initial data fetch notice:', err);
@@ -322,7 +261,47 @@ export default function App() {
       }
     }
 
-    // Listen to background cross-device sync updates
+    // Supabase Realtime Channel: Listen to changes across all tables so Browser A immediately syncs to Browser B
+    let realtimeChannel: any = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabaseClient();
+        realtimeChannel = client
+          .channel('public-db-changes')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
+            fetchRegistrationsFromDb().then((data) => {
+              if (data !== null) setRegistrations(data);
+            });
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'tracking_records' }, () => {
+            fetchTrackingRecordsFromDb().then((data) => {
+              if (data !== null) setTrackingRecords(data);
+            });
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'monthly_bills' }, () => {
+            fetchMonthlyBillsFromDb().then((data) => {
+              if (data !== null) setBills(data);
+            });
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => {
+            fetchSurveysFromDb().then((data) => {
+              if (data !== null) setSurveys(data);
+            });
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn('Realtime subscription notice:', err);
+      }
+    }
+
+    // Interval polling backup every 15 seconds to guarantee cross-browser sync even if Realtime socket drops
+    const pollInterval = setInterval(() => {
+      if (isSupabaseConfigured()) {
+        loadFromSupabase();
+      }
+    }, 15000);
+
+    // Listen to local sync events
     const unsub = cloudSyncService.addListener(() => {
       const snap = cloudSyncService.getLocalSnapshot();
       if (snap.registrations) setRegistrations(snap.registrations);
@@ -333,6 +312,12 @@ export default function App() {
 
     return () => {
       authSub?.unsubscribe();
+      if (realtimeChannel) {
+        try {
+          getSupabaseClient().removeChannel(realtimeChannel);
+        } catch {}
+      }
+      clearInterval(pollInterval);
       unsub();
     };
   }, [loadFromSupabase]);
@@ -355,14 +340,17 @@ export default function App() {
   }, [bills]);
 
   // Handler when admin updates customer bills (manual or excel import)
-  const handleUpdateBills = (newBills: MonthlyBillRecord[]) => {
+  const handleUpdateBills = async (newBills: MonthlyBillRecord[]) => {
     setBills(newBills);
     safeLocalStorageSetItem('aetra_customer_bills', newBills);
     cloudSyncService.saveBills(newBills);
+    for (const b of newBills) {
+      await saveMonthlyBillToDb(b);
+    }
   };
 
   // Handler when user registers a new customer
-  const handleRegisterSuccess = (newRecord: RegistrationFormData) => {
+  const handleRegisterSuccess = async (newRecord: RegistrationFormData) => {
     const recordWithUser: RegistrationFormData = {
       ...newRecord,
       userId: currentUser?.id,
@@ -508,9 +496,19 @@ export default function App() {
       console.warn('Direct storage sync warning:', err);
     }
 
-    // Persist to online Supabase database asynchronously
-    saveRegistrationToDb(newRecord).catch((e) => console.warn('Supabase save error:', e));
-    saveTrackingRecordToDb(newTracking).catch((e) => console.warn('Supabase tracking save error:', e));
+    // Persist to online Supabase database directly
+    try {
+      const regRes = await saveRegistrationToDb(recordWithUser);
+      if (!regRes.success) {
+        console.error('Supabase registration error:', regRes.error);
+      }
+      const trackRes = await saveTrackingRecordToDb(newTracking);
+      if (!trackRes.success) {
+        console.error('Supabase tracking error:', trackRes.error);
+      }
+    } catch (e) {
+      console.warn('Supabase save error:', e);
+    }
   };
 
   const handleUpdateTrackingStep = (noForm: string, nextStep: 1 | 2 | 3 | 4 | 5, customNote?: string) => {
@@ -1134,9 +1132,12 @@ export default function App() {
     setActiveTab('tracking');
   };
 
-  const handleAddSurvey = (newSurvey: SurveySubmission) => {
+  const handleAddSurvey = async (newSurvey: SurveySubmission) => {
     setSurveys((prev) => [newSurvey, ...prev]);
-    saveSurveyToDb(newSurvey).catch((e) => console.warn('Supabase survey save error:', e));
+    const res = await saveSurveyToDb(newSurvey);
+    if (!res.success) {
+      console.error('Supabase survey save error:', res.error);
+    }
     cloudSyncService.saveSurvey(newSurvey);
   };
 
@@ -1168,8 +1169,14 @@ export default function App() {
     return <AuthScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
+  const isAdminPortal = activeTab === 'admin' || currentUser?.role === 'admin' || userRole === 'admin';
+
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-orange-100 selection:text-orange-900">
+    <div className={`min-h-screen font-sans text-slate-800 transition-colors duration-200 ${
+      isAdminPortal
+        ? 'bg-[#F2ECE1] selection:bg-[#DC602E]/25 selection:text-[#143833]'
+        : 'bg-[#F5EFE6] selection:bg-[#DC602E]/25 selection:text-[#143833]'
+    }`}>
       {/* Left Sidebar Navigation (Only visible for Admin or Active Customer with installed meter) */}
       {isSidebarVisible && (
         <Sidebar
@@ -1223,20 +1230,32 @@ export default function App() {
         {/* Dedicated Mobile App Bar Header (Only visible on mobile screens when sidebar is visible) */}
         {isSidebarVisible && (
           <div className="lg:hidden px-3 pt-3 pb-1">
-            <div className="bg-linear-to-r from-[#005DAA] via-[#004B8A] to-[#003868] text-white p-3.5 rounded-2xl shadow-xs flex items-center justify-between gap-3">
+            <div className={`text-white p-3.5 rounded-2xl shadow-sm flex items-center justify-between gap-3 ${
+              currentUser?.role === 'admin' || userRole === 'admin'
+                ? 'bg-linear-to-r from-[#143833] via-[#1B453E] to-[#102E2A] border border-[#23534B]'
+                : 'bg-linear-to-r from-[#143833] via-[#1C4A42] to-[#102E2A] border border-[#23534B]'
+            }`}>
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white font-bold text-sm shrink-0 border border-white/20 shadow-2xs">
+                <div className={`w-9 h-9 rounded-xl text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs ${
+                  currentUser?.role === 'admin' || userRole === 'admin'
+                    ? 'bg-[#DC602E] border border-white/20'
+                    : 'bg-[#DC602E] border border-white/20'
+                }`}>
                   {currentUser?.nama?.slice(0, 2).toUpperCase() || 'PL'}
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[10px] text-blue-200 block leading-tight">
+                  <span className={`text-[10px] block leading-tight ${
+                    currentUser?.role === 'admin' || userRole === 'admin' ? 'text-[#A6C4BE]' : 'text-[#A6C4BE]'
+                  }`}>
                     {currentUser?.role === 'admin' ? 'Backoffice & Administrator' : 'Halo, Pelanggan Aetra'}
                   </span>
-                  <span className="text-xs font-bold truncate block">{currentUser?.nama}</span>
+                  <span className="text-xs font-black truncate block text-white">{currentUser?.nama}</span>
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <span className="text-[9px] uppercase tracking-wider text-blue-200 font-semibold block">
+                <span className={`text-[9px] uppercase tracking-wider font-bold block ${
+                  currentUser?.role === 'admin' || userRole === 'admin' ? 'text-[#A6C4BE]' : 'text-[#A6C4BE]'
+                }`}>
                   {currentUser?.role === 'admin' ? 'Otoritas' : 'ID Pelanggan'}
                 </span>
                 <span className="text-xs font-mono font-black text-amber-300 bg-white/10 px-2 py-0.5 rounded-lg border border-white/15 block">
@@ -1365,8 +1384,8 @@ export default function App() {
                   <ShieldCheck className="w-4 h-4 text-[#F37021]" />
                   Standar Mutu Permenkes RI
                 </span>
-                <span className="flex items-center gap-1.5 text-blue-800 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
-                  <Droplets className="w-3.5 h-3.5 text-[#005DAA]" />
+                <span className="flex items-center gap-1.5 text-teal-800 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200">
+                  <Droplets className="w-3.5 h-3.5 text-teal-600" />
                   Jaminan Kualitas Air Bersih
                 </span>
               </div>

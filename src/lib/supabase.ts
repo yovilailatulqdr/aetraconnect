@@ -9,7 +9,9 @@ export const isSupabaseConfigured = (): boolean => {
     Boolean(envUrl) &&
     Boolean(envKey) &&
     envUrl.startsWith('https://') &&
+    !envUrl.includes('placeholder') &&
     !envUrl.includes('your-project') &&
+    !envKey.includes('placeholder') &&
     !envKey.includes('your-anon-key')
   );
 };
@@ -26,20 +28,45 @@ export const getSupabaseConfig = () => {
   };
 };
 
+let _supabaseClientInstance: SupabaseClient | null = null;
+
 // Initialize Supabase Client with persistent Auth session support
-export const supabase: SupabaseClient = createClient(
-  isSupabaseConfigured() ? envUrl : 'https://placeholder-project.supabase.co',
-  isSupabaseConfigured() ? envKey : 'placeholder-anon-key',
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
+export const getSupabaseClient = (): SupabaseClient => {
+  if (!isSupabaseConfigured()) {
+    throw new Error(
+      'Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di environment variables Vercel/Vite Anda.'
+    );
   }
-);
 
-export const getSupabaseClient = (): SupabaseClient => supabase;
+  if (!_supabaseClientInstance) {
+    _supabaseClientInstance = createClient(envUrl, envKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
 
-export const reloadSupabaseClient = () => supabase;
+  return _supabaseClientInstance;
+};
+
+// Safe exported client: if configured returns real client; if unconfigured throws clear error on access
+export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        `Koneksi Supabase tidak aktif (mengakses: ${String(prop)}). Harap isi VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di environment variables.`
+      );
+    }
+    const realClient = getSupabaseClient();
+    const value = (realClient as any)[prop];
+    return typeof value === 'function' ? value.bind(realClient) : value;
+  },
+});
+
+export const reloadSupabaseClient = () => {
+  _supabaseClientInstance = null;
+  return isSupabaseConfigured() ? getSupabaseClient() : null;
+};
 

@@ -4,12 +4,14 @@ interface AetraLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'official' | 'horizontal' | 'icon' | 'full';
   className?: string;
+  textColorMode?: 'default' | 'white';
 }
 
 export const AetraLogo: React.FC<AetraLogoProps> = ({
   size = 'md',
   variant = 'horizontal',
   className = '',
+  textColorMode = 'default',
 }) => {
   const lockupDimensions = {
     sm: { w: 150, h: 60 },
@@ -154,7 +156,7 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
         <text
           x="108"
           y="68"
-          fill="#005DAA"
+          fill={textColorMode === 'white' ? '#FAF6EE' : '#005DAA'}
           fontSize="58"
           fontWeight="900"
           fontFamily="'Nunito', 'Plus Jakarta Sans', -apple-system, sans-serif"
@@ -167,7 +169,7 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
         <text
           x="110"
           y="93"
-          fill="#F15A24"
+          fill={textColorMode === 'white' ? '#E56D3B' : '#F15A24'}
           fontSize="20"
           fontWeight="800"
           fontFamily="'Nunito', 'Plus Jakarta Sans', -apple-system, sans-serif"

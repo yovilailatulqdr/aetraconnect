@@ -64,7 +64,7 @@ const REGULAR_SURVEY_CATEGORIES: CategoryDef[] = [
   {
     name: 'Kualitas',
     icon: Droplets,
-    badgeColor: 'bg-blue-50 text-blue-800 border-blue-200',
+    badgeColor: 'bg-sky-50 text-teal-800 border-sky-200',
     questions: [
       { id: 1, key: 'q1_kualitas_syarat', text: 'Kualitas air minum yang didistribusikan memenuhi syarat yang dibutuhkan' },
       { id: 2, key: 'q2_kualitas_warna', text: 'Warna/kejernihan air sesuai dengan syarat yang dibutuhkan' },
@@ -83,7 +83,7 @@ const REGULAR_SURVEY_CATEGORIES: CategoryDef[] = [
   {
     name: 'Kontinuitas',
     icon: TrendingUp,
-    badgeColor: 'bg-teal-50 text-teal-800 border-teal-200',
+    badgeColor: 'bg-sky-50 text-teal-800 border-sky-200',
     questions: [
       { id: 6, key: 'q6_kontinuitas_tekanan', text: 'Tekanan air yang diterima sesuai dengan yang diharapkan' },
       { id: 7, key: 'q7_kontinuitas_penurunan', text: 'Penurunan tekanan air akibat gangguan masih dapat ditoleransi' },
@@ -92,7 +92,7 @@ const REGULAR_SURVEY_CATEGORIES: CategoryDef[] = [
   {
     name: 'Pelayanan Teknis',
     icon: Wrench,
-    badgeColor: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+    badgeColor: 'bg-[#EAE4D8] text-[#143833] border-[#D8CFBE]',
     questions: [
       { id: 8, key: 'q8_teknis_kecepatan', text: 'Kecepatan Aetra Tangerang dalam merespon jika terjadi gangguan' },
       { id: 9, key: 'q9_teknis_sikap', text: 'Sikap dan perilaku petugas dalam berkoordinasi di lapangan' },
@@ -101,7 +101,7 @@ const REGULAR_SURVEY_CATEGORIES: CategoryDef[] = [
   {
     name: 'Pelayanan Keluhan Pelanggan',
     icon: Headphones,
-    badgeColor: 'bg-violet-50 text-violet-800 border-violet-200',
+    badgeColor: 'bg-orange-50 text-[#DC602E] border-orange-200',
     questions: [
       { id: 10, key: 'q10_keluhan_ramah', text: 'Petugas menjelaskan layanan dengan ramah, baik, benar' },
       { id: 11, key: 'q11_keluhan_cepat', text: 'Petugas merespon keluhan pelanggan dengan cepat, baik, benar' },
@@ -322,7 +322,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
       {/* Top Header Banner (Cleaned - stats & index cards removed) */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#005DAA] text-xs font-bold border border-blue-200 mb-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 text-[#0284c7] text-xs font-bold border border-sky-200 mb-1">
             <ClipboardCheck className="w-3.5 h-3.5" />
             <span>Kuesioner Mutu Layanan PT Aetra Air Tangerang</span>
           </div>
@@ -348,13 +348,13 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
           }}
           className={`p-5 rounded-3xl border-2 transition cursor-pointer relative overflow-hidden flex flex-col justify-between ${
             selectedSurveyType === 'new_connection'
-              ? 'bg-blue-50/70 border-[#005DAA] shadow-md ring-2 ring-blue-500/20'
-              : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50/60 shadow-xs'
+              ? 'bg-sky-50/70 border-[#0284c7] shadow-md ring-2 ring-teal-600/20'
+              : 'bg-white border-slate-200 hover:border-teal-300 hover:bg-slate-50/60 shadow-xs'
           }`}
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-[#005DAA] text-white flex items-center justify-center shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-[#0284c7] text-white flex items-center justify-center shadow-xs">
                 <Wrench className="w-5 h-5" />
               </div>
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
@@ -376,9 +376,9 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
             </div>
           </div>
 
-          <div className="pt-4 mt-2 border-t border-blue-200/60 flex items-center justify-between text-xs">
-            <span className="font-bold text-[#005DAA]">8 Pertanyaan Relevan</span>
-            <span className={`font-bold ${selectedSurveyType === 'new_connection' ? 'text-[#005DAA]' : 'text-slate-400'}`}>
+          <div className="pt-4 mt-2 border-t border-sky-200/60 flex items-center justify-between text-xs">
+            <span className="font-bold text-[#0284c7]">8 Pertanyaan Relevan</span>
+            <span className={`font-bold ${selectedSurveyType === 'new_connection' ? 'text-[#0284c7]' : 'text-slate-400'}`}>
               {selectedSurveyType === 'new_connection' ? '● Sedang Aktif' : 'Pilih Opsi Ini →'}
             </span>
           </div>
@@ -393,7 +393,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
           }}
           className={`p-5 rounded-3xl border-2 transition cursor-pointer relative overflow-hidden flex flex-col justify-between ${
             selectedSurveyType === 'regular_customer'
-              ? 'bg-teal-50/70 border-teal-600 shadow-md ring-2 ring-teal-500/20'
+              ? 'bg-sky-50/70 border-teal-600 shadow-md ring-2 ring-teal-500/20'
               : 'bg-white border-slate-200 hover:border-teal-300 hover:bg-slate-50/60 shadow-xs'
           }`}
         >
@@ -417,7 +417,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
             </div>
           </div>
 
-          <div className="pt-4 mt-2 border-t border-teal-200/60 flex items-center justify-between text-xs">
+          <div className="pt-4 mt-2 border-t border-sky-200/60 flex items-center justify-between text-xs">
             <span className="font-bold text-teal-700">18 Pertanyaan (7 Kategori)</span>
             <span className={`font-bold ${selectedSurveyType === 'regular_customer' ? 'text-teal-700' : 'text-slate-400'}`}>
               {selectedSurveyType === 'regular_customer' ? '● Sedang Aktif' : 'Pilih Opsi Ini →'}
@@ -456,7 +456,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
           <div className="border-b border-slate-200 pb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className={`w-2.5 h-2.5 rounded-full ${selectedSurveyType === 'new_connection' ? 'bg-[#005DAA]' : 'bg-teal-600'}`}></span>
+                <span className={`w-2.5 h-2.5 rounded-full ${selectedSurveyType === 'new_connection' ? 'bg-[#0284c7]' : 'bg-teal-600'}`}></span>
                 <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">
                   {selectedSurveyType === 'new_connection'
                     ? 'Formulir Survey Kepuasan Pemasangan Sambungan Baru (8 Butir)'
@@ -467,7 +467,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
                 Berikan penilaian bintang 1 sampai 5 (1 = Sangat Tidak Puas / Sangat Lambat, 5 = Sangat Puas / Sangat Baik)
               </p>
             </div>
-            <span className="text-[11px] font-bold text-blue-800 bg-blue-50 px-3 py-1 rounded-xl border border-blue-200">
+            <span className="text-[11px] font-bold text-teal-800 bg-sky-50 px-3 py-1 rounded-xl border border-sky-200">
               Skala 1 - 5 Bintang
             </span>
           </div>
@@ -507,7 +507,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
               {/* Identitas Akun Pelanggan (Otomatis Melekat) */}
               <div className="bg-slate-50/90 p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#005DAA] flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#0284c7] flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                     <User className="w-5 h-5" />
                   </div>
                   <div>
@@ -532,14 +532,14 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
               {selectedSurveyType === 'new_connection' ? (
                 /* 8 Pertanyaan Sambungan Baru */
                 <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
-                  <div className="bg-blue-50/70 px-4 py-3 border-b border-blue-200 flex items-center justify-between">
+                  <div className="bg-sky-50/70 px-4 py-3 border-b border-sky-200 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Wrench className="w-4 h-4 text-[#005DAA]" />
+                      <Wrench className="w-4 h-4 text-[#0284c7]" />
                       <span className="font-black text-slate-900 text-xs uppercase tracking-wide">
                         8 Butir Evaluasi Proses Pendaftaran &amp; Pemasangan Baru
                       </span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-300">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-teal-900 border border-teal-300">
                       8 Pertanyaan
                     </span>
                   </div>
@@ -551,7 +551,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
                         <div key={q.id} className="p-4 sm:p-4.5 hover:bg-slate-50/50 transition">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div className="flex items-start gap-2.5 max-w-xl">
-                              <span className="w-5 h-5 rounded-full bg-blue-100 text-[#005DAA] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                              <span className="w-5 h-5 rounded-full bg-blue-100 text-[#0284c7] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
                                 {q.id}
                               </span>
                               <span className="text-xs font-semibold text-slate-800 leading-snug">
@@ -622,7 +622,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
                             <div key={q.id} className="p-4 sm:p-4.5 hover:bg-slate-50/50 transition">
                               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                 <div className="flex items-start gap-2.5 max-w-xl">
-                                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
+                                  <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0 mt-1.5" />
                                   <span className="text-xs font-semibold text-slate-800 leading-snug">
                                     {q.text} <span className="text-red-500">*</span>
                                   </span>
@@ -693,7 +693,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
                 type="submit"
                 className={`w-full py-3 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition cursor-pointer ${
                   selectedSurveyType === 'new_connection'
-                    ? 'bg-[#005DAA] hover:bg-[#004A88] shadow-blue-500/20'
+                    ? 'bg-[#0284c7] hover:bg-[#0369a1] shadow-blue-500/20'
                     : 'bg-teal-600 hover:bg-teal-700 shadow-teal-500/20'
                 }`}
               >
@@ -715,7 +715,7 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
           <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-[#005DAA]" />
+                <MessageSquare className="w-4 h-4 text-[#0284c7]" />
                 <h4 className="text-xs font-bold text-slate-900 uppercase">
                   Ulasan Pelanggan Terverifikasi
                 </h4>
@@ -778,11 +778,11 @@ export const SurveySection: React.FC<SurveySectionProps> = ({ submissions, onSub
                     {/* Survey Type Tag */}
                     <div>
                       {sub.surveyType === 'new_connection' ? (
-                        <span className="inline-block text-[9px] font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full border border-blue-200">
+                        <span className="inline-block text-[9px] font-bold bg-blue-100 text-teal-900 px-2 py-0.5 rounded-full border border-sky-200">
                           Sambungan Baru
                         </span>
                       ) : (
-                        <span className="inline-block text-[9px] font-bold bg-teal-100 text-teal-900 px-2 py-0.5 rounded-full border border-teal-200">
+                        <span className="inline-block text-[9px] font-bold bg-teal-100 text-teal-900 px-2 py-0.5 rounded-full border border-sky-200">
                           Pelanggan Rutin
                         </span>
                       )}

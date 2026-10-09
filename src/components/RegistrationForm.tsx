@@ -773,12 +773,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  const processRegistration = (currentData = formData) => {
+  const processRegistration = async (currentData = formData) => {
     const noFormVal = currentData.noForm || Math.floor(100000 + Math.random() * 900000).toString();
     const noSrVal = currentData.noSr || calculateNextSrNumber(existingRegistrations);
 
     const finalizedRecord: RegistrationFormData = {
       ...currentData,
+      userId: currentUser?.id,
       noForm: noFormVal,
       noSr: noSrVal,
       idPelanggan: '', // Akan diisi admin setelah verifikasi dan pembayaran
@@ -793,6 +794,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       createdAt: new Date().toISOString(),
     };
 
+    // Save to Supabase first and check result
+    const dbResult = await saveRegistrationToDb(finalizedRecord);
+    if (!dbResult.success) {
+      setNotification(`Gagal menyimpan pendaftaran ke database: ${dbResult.error || 'Periksa koneksi Supabase.'}`);
+      setTimeout(() => setNotification(null), 6000);
+      return;
+    }
+
     onRegisterSuccess(finalizedRecord);
     setSubmittedRecord(finalizedRecord);
 
@@ -804,7 +813,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       // ignore
     }
 
-    setNotification('Pendaftaran Sambungan Baru Berhasil Disimpan! Status: Menunggu Verifikasi Admin.');
+    setNotification('Pendaftaran Sambungan Baru Berhasil Disimpan ke Supabase! Status: Menunggu Verifikasi Admin.');
     setTimeout(() => setNotification(null), 5000);
   };
 
@@ -848,7 +857,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     <div className="space-y-6">
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed top-4 right-4 z-50 bg-[#005DAA] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 border border-blue-400">
+        <div className="fixed top-4 right-4 z-50 bg-[#0284c7] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 border border-teal-400">
           <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
           <span className="text-xs font-bold">{notification}</span>
         </div>
@@ -881,7 +890,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTracking(activeExistingRegistration.noForm)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-[#005DAA] hover:bg-blue-100 text-xs font-bold transition cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-50 border border-sky-200 text-[#0284c7] hover:bg-blue-100 text-xs font-bold transition cursor-pointer"
                 >
                   <Compass className="w-4 h-4" />
                   <span>Riwayat Tracking</span>
@@ -922,7 +931,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
                   2. Nomor Registrasi Sambungan (SR)
                 </span>
-                <div className="font-mono text-xl sm:text-2xl font-black text-[#005DAA]">
+                <div className="font-mono text-xl sm:text-2xl font-black text-[#0284c7]">
                   SR - {activeExistingRegistration.noSr}
                 </div>
                 <span className="text-[11px] text-slate-500 block pt-0.5 leading-relaxed">
@@ -934,7 +943,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {/* Rincian Lengkap Data Pelanggan: Alamat, Telepon, Email, & Teknis */}
             <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-200 space-y-4">
               <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 pb-2">
-                <User className="w-4 h-4 text-[#005DAA]" />
+                <User className="w-4 h-4 text-[#0284c7]" />
                 <span>Rincian Data Identitas &amp; Kontak Terdaftar</span>
               </h3>
 
@@ -963,7 +972,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 {/* Golongan Tarif */}
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-1">
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Golongan Tarif Air</span>
-                  <strong className="text-[#005DAA] font-bold block text-sm">{activeExistingRegistration.golonganTarif || '2A1 - Rumah Tangga Standard'}</strong>
+                  <strong className="text-[#0284c7] font-bold block text-sm">{activeExistingRegistration.golonganTarif || '2A1 - Rumah Tangga Standard'}</strong>
                   <span className="text-[11px] text-slate-500 block">Kategori Sambungan Rumah Tangga Aetra</span>
                 </div>
 
@@ -988,7 +997,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
 
                 {/* Data Meter & Segel */}
-                <div className="md:col-span-2 bg-blue-50/50 p-3 rounded-xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="md:col-span-2 bg-sky-50/50 p-3 rounded-xl border border-blue-100 flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="text-slate-500">No. Seri Meter:</span>
                     <strong className="font-mono text-slate-900 font-bold">{activeExistingRegistration.dataPasang?.noSeriMeter || 'AET-2609-8472'}</strong>
@@ -1007,11 +1016,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </div>
         ) : (
           /* Card Pengajuan Sedang Berjalan & Tahap Pembayaran */
-          <div className="bg-white rounded-2xl border-2 border-blue-400 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in">
+          <div className="bg-white rounded-2xl border-2 border-teal-400 shadow-xl p-6 sm:p-8 space-y-6 animate-in fade-in">
             {/* Main Notice Header */}
-            <div className="bg-linear-to-r from-blue-50 via-sky-50 to-amber-50 border border-blue-200 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-xs">
+            <div className="bg-linear-to-r from-blue-50 via-sky-50 to-amber-50 border border-sky-200 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-xs">
               <div className="flex items-start gap-4">
-                <div className="w-13 h-13 rounded-2xl bg-[#005DAA] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
+                <div className="w-13 h-13 rounded-2xl bg-[#0284c7] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
                   {isApprovedPaymentStage ? (
                     <CreditCard className="w-7 h-7 text-amber-300" />
                   ) : (
@@ -1020,7 +1029,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] uppercase font-black tracking-wider text-white bg-[#005DAA] px-3 py-0.5 rounded-full shadow-2xs">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-white bg-[#0284c7] px-3 py-0.5 rounded-full shadow-2xs">
                       Status Permohonan
                     </span>
                     <span className={`text-[10px] uppercase font-black tracking-wider px-3 py-0.5 rounded-full border ${
@@ -1029,8 +1038,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         : activeExistingRegistration.status_pendaftaran === 'WAITING_PAYMENT' || activeExistingRegistration.statusPendaftaran === 'WAITING_PAYMENT'
                         ? 'bg-amber-100 text-amber-900 border-amber-300 font-bold'
                         : activeExistingRegistration.status_pendaftaran === 'PAYMENT_CONFIRMED' || activeExistingRegistration.statusPendaftaran === 'PAYMENT_CONFIRMED'
-                        ? 'bg-purple-100 text-purple-900 border-purple-300 font-bold'
-                        : 'bg-sky-100 text-[#005DAA] border-sky-300 font-bold'
+                        ? 'bg-[#EAE4D8] text-[#143833] border-[#D8CFBE] font-bold'
+                        : 'bg-sky-100 text-[#0284c7] border-sky-300 font-bold'
                     }`}>
                       {activeExistingRegistration.statusPembayaran === 'Lunas' || activeExistingRegistration.idPelanggan
                         ? '✓ Pembayaran Lunas & Terverifikasi'
@@ -1064,7 +1073,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTracking(activeExistingRegistration.noForm)}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-md hover:shadow-lg transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-md hover:shadow-lg transition cursor-pointer"
                 >
                   <Compass className="w-4 h-4 text-sky-200" />
                   <span>Buka Live Tracking &rarr;</span>
@@ -1076,7 +1085,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {isApprovedPaymentStage && (
               <div className="space-y-5">
                 {/* Payment Header Banner with SR, ID Pelanggan & Nomor Pembayaran */}
-                <div className="bg-linear-to-r from-emerald-600 via-teal-700 to-[#005DAA] text-white rounded-2xl p-6 shadow-md space-y-4">
+                <div className="bg-linear-to-r from-emerald-600 via-teal-700 to-[#0284c7] text-white rounded-2xl p-6 shadow-md space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1141,7 +1150,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-xs">
                   <div>
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-[#005DAA]" />
+                      <CreditCard className="w-4 h-4 text-[#0284c7]" />
                       <span>9 Kanal Pembayaran Resmi Aetra Air Tangerang</span>
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -1158,7 +1167,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         onClick={() => setSelectedPaymentTab(ch.id)}
                         className={`px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0 flex items-center gap-2 cursor-pointer border ${
                           selectedPaymentTab === ch.id
-                            ? 'bg-[#005DAA] text-white border-[#005DAA] shadow-xs'
+                            ? 'bg-[#0284c7] text-white border-[#0284c7] shadow-xs'
                             : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                         }`}
                       >
@@ -1168,9 +1177,9 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </div>
 
                   {/* Selected Channel Instructions */}
-                  <div className="bg-blue-50/60 p-4 rounded-xl border border-blue-200 space-y-3">
-                    <div className="flex items-center justify-between border-b border-blue-200 pb-2">
-                      <strong className="text-xs font-bold text-[#005DAA]">
+                  <div className="bg-sky-50/60 p-4 rounded-xl border border-sky-200 space-y-3">
+                    <div className="flex items-center justify-between border-b border-sky-200 pb-2">
+                      <strong className="text-xs font-bold text-[#0284c7]">
                         {(AETRA_PAYMENT_CHANNELS.find((c) => c.id === selectedPaymentTab) || AETRA_PAYMENT_CHANNELS[0]).name}
                       </strong>
                       <span className="text-[10px] text-slate-500">
@@ -1193,7 +1202,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 {/* Upload Bukti Pembayaran */}
                 <div className="bg-sky-50/70 p-5 rounded-2xl border-2 border-sky-200 space-y-4">
                   <div className="flex items-center gap-2.5 text-slate-900 font-bold text-sm">
-                    <ReceiptText className="w-5 h-5 text-[#005DAA]" />
+                    <ReceiptText className="w-5 h-5 text-[#0284c7]" />
                     <span>Upload Bukti Pembayaran Sambungan Baru</span>
                   </div>
                   <p className="text-xs text-slate-600">
@@ -1207,7 +1216,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                           Bukti Pembayaran Berhasil Diunggah
                         </span>
-                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold text-[#143833] bg-[#EAE4D8] border border-[#D8CFBE] px-2.5 py-0.5 rounded-full">
                           Status: {activeExistingRegistration.statusPembayaran === 'Lunas' ? 'Lunas / Berhasil' : 'Menunggu Verifikasi Kasir'}
                         </span>
                       </div>
@@ -1247,7 +1256,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           <select
                             value={paymentProofData.bank}
                             onChange={(e) => setPaymentProofData({ ...paymentProofData, bank: e.target.value })}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden"
                           >
                             {AETRA_PAYMENT_CHANNELS.map((ch) => (
                               <option key={ch.id} value={ch.name}>
@@ -1265,7 +1274,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             type="date"
                             value={paymentProofData.tanggalBayar}
                             onChange={(e) => setPaymentProofData({ ...paymentProofData, tanggalBayar: e.target.value })}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden"
                           />
                         </div>
                       </div>
@@ -1301,7 +1310,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                 title: 'Ambil Foto Bukti Pembayaran via Kamera',
                                 guideType: 'payment'
                               })}
-                              className="px-4 py-2 bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer"
+                              className="px-4 py-2 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer"
                             >
                               <Camera className="w-4 h-4" />
                               Ambil via Kamera
@@ -1341,7 +1350,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           value={paymentProofData.catatan}
                           onChange={(e) => setPaymentProofData({ ...paymentProofData, catatan: e.target.value })}
                           placeholder="Nomor referensi ATM / catatan pembayaran..."
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden"
                         />
                       </div>
 
@@ -1352,7 +1361,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           onClick={handleConfirmPayment}
                           className={`w-full py-3 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer ${
                             paymentProofData.fileUrl && !isSubmittingPayment
-                              ? 'bg-[#005DAA] hover:bg-[#004A88] text-white shadow-blue-600/30'
+                              ? 'bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-blue-600/30'
                               : 'bg-slate-300 text-slate-500 cursor-not-allowed'
                           }`}
                         >
@@ -1371,7 +1380,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-1">
                   <span className="text-[10px] text-slate-400 font-semibold uppercase block">Nomor SR (Otomatis)</span>
-                  <span className="font-mono text-sm font-black text-[#005DAA] block">SR - {activeExistingRegistration.noSr || '-'}</span>
+                  <span className="font-mono text-sm font-black text-[#0284c7] block">SR - {activeExistingRegistration.noSr || '-'}</span>
                 </div>
 
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-1">
@@ -1441,7 +1450,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   <button
                     type="button"
                     onClick={() => onViewReceipt(activeExistingRegistration)}
-                    className="px-4 py-2 rounded-xl bg-blue-50 border border-blue-200 hover:bg-blue-100 text-[#005DAA] font-bold text-xs transition cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-sky-50 border border-sky-200 hover:bg-blue-100 text-[#0284c7] font-bold text-xs transition cursor-pointer"
                   >
                     Lihat Bukti Tanda Terima / SPK
                   </button>
@@ -1454,10 +1463,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
         /* ======================================================== */
         /* WIZARD MULTI-SECTION REGISTRATION FORM                   */
         /* ======================================================== */
-        <div className="bg-white rounded-3xl border border-slate-300 shadow-md overflow-hidden">
-          {/* Symmetrical, Creative, and Modern Header with Small SR Badge */}
-          <div className="bg-linear-to-r from-[#005DAA] via-[#004B8A] to-[#003868] text-white p-6 sm:p-8 border-b-4 border-[#F37021]">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl shadow-slate-200/50 overflow-hidden">
+          {/* Executive Modern Header with Clean SR Pill - Balanced Aetra Palette */}
+          <div className="relative overflow-hidden bg-linear-to-r from-[#143833] via-[#1C4A42] to-[#102E2A] text-white p-6 sm:p-8 border-b-4 border-[#DC602E]">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-1/4 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none -mt-20" />
+            <div className="absolute bottom-0 right-0 w-60 h-60 bg-[#DC602E]/20 rounded-full blur-2xl pointer-events-none -mb-10" />
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2 max-w-xl">
                 <div className="bg-white px-3.5 py-1.5 rounded-xl inline-flex items-center shadow-xs">
                   <AetraLogo size="sm" variant="horizontal" />
@@ -1465,14 +1478,15 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight text-white">
                   Pendaftaran Sambungan Baru
                 </h1>
-                <p className="text-xs sm:text-sm text-blue-100 font-medium">
+                <p className="text-xs sm:text-sm text-[#C2D6D2] font-medium">
                   Surat Permohonan Sambungan Rumah (SR) PT Aetra Air Tangerang
                 </p>
               </div>
 
               {/* Compact & Clean Nomor SR Badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xs shrink-0 self-start md:self-center">
-                <span className="text-xs sm:text-sm font-black text-amber-300 tracking-wider">
+              <div className="inline-flex items-center gap-3 px-4.5 py-2.5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 shadow-md shrink-0 self-start md:self-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#DC602E] animate-pulse" />
+                <span className="text-xs font-black text-amber-300 tracking-wider">
                   NO SR :
                 </span>
                 <span className="font-mono text-sm sm:text-base font-black text-white">
@@ -1483,7 +1497,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </div>
 
           {/* Stepper Progress Indicator */}
-          <div className="bg-slate-50 border-b border-slate-200 p-3 sm:p-4 overflow-x-auto">
+          <div className="bg-[#FAF7F2] border-b border-[#E7E0D5] p-3 sm:p-4 overflow-x-auto">
             <div className="flex items-center justify-between min-w-[620px] max-w-4xl mx-auto gap-2">
               {SECTIONS.map((sec) => {
                 const isActive = currentStep === sec.number;
@@ -1493,20 +1507,20 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     key={sec.number}
                     type="button"
                     onClick={() => handleJumpToStep(sec.number)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition cursor-pointer ${
+                    className={`flex items-center gap-2.5 px-3.5 py-2 rounded-2xl transition-all duration-200 cursor-pointer ${
                       isActive
-                        ? 'bg-[#005DAA] text-white shadow-xs font-bold'
+                        ? 'bg-[#143833] text-white shadow-md shadow-[#143833]/25 font-bold'
                         : isPassed
-                        ? 'bg-blue-50 text-[#005DAA] hover:bg-blue-100 font-semibold'
+                        ? 'bg-[#EAE4D8] text-[#143833] hover:bg-[#E0D8CA] font-semibold'
                         : 'text-slate-400 opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <span
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                      className={`w-6 h-6 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
                         isActive
-                          ? 'bg-white text-[#005DAA]'
+                          ? 'bg-[#DC602E] text-white'
                           : isPassed
-                          ? 'bg-[#005DAA] text-white'
+                          ? 'bg-emerald-600 text-white'
                           : 'bg-slate-200 text-slate-500'
                       }`}
                     >
@@ -1544,7 +1558,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {currentStep === 1 && (
               <section className="space-y-6 animate-in fade-in">
                 <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-[#005DAA] border border-blue-200">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-[#0284c7] border border-sky-200">
                     <User className="w-4 h-4" />
                   </div>
                   <div>
@@ -1568,7 +1582,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       }}
                       placeholder="Contoh: Budi Santoso"
                       className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold focus:outline-hidden transition ${
-                        errorFields.namaKtp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        errorFields.namaKtp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                       }`}
                     />
                   </div>
@@ -1588,7 +1602,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       }}
                       placeholder="16 digit NIK e-KTP"
                       className={`w-full px-3 py-2.5 rounded-xl text-xs font-mono font-bold focus:outline-hidden transition ${
-                        errorFields.noKtp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        errorFields.noKtp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                       }`}
                     />
                   </div>
@@ -1607,7 +1621,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       }}
                       placeholder="Contoh: Karyawan Swasta, Wiraswasta, PNS"
                       className={`w-full px-3 py-2.5 rounded-xl text-xs font-medium focus:outline-hidden transition ${
-                        errorFields.pekerjaan ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        errorFields.pekerjaan ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                       }`}
                     />
                   </div>
@@ -1626,7 +1640,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       }}
                       placeholder="0812-xxxx-xxxx"
                       className={`w-full px-3 py-2.5 rounded-xl text-xs font-medium focus:outline-hidden transition ${
-                        errorFields.telpHp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        errorFields.telpHp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                       }`}
                     />
                   </div>
@@ -1640,7 +1654,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="email@domain.com"
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden"
                     />
                   </div>
                 </div>
@@ -1653,7 +1667,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {currentStep === 2 && (
               <section className="space-y-6 animate-in fade-in">
                 <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-[#005DAA] border border-blue-200">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-[#0284c7] border border-sky-200">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
@@ -1677,7 +1691,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       }}
                       placeholder="Nama jalan, nomor rumah, blok / gang"
                       className={`w-full px-3 py-2.5 rounded-xl text-xs font-medium focus:outline-hidden ${
-                        errorFields.alamatKtp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        errorFields.alamatKtp ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                       }`}
                     />
                   </div>
@@ -1700,7 +1714,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         }}
                         placeholder="Contoh: 003"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.rtKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.rtKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       />
                     </div>
@@ -1722,7 +1736,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         }}
                         placeholder="Contoh: 004"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.rwKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.rwKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       />
                     </div>
@@ -1748,7 +1762,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           setErrorFields((prev) => ({ ...prev, provinsiKtp: false }));
                         }}
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.provinsiKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.provinsiKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       >
                         <option value="">-- Pilih Provinsi --</option>
@@ -1780,7 +1794,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           });
                           setErrorFields((prev) => ({ ...prev, kotaKtp: false }));
                         }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden disabled:opacity-50"
                       >
                         <option value="">-- Pilih Kabupaten / Kota --</option>
                         {INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)?.cities.map((city) => (
@@ -1814,7 +1828,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           });
                           setErrorFields((prev) => ({ ...prev, kecamatanKtp: false }));
                         }}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden disabled:opacity-50"
                       >
                         <option value="">-- Pilih Kecamatan --</option>
                         {INDONESIA_PROVINCES_DATA.find((p) => p.name === formData.provinsiKtp)
@@ -1853,7 +1867,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                 }
                                 setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
                               }}
-                              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50 ${
+                              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden disabled:opacity-50 ${
                                 errorFields.kelurahanKtp ? 'border-red-500 bg-red-50' : 'border-slate-300'
                               }`}
                             >
@@ -1878,7 +1892,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                   setErrorFields((prev) => ({ ...prev, kelurahanKtp: false }));
                                 }}
                                 placeholder="Ketik nama Kelurahan / Desa..."
-                                className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                                className="w-full px-3 py-2 bg-white border border-teal-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden"
                               />
                             )}
                           </div>
@@ -1901,7 +1915,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         }}
                         placeholder="Contoh: 15710"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-mono font-bold focus:outline-hidden ${
-                          errorFields.kodePosKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.kodePosKtp ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       />
                     </div>
@@ -1917,7 +1931,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
               <section className="space-y-6 animate-in fade-in">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-[#005DAA] border border-blue-200">
+                    <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-[#0284c7] border border-sky-200">
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
@@ -1958,7 +1972,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       }}
                       placeholder="Contoh: Perumahan Citra Raya, Cluster Gardenia Blok E5 No. 12"
                       className={`w-full px-3 py-2.5 rounded-xl text-xs font-medium focus:outline-hidden ${
-                        errorFields.alamatPasang ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                        errorFields.alamatPasang ? 'border-2 border-red-500 bg-red-50' : 'bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                       }`}
                     />
                   </div>
@@ -1981,7 +1995,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         }}
                         placeholder="003"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.rtPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.rtPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       />
                     </div>
@@ -2003,7 +2017,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         }}
                         placeholder="004"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.rwPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.rwPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       />
                     </div>
@@ -2028,7 +2042,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           setErrorFields((prev) => ({ ...prev, kecamatanPasang: false }));
                         }}
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:outline-hidden ${
-                          errorFields.kecamatanPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.kecamatanPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       >
                         <option value="">-- Pilih Kecamatan --</option>
@@ -2064,7 +2078,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                 }
                                 setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
                               }}
-                              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden disabled:opacity-50 ${
+                              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden disabled:opacity-50 ${
                                 errorFields.kelurahanPasang ? 'border-red-500 bg-red-50' : 'border-slate-300'
                               }`}
                             >
@@ -2089,7 +2103,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                   setErrorFields((prev) => ({ ...prev, kelurahanPasang: false }));
                                 }}
                                 placeholder="Ketik nama Kelurahan / Desa..."
-                                className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                                className="w-full px-3 py-2 bg-white border border-teal-400 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden"
                               />
                             )}
                           </div>
@@ -2112,7 +2126,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         }}
                         placeholder="15710"
                         className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-mono font-bold focus:outline-hidden ${
-                          errorFields.kodePosPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                          errorFields.kodePosPasang ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                         }`}
                       />
                     </div>
@@ -2133,7 +2147,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           }}
                           className={`p-3 rounded-xl border text-xs font-bold cursor-pointer transition flex items-center gap-2.5 ${
                             formData.statusKepemilikan === opt
-                              ? 'bg-blue-50 border-[#005DAA] text-[#005DAA] shadow-xs ring-1 ring-[#005DAA]'
+                              ? 'bg-sky-50 border-[#0284c7] text-[#0284c7] shadow-xs ring-1 ring-[#0284c7]'
                               : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
                           }`}
                         >
@@ -2145,7 +2159,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                               setFormData({ ...formData, statusKepemilikan: opt });
                               setErrorFields((prev) => ({ ...prev, statusKepemilikan: false }));
                             }}
-                            className="text-[#005DAA] focus:ring-[#005DAA]"
+                            className="text-[#0284c7] focus:ring-teal-600/20 focus:border-teal-600"
                           />
                           <span>{opt}</span>
                         </label>
@@ -2162,7 +2176,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           value={formData.statusKepemilikanLainnya || ''}
                           onChange={(e) => setFormData({ ...formData, statusKepemilikanLainnya: e.target.value })}
                           placeholder="Contoh: Rumah Keluarga / Warisan / Hak Guna Bangunan (HGB)..."
-                          className="w-full px-3.5 py-2 bg-white border border-blue-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden shadow-2xs"
+                          className="w-full px-3.5 py-2 bg-white border border-sky-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 focus:outline-hidden shadow-2xs"
                         />
                       </div>
                     )}
@@ -2177,7 +2191,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {currentStep === 4 && (
               <section className="space-y-6 animate-in fade-in">
                 <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-[#005DAA] border border-blue-200">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-[#0284c7] border border-sky-200">
                     <FileCheck className="w-4 h-4" />
                   </div>
                   <div>
@@ -2226,7 +2240,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             title: 'Ambil Foto KTP via Kamera',
                             guideType: 'document'
                           })}
-                          className="w-full py-2 px-3 bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="w-full py-2 px-3 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                           Ambil via Kamera
@@ -2282,7 +2296,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             title: 'Ambil Foto KK via Kamera',
                             guideType: 'document'
                           })}
-                          className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-[#005DAA] border border-blue-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="w-full py-2 px-3 bg-sky-50 hover:bg-blue-100 text-[#0284c7] border border-sky-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                           Ambil via Kamera
@@ -2338,7 +2352,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             title: 'Ambil Foto PBB via Kamera',
                             guideType: 'document'
                           })}
-                          className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-[#005DAA] border border-blue-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="w-full py-2 px-3 bg-sky-50 hover:bg-blue-100 text-[#0284c7] border border-sky-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                           Ambil via Kamera
@@ -2394,7 +2408,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             title: 'Ambil Foto Dokumen Lainnya via Kamera',
                             guideType: 'document'
                           })}
-                          className="w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-[#005DAA] border border-blue-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="w-full py-2 px-3 bg-sky-50 hover:bg-blue-100 text-[#0284c7] border border-sky-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
                         >
                           <Camera className="w-3.5 h-3.5" />
                           Ambil via Kamera
@@ -2422,7 +2436,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {currentStep === 5 && (
               <section className="space-y-6 animate-in fade-in">
                 <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-[#005DAA] border border-blue-200">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-[#0284c7] border border-sky-200">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
@@ -2475,12 +2489,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             }}
                             className={`p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col justify-between gap-3 ${
                               isSelected
-                                ? 'bg-blue-50/90 border-[#005DAA] shadow-sm ring-2 ring-[#005DAA]/30'
+                                ? 'bg-sky-50/90 border-[#0284c7] shadow-sm ring-2 ring-[#0284c7]/30'
                                 : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs'
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-[#005DAA] text-white shadow-xs' : 'bg-slate-100 text-slate-600'}`}>
+                              <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-[#0284c7] text-white shadow-xs' : 'bg-slate-100 text-slate-600'}`}>
                                 <Icon className="w-5 h-5" />
                               </div>
                               <input
@@ -2488,11 +2502,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                 name="kategoriFungsiRadio"
                                 checked={isSelected}
                                 onChange={() => {}}
-                                className="text-[#005DAA] w-4 h-4"
+                                className="text-[#0284c7] w-4 h-4"
                               />
                             </div>
                             <div>
-                              <strong className={`block text-sm font-black ${isSelected ? 'text-[#005DAA]' : 'text-slate-800'}`}>
+                              <strong className={`block text-sm font-black ${isSelected ? 'text-[#0284c7]' : 'text-slate-800'}`}>
                                 {item.label}
                               </strong>
                               <span className="text-xs text-slate-500 block mt-1 leading-snug">
@@ -2550,8 +2564,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                         </div>
 
                         {/* Kolom 2: Instansi Pemerintah & Lembaga */}
-                        <div className="bg-white p-4 rounded-xl border border-blue-200 space-y-2.5 shadow-2xs">
-                          <span className="text-xs font-black text-[#005DAA] block border-b border-blue-100 pb-1.5">
+                        <div className="bg-white p-4 rounded-xl border border-sky-200 space-y-2.5 shadow-2xs">
+                          <span className="text-xs font-black text-[#0284c7] block border-b border-blue-100 pb-1.5">
                             2. Instansi Pemerintah &amp; Lembaga (Golongan 2B)
                           </span>
                           <div className="space-y-2">
@@ -2568,7 +2582,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                                   }`}
                                 >
                                   {isChecked ? (
-                                    <CheckSquare className="w-4 h-4 text-[#005DAA] shrink-0" />
+                                    <CheckSquare className="w-4 h-4 text-[#0284c7] shrink-0" />
                                   ) : (
                                     <Square className="w-4 h-4 text-slate-400 shrink-0" />
                                   )}
@@ -2646,7 +2660,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             }}
                             placeholder="Contoh: 36, 54, 72"
                             className={`w-full px-3 py-2.5 bg-slate-50 border rounded-xl text-xs font-bold focus:outline-hidden ${
-                              errorFields.luasBangunan ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                              errorFields.luasBangunan ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                             }`}
                           />
                         </div>
@@ -2667,7 +2681,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                             }}
                             placeholder="Contoh: 60, 90, 120"
                             className={`w-full px-3 py-2.5 bg-slate-50 border rounded-xl text-xs font-bold focus:outline-hidden ${
-                              errorFields.luasTanah ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-[#005DAA]'
+                              errorFields.luasTanah ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:bg-white focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600'
                             }`}
                           />
                         </div>
@@ -2700,7 +2714,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
             {currentStep === 6 && (
               <section className="space-y-6 animate-in fade-in">
                 <div className="flex items-center gap-2.5 pb-3 border-b border-slate-200">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-[#005DAA] border border-blue-200">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-[#0284c7] border border-sky-200">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div>
@@ -2718,7 +2732,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 {/* DOKUMENTASI FOTO PROPERTI (DIPINDAHKAN KE PETUGAS LAPANGAN) */}
                 <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
                   <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-                    <Camera className="w-4 h-4 text-[#005DAA]" />
+                    <Camera className="w-4 h-4 text-[#0284c7]" />
                     <span>Dokumentasi Foto Properti Lapangan (3 Foto)</span>
                   </div>
                   <PropertyPhotosSection
@@ -2737,15 +2751,15 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 {/* ======================================================== */}
                 {/* BANK-GRADE SYARAT & KETENTUAN BERLANGGANAN (PASAL 1-11) */}
                 {/* ======================================================== */}
-                <div className="bg-linear-to-r from-blue-50 via-sky-50 to-indigo-50/80 p-5 sm:p-6 rounded-3xl border-2 border-blue-300 shadow-sm space-y-4">
+                <div className="bg-linear-to-r from-blue-50 via-sky-50 to-indigo-50/80 p-5 sm:p-6 rounded-3xl border-2 border-sky-300 shadow-sm space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#005DAA] text-white flex items-center justify-center shadow-xs shrink-0">
+                      <div className="w-10 h-10 rounded-2xl bg-[#0284c7] text-white flex items-center justify-center shadow-xs shrink-0">
                         <ScrollText className="w-5 h-5 text-amber-300" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-blue-900 bg-blue-100 px-2.5 py-0.5 rounded-full">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-teal-900 bg-blue-100 px-2.5 py-0.5 rounded-full">
                             Perjanjian Pelayanan Resmi
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -2765,7 +2779,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsTermsModalOpen(true)}
-                      className="px-4 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer self-start sm:self-center"
+                      className="px-4 py-2.5 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer self-start sm:self-center"
                     >
                       <BookOpen className="w-4 h-4 text-amber-300" />
                       <span>Buka &amp; Baca Dokumen S&amp;K (Pasal 1 - 11)</span>
@@ -2776,8 +2790,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     Dokumen ini memuat hak &amp; kewajiban Para Pihak, ketentuan tarif air, tagihan bulanan, larangan penyadapan ilegal, dan penyelesaian sengketa sesuai peraturan perundang-undangan.
                   </p>
 
-                  <div className="p-3 bg-blue-100/70 rounded-xl border border-blue-200 text-xs text-blue-950 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#005DAA] shrink-0" />
+                  <div className="p-3 bg-blue-100/70 rounded-xl border border-sky-200 text-xs text-blue-950 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#0284c7] shrink-0" />
                     <span>Ketika Anda mengklik tombol <strong>"Daftarkan Sambungan Baru"</strong>, jendela resmi Syarat &amp; Ketentuan beserta kotak pernyataan persetujuan akan terbuka untuk konfirmasi pendaftaran.</span>
                   </div>
                 </div>
@@ -2814,7 +2828,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   <button
                     type="button"
                     onClick={handleNextStep}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-md shadow-blue-600/20 transition transform active:scale-98 cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-md shadow-blue-600/20 transition transform active:scale-98 cursor-pointer"
                   >
                     <span>Selanjutnya</span>
                     <ArrowRight className="w-4 h-4" />
@@ -2825,7 +2839,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     disabled={!isAllRequiredFieldsFilled}
                     className={`inline-flex items-center gap-2 px-7 py-3 rounded-xl text-xs font-black transition transform shadow-lg cursor-pointer ${
                       isAllRequiredFieldsFilled
-                        ? 'bg-[#005DAA] hover:bg-[#004A88] text-white shadow-blue-600/30 active:scale-98'
+                        ? 'bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-blue-600/30 active:scale-98'
                         : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none opacity-70'
                     }`}
                     title={

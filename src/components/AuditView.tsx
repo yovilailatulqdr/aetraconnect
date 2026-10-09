@@ -345,7 +345,7 @@ export const AuditView: React.FC<AuditViewProps> = ({ logs, onClearLogs }) => {
               </span>
             )}
             {selectedMonth !== 'ALL' && (
-              <span className="px-2 py-0.5 bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 rounded-md font-bold text-[10px]">
+              <span className="px-2 py-0.5 bg-[#EAE4D8] text-[#143833] border border-[#D8CFBE] rounded-md font-bold text-[10px]">
                 Bulan: {selectedMonth}
               </span>
             )}

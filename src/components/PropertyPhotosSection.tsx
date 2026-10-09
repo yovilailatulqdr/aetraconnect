@@ -94,7 +94,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
     <div className="bg-sky-50/70 p-4 sm:p-5 rounded-2xl border-2 border-sky-200 space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-sky-200">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#005DAA] text-white flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-[#0f766e] text-white flex items-center justify-center">
             <Camera className="w-4 h-4" />
           </div>
           <div>
@@ -106,7 +106,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-[#005DAA] border border-blue-200">
+        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-[#0f766e] border border-teal-200">
           {photos.length} / 3 Foto Terunggah
         </span>
       </div>
@@ -129,7 +129,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                    <Icon className="w-3.5 h-3.5 text-[#005DAA]" />
+                    <Icon className="w-3.5 h-3.5 text-[#0f766e]" />
                     <span>{slot.title}</span>
                   </span>
                   {photo ? (
@@ -183,7 +183,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
                   {!readOnly && (
                     <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
                       <span>{photo.source === 'camera' ? 'Kamera' : 'File'} • {photo.timestamp || 'Tersimpan'}</span>
-                      <label className="text-[#005DAA] font-bold hover:underline cursor-pointer">
+                      <label className="text-[#0f766e] font-bold hover:underline cursor-pointer">
                         Ganti Foto
                         <input
                           type="file"
@@ -201,7 +201,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenCamera(slot.key)}
-                      className="w-full py-2 px-3 bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
+                      className="w-full py-2 px-3 bg-[#0f766e] hover:bg-[#115e59] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
                     >
                       <Camera className="w-3.5 h-3.5" />
                       <span>Ambil Kamera</span>
@@ -239,7 +239,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
             className="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 animate-in zoom-in-95 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-[#005DAA] text-white p-4 flex items-center justify-between">
+            <div className="bg-[#0f766e] text-white p-4 flex items-center justify-between">
               <span className="font-bold text-xs sm:text-sm">{lightboxPhoto.caption || 'Foto Dokumentasi Properti'}</span>
               <button
                 type="button"

@@ -77,7 +77,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
   return (
     <div className="bg-sky-50/70 p-4 sm:p-5 rounded-2xl border-2 border-sky-200 shadow-xs space-y-5">
       {/* Header */}
-      <div className="bg-[#005DAA] text-white px-4 py-2.5 rounded-xl flex items-center justify-between shadow-xs">
+      <div className="bg-[#0f766e] text-white px-4 py-2.5 rounded-xl flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2">
           <Home className="w-4 h-4 text-amber-300" />
           <h3 className="text-xs sm:text-sm font-black uppercase tracking-wide">
@@ -92,13 +92,13 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
       {/* 1. Kondisi Bangunan: Cukup Jumlah Lantai & Jumlah Penghuni */}
       <div className="bg-white p-4 rounded-xl border border-sky-200 shadow-2xs space-y-3">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-800">
-          <Layers className="w-4 h-4 text-[#005DAA]" />
+          <Layers className="w-4 h-4 text-[#0f766e]" />
           <span>Kondisi Bangunan</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Jumlah Lantai */}
-          <div className="bg-blue-50/60 p-3 rounded-xl border border-blue-200 flex flex-col justify-between gap-2">
+          <div className="bg-teal-50/60 p-3 rounded-xl border border-teal-200 flex flex-col justify-between gap-2">
             <div>
               <label className="block text-xs font-bold text-slate-900 mb-0.5">
                 Jumlah Lantai <span className="text-red-500">*</span>
@@ -116,7 +116,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 value={kb.jumlahLantai || ''}
                 onChange={(e) => updateKondisi('jumlahLantai', e.target.value)}
                 placeholder="1"
-                className={`w-24 px-3 py-2 bg-white border-2 rounded-xl text-sm font-black text-center text-[#005DAA] focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden ${
+                className={`w-24 px-3 py-2 bg-white border-2 rounded-xl text-sm font-black text-center text-[#0f766e] focus:ring-2 focus:ring-[#0f766e] focus:outline-hidden ${
                   errorFields.jumlahLantai ? 'border-red-500 bg-red-50' : 'border-blue-400'
                 }`}
               />
@@ -143,7 +143,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                 value={kb.jumlahPenghuni || ''}
                 onChange={(e) => updateKondisi('jumlahPenghuni', e.target.value)}
                 placeholder="4"
-                className={`w-24 px-3 py-2 bg-white border rounded-xl text-sm font-black text-center text-slate-800 focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden ${
+                className={`w-24 px-3 py-2 bg-white border rounded-xl text-sm font-black text-center text-slate-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-hidden ${
                   errorFields.jumlahPenghuni ? 'border-red-500 bg-red-50' : 'border-slate-300'
                 }`}
               />
@@ -157,7 +157,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
       <div className="bg-white rounded-xl border border-sky-200 overflow-hidden shadow-2xs">
         <div className="bg-sky-100/80 px-4 py-2.5 border-b border-sky-200 flex items-center justify-between text-xs font-bold text-slate-800">
           <span className="flex items-center gap-1.5">
-            <Trees className="w-4 h-4 text-[#005DAA]" />
+            <Trees className="w-4 h-4 text-[#0f766e]" />
             Lingkungan / Prasarana
           </span>
           <span>Keterangan</span>
@@ -174,7 +174,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_saluranPembuangan"
                   checked={ling.saluranPembuangan === 'Ada' || ling.saluranPembuangan?.includes('Ada')}
                   onChange={() => updateLingkungan('saluranPembuangan', 'Ada')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Ada</span>
               </label>
@@ -184,7 +184,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_saluranPembuangan"
                   checked={ling.saluranPembuangan === 'Tidak Ada'}
                   onChange={() => updateLingkungan('saluranPembuangan', 'Tidak Ada')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Tidak Ada</span>
               </label>
@@ -201,7 +201,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_sanitasi"
                   checked={ling.sanitasi === 'Ada' || ling.sanitasi?.includes('Baik') || ling.sanitasi?.includes('Ada')}
                   onChange={() => updateLingkungan('sanitasi', 'Ada')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Ada</span>
               </label>
@@ -211,7 +211,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_sanitasi"
                   checked={ling.sanitasi === 'Tidak Ada' || ling.sanitasi?.includes('Kurang')}
                   onChange={() => updateLingkungan('sanitasi', 'Tidak Ada')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Tidak Ada</span>
               </label>
@@ -228,7 +228,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_halaman"
                   checked={ling.halaman === 'Ada' || ling.halaman?.includes('Ada')}
                   onChange={() => updateLingkungan('halaman', 'Ada')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Ada</span>
               </label>
@@ -238,7 +238,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_halaman"
                   checked={ling.halaman === 'Tidak Ada' || ling.halaman?.includes('Tanpa')}
                   onChange={() => updateLingkungan('halaman', 'Tidak Ada')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Tidak Ada</span>
               </label>
@@ -259,7 +259,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   key={opt.val}
                   className={`flex items-center justify-center gap-1.5 p-2 rounded-xl border text-xs font-bold cursor-pointer transition ${
                     ling.lebarJalan === opt.val
-                      ? 'bg-blue-50 border-[#005DAA] text-[#005DAA] ring-2 ring-blue-200'
+                      ? 'bg-teal-50 border-[#0f766e] text-[#0f766e] ring-2 ring-blue-200'
                       : 'border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
@@ -268,7 +268,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                     name="ling_lebarJalan"
                     checked={ling.lebarJalan === opt.val}
                     onChange={() => updateLingkungan('lebarJalan', opt.val)}
-                    className="text-[#005DAA] focus:ring-[#005DAA]"
+                    className="text-[#0f766e] focus:ring-[#0f766e]"
                   />
                   <span>{opt.label}</span>
                 </label>
@@ -286,7 +286,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_lingkunganTertata"
                   checked={ling.lingkunganTertata === 'Ya' || ling.lingkunganTertata?.includes('Tertata')}
                   onChange={() => updateLingkungan('lingkunganTertata', 'Ya')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Ya</span>
               </label>
@@ -296,7 +296,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_lingkunganTertata"
                   checked={ling.lingkunganTertata === 'Bukan' || ling.lingkunganTertata?.includes('Padat')}
                   onChange={() => updateLingkungan('lingkunganTertata', 'Bukan')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Bukan</span>
               </label>
@@ -313,7 +313,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_realEstate"
                   checked={ling.realEstate === 'Ya' || ling.realEstate?.includes('Kawasan')}
                   onChange={() => updateLingkungan('realEstate', 'Ya')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Ya</span>
               </label>
@@ -323,7 +323,7 @@ export const BuildingEnvironmentFields: React.FC<BuildingEnvironmentFieldsProps>
                   name="ling_realEstate"
                   checked={ling.realEstate === 'Bukan' || ling.realEstate?.includes('Non')}
                   onChange={() => updateLingkungan('realEstate', 'Bukan')}
-                  className="text-[#005DAA] focus:ring-[#005DAA] w-4 h-4"
+                  className="text-[#0f766e] focus:ring-[#0f766e] w-4 h-4"
                 />
                 <span className="text-xs font-bold text-slate-800">Bukan</span>
               </label>

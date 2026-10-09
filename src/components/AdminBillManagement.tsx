@@ -1,7 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { MonthlyBillRecord, RegistrationFormData } from '../types';
-import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { 
+  saveMonthlyBillToDb, 
+  deleteMonthlyBillFromDb, 
+  fetchMonthlyBillsFromDb 
+} from '../services/supabaseService';
 import {
   CreditCard,
   Plus,
@@ -291,7 +296,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
   };
 
   // Save Add / Edit
-  const handleSaveBill = (e: React.FormEvent) => {
+  const handleSaveBill = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.idPelanggan.trim()) {
       alert('ID Pelanggan wajib diisi.');
@@ -332,29 +337,37 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
     let updated: MonthlyBillRecord[];
     if (editingBill) {
       updated = bills.map((b) => (b.id === editingBill.id ? billRecord : b));
-      showToast(`Tagihan untuk ${billRecord.nama} berhasil diperbarui.`);
     } else {
       updated = [billRecord, ...bills];
-      showToast(`Tagihan baru untuk ${billRecord.nama} berhasil ditambahkan.`);
+    }
+
+    const saveRes = await saveMonthlyBillToDb(billRecord);
+    if (!saveRes.success && isSupabaseConfigured()) {
+      showToast(`Gagal menyimpan ke Supabase: ${saveRes.error}`);
+      return;
     }
 
     onUpdateBills(updated);
-    cloudSyncService.saveBills(updated);
+    showToast(editingBill ? `Tagihan untuk ${billRecord.nama} berhasil diperbarui.` : `Tagihan baru untuk ${billRecord.nama} berhasil ditambahkan.`);
     setIsAddModalOpen(false);
     setEditingBill(null);
   };
 
   // Delete Bill
-  const handleDeleteBill = (id: string, name: string) => {
+  const handleDeleteBill = async (id: string, name: string) => {
     if (!window.confirm(`Yakin ingin menghapus data tagihan untuk ${name}?`)) return;
+    const delRes = await deleteMonthlyBillFromDb(id);
+    if (!delRes.success && isSupabaseConfigured()) {
+      showToast(`Gagal menghapus tagihan di Supabase: ${delRes.error}`);
+      return;
+    }
     const updated = bills.filter((b) => b.id !== id);
     onUpdateBills(updated);
-    cloudSyncService.deleteBill(id);
     showToast(`Tagihan untuk ${name} telah dihapus.`);
   };
 
   // Toggle Status Lunas / Belum Lunas
-  const handleToggleStatus = (bill: MonthlyBillRecord) => {
+  const handleToggleStatus = async (bill: MonthlyBillRecord) => {
     const newStatus = bill.status === 'LUNAS' ? 'BELUM LUNAS' : 'LUNAS';
     const updatedRecord: MonthlyBillRecord = {
       ...bill,
@@ -363,9 +376,14 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
       metodeBayar: newStatus === 'LUNAS' ? 'Kasir / Mitra Resmi Aetra' : undefined,
     };
 
+    const saveRes = await saveMonthlyBillToDb(updatedRecord);
+    if (!saveRes.success && isSupabaseConfigured()) {
+      showToast(`Gagal memperbarui status di Supabase: ${saveRes.error}`);
+      return;
+    }
+
     const updated = bills.map((b) => (b.id === bill.id ? updatedRecord : b));
     onUpdateBills(updated);
-    cloudSyncService.saveBills(updated);
     showToast(`Status tagihan #${bill.idPelanggan} diubah menjadi ${newStatus}.`);
   };
 
@@ -496,15 +514,15 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
   };
 
   // Commit Excel Import
-  const handleCommitImport = () => {
+  const handleCommitImport = async () => {
     if (importPreview.length === 0) {
-      alert('Tidak ada data yang dapat diimpor.');
+      showToast('Tidak ada data yang dapat diimpor.');
       return;
     }
 
     // Merge: update existing by ID Pelanggan + Periode, append new
     const merged = [...bills];
-    importPreview.forEach((newBill) => {
+    for (const newBill of importPreview) {
       const existingIdx = merged.findIndex(
         (b) => b.idPelanggan === newBill.idPelanggan && b.periodeBulan === newBill.periodeBulan
       );
@@ -513,11 +531,13 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
       } else {
         merged.unshift(newBill);
       }
-    });
+      if (isSupabaseConfigured()) {
+        await saveMonthlyBillToDb(newBill);
+      }
+    }
 
     onUpdateBills(merged);
-    cloudSyncService.saveBills(merged);
-    showToast(`Berhasil mengimpor ${importPreview.length} data tagihan dari Excel!`);
+    showToast(`Berhasil mengimpor ${importPreview.length} data tagihan dan menyimpan ke Supabase!`);
     setIsImportModalOpen(false);
     setImportPreview([]);
     setImportFileName('');
@@ -526,9 +546,18 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
   // Manual Trigger Cloud Sync
   const handleManualSync = async () => {
     setIsSyncing(true);
-    await cloudSyncService.syncNow();
+    if (isSupabaseConfigured()) {
+      const remote = await fetchMonthlyBillsFromDb();
+      if (remote) {
+        onUpdateBills(remote);
+        showToast('Data tagihan terbaru berhasil dimuat dari database Supabase!');
+      } else {
+        showToast('Gagal memuat data dari Supabase.');
+      }
+    } else {
+      showToast('Supabase belum dikonfigurasi di environment variables.');
+    }
     setIsSyncing(false);
-    showToast('Sinkronisasi database tagihan cloud berhasil!');
   };
 
   return (
@@ -546,7 +575,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-semibold">Total Pelanggan Tertagih</span>
-            <CreditCard className="w-4 h-4 text-[#005DAA]" />
+            <CreditCard className="w-4 h-4 text-[#143833]" />
           </div>
           <div className="text-2xl font-black text-slate-900">{stats.total}</div>
           <div className="text-[11px] text-slate-500">Rekening terdaftar</div>
@@ -575,7 +604,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
             <span className="text-xs font-semibold">Total Nominal Tagihan</span>
             <Layers className="w-4 h-4 text-[#F37021]" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-[#005DAA]">
+          <div className="text-xl sm:text-2xl font-black text-[#143833]">
             Rp {stats.totalAmount.toLocaleString('id-ID')}
           </div>
           <div className="text-[11px] text-slate-500">Akumulasi billing</div>
@@ -587,7 +616,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
         {/* Table Top Header & Action Buttons */}
         <div className="p-5 sm:p-6 border-b border-slate-200 bg-slate-50/70 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#005DAA] border border-blue-200 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#EAE4D8] text-[#143833] border border-[#D8CFBE] flex items-center justify-center shrink-0">
               <CreditCard className="w-5 h-5" />
             </div>
             <div>
@@ -595,7 +624,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                 <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
                   Manajemen Data Tagihan Pelanggan
                 </h3>
-                <span className="text-[10px] font-bold bg-[#005DAA] text-white px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold bg-[#143833] text-white px-2 py-0.5 rounded-full">
                   {filteredBills.length} Rekening
                 </span>
               </div>
@@ -610,7 +639,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
             <button
               type="button"
               onClick={handleOpenAdd}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#005DAA] hover:bg-[#004A88] text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#143833] hover:bg-[#1C4A42] text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Tagihan Manual</span>
@@ -651,7 +680,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
               className="p-2 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-xl transition shadow-2xs cursor-pointer"
               title="Sinkronkan Cloud Antar Perangkat"
             >
-              <RefreshCw className={`w-4 h-4 text-[#005DAA] ${isSyncing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-[#143833] ${isSyncing ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>
@@ -665,7 +694,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Cari ID Pelanggan, Nama, No. SR, atau Periode..."
-              className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+              className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-[#143833] focus:outline-hidden"
             />
             {searchTerm && (
               <button
@@ -690,7 +719,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                 onClick={() => setStatusFilter(st)}
                 className={`px-2.5 py-1 rounded-lg transition font-bold text-[11px] ${
                   statusFilter === st
-                    ? 'bg-[#005DAA] text-white shadow-2xs'
+                    ? 'bg-[#143833] text-white shadow-2xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -727,7 +756,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                 </tr>
               ) : (
                 filteredBills.map((b) => (
-                  <tr key={b.id} className="hover:bg-blue-50/30 transition">
+                  <tr key={b.id} className="hover:bg-[#EAE4D8]/30 transition">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
                         <span className="font-mono font-bold text-slate-900 text-xs">
@@ -736,7 +765,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                         <button
                           type="button"
                           onClick={() => handleCopy(b.idPelanggan)}
-                          className="text-slate-400 hover:text-[#005DAA] transition"
+                          className="text-slate-400 hover:text-[#143833] transition"
                           title="Salin ID Pelanggan"
                         >
                           {copiedId === b.idPelanggan ? (
@@ -758,11 +787,11 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                       {b.periodeBulan}
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-200/60">
+                      <span className="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-[#EAE4D8]/80 px-2 py-0.5 rounded-md border border-[#D8CFBE]/60">
                         {b.pemakaianM3 || 0} m³
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-[#005DAA]">
+                    <td className="py-3 px-4 font-mono font-bold text-[#143833]">
                       <div>Rp {b.totalTagihan.toLocaleString('id-ID')},-</div>
                       {((b.denda || 0) > 0 || (b.biayaPembukaanSegel || 0) > 0 || (b.biayaLainnya || 0) > 0) && (
                         <div className="text-[9px] text-amber-700 font-normal">
@@ -802,7 +831,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(b)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          className="p-1.5 text-[#143833] hover:bg-[#EAE4D8] rounded-lg transition"
                           title="Edit Tagihan"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -829,7 +858,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 my-auto">
-            <div className="bg-[#005DAA] text-white p-5 flex items-center justify-between">
+            <div className="bg-[#143833] text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <CreditCard className="w-5 h-5" />
                 <div>
@@ -853,10 +882,10 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
             <form onSubmit={handleSaveBill} className="p-5 sm:p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
               {/* Quick Select from Registered Customers */}
               {registeredCustomerList.length > 0 && !editingBill && (
-                <div className="bg-blue-50/70 border border-blue-200 p-3 rounded-2xl space-y-1.5">
+                <div className="bg-[#EAE4D8]/70 border border-[#D8CFBE] p-3 rounded-2xl space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-blue-950 flex items-center gap-1.5 text-xs">
-                      <Sparkles className="w-3.5 h-3.5 text-[#005DAA]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#143833]" />
                       Pilih Pelanggan Terdaftar (Cepat):
                     </span>
                     <span className="text-[10px] text-blue-700 font-semibold">
@@ -866,7 +895,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                   <select
                     value={formData.idPelanggan}
                     onChange={(e) => handleIdPelangganChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-blue-300 rounded-xl font-bold text-slate-800 text-xs focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden"
+                    className="w-full px-3 py-2 bg-white border border-blue-300 rounded-xl font-bold text-slate-800 text-xs focus:ring-2 focus:ring-[#143833] focus:outline-hidden"
                   >
                     <option value="">-- Pilih ID Pelanggan untuk Auto-Fill --</option>
                     {registeredCustomerList.map((c) => (
@@ -893,7 +922,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                     value={formData.idPelanggan}
                     onChange={(e) => handleIdPelangganChange(e.target.value)}
                     placeholder="Masukkan ID Pelanggan (contoh: 10842918)"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden text-sm"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#143833] focus:outline-hidden text-sm"
                   />
                 </div>
                 {customerFoundNote && (
@@ -978,8 +1007,8 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
               </div>
 
               {/* RINCIAN KOMPONEN TAGIHAN BARU (Pemakaian Air m3, Denda, Segel, Biaya Lainnya, Total) */}
-              <div className="bg-blue-50/40 p-4 rounded-2xl border-2 border-blue-200 space-y-3">
-                <div className="flex items-center justify-between pb-1 border-b border-blue-200">
+              <div className="bg-[#EAE4D8]/40 p-4 rounded-2xl border-2 border-[#D8CFBE] space-y-3">
+                <div className="flex items-center justify-between pb-1 border-b border-[#D8CFBE]">
                   <span className="font-black text-blue-950 text-xs uppercase tracking-wide">
                     Rincian Komponen Biaya &amp; Pemakaian Air
                   </span>
@@ -1016,7 +1045,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                             totalTagihan: total,
                           });
                         }}
-                        className="w-full px-3 py-2 bg-white border border-blue-300 rounded-xl font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden text-xs"
+                        className="w-full px-3 py-2 bg-white border border-blue-300 rounded-xl font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#143833] focus:outline-hidden text-xs"
                       />
                       <span className="absolute right-3 top-2 text-slate-400 font-semibold text-xs">m³</span>
                     </div>
@@ -1132,8 +1161,8 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                 </div>
 
                 {/* Total Tagihan (Kalkulasi Otomatis / Editable) */}
-                <div className="pt-2 border-t border-blue-200">
-                  <label className="block font-black text-[#005DAA] mb-1 text-xs uppercase tracking-wide">
+                <div className="pt-2 border-t border-[#D8CFBE]">
+                  <label className="block font-black text-[#143833] mb-1 text-xs uppercase tracking-wide">
                     Total Tagihan Air (Rp) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -1144,7 +1173,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                       step={100}
                       value={formData.totalTagihan}
                       onChange={(e) => setFormData({ ...formData, totalTagihan: Number(e.target.value) })}
-                      className="w-full px-4 py-3 bg-white border-2 border-[#005DAA] rounded-xl font-mono font-black text-xl text-[#005DAA] focus:ring-2 focus:ring-[#005DAA] focus:outline-hidden shadow-xs"
+                      className="w-full px-4 py-3 bg-white border-2 border-[#143833] rounded-xl font-mono font-black text-xl text-[#143833] focus:ring-2 focus:ring-[#143833] focus:outline-hidden shadow-xs"
                     />
                     <span className="absolute right-4 top-3 text-slate-400 font-bold text-xs">
                       = Rp {Number(formData.totalTagihan || 0).toLocaleString('id-ID')}
@@ -1166,7 +1195,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#005DAA] hover:bg-[#004A88] text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
+                  className="px-5 py-2.5 bg-[#143833] hover:bg-[#1C4A42] text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer"
                 >
                   {editingBill ? 'Simpan Perubahan Tagihan' : 'Tambah Tagihan'}
                 </button>
@@ -1265,7 +1294,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
                             <td className="p-2 font-mono font-bold text-slate-900">{row.idPelanggan}</td>
                             <td className="p-2">{row.nama}</td>
                             <td className="p-2">{row.periodeBulan}</td>
-                            <td className="p-2 font-mono text-[#005DAA]">Rp {row.totalTagihan.toLocaleString('id-ID')}</td>
+                            <td className="p-2 font-mono text-[#143833]">Rp {row.totalTagihan.toLocaleString('id-ID')}</td>
                             <td className="p-2">
                               <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                                 row.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'

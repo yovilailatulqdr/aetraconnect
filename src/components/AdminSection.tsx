@@ -54,7 +54,6 @@ import { ExcelImportModal } from './ExcelImportModal';
 import { AdminBillManagement } from './AdminBillManagement';
 import { AdminAccountManagement } from './AdminAccountManagement';
 import { AdminApprovalModal } from './AdminApprovalModal';
-import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
 import { AETRA_SERVICE_AREAS } from '../data/serviceAreas';
 
 interface AdminSectionProps {
@@ -138,33 +137,20 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
   // Bills state
   const [billsState, setBillsState] = useState<MonthlyBillRecord[]>(() => {
-    if (externalBills && externalBills.length > 0) return externalBills;
-    const local = cloudSyncService.getLocalSnapshot().bills;
-    return local.length > 0 ? local : INITIAL_BILLS_DATA;
+    return externalBills || [];
   });
 
   useEffect(() => {
-    if (externalBills && externalBills.length > 0) {
+    if (externalBills) {
       setBillsState(externalBills);
     }
   }, [externalBills]);
-
-  useEffect(() => {
-    const unsub = cloudSyncService.addListener(() => {
-      const snap = cloudSyncService.getLocalSnapshot().bills;
-      if (snap && snap.length > 0) {
-        setBillsState(snap);
-      }
-    });
-    return unsub;
-  }, []);
 
   const handleUpdateBills = (newBills: MonthlyBillRecord[]) => {
     setBillsState(newBills);
     if (onUpdateBills) {
       onUpdateBills(newBills);
     }
-    cloudSyncService.saveBills(newBills);
   };
 
   const surveyList = _surveys || [];
@@ -497,50 +483,56 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Admin Banner */}
-      <div className="bg-linear-to-r from-slate-900 via-blue-950 to-[#003868] text-white rounded-2xl p-6 shadow-sm border border-slate-800 flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F37021] text-white flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              BACKOFFICE &amp; OPERASIONAL
-            </span>
-            <span className="text-xs text-blue-200">PT Aetra Air Tangerang</span>
-          </div>
-          <h2 className="text-xl font-black tracking-tight text-white">
-            Portal Administrasi &amp; Pengendalian Sambungan Baru
-          </h2>
-          <p className="text-xs text-slate-300 max-w-2xl">
-            Kelola verifikasi berkas permohonan, pantau pelunasan biaya pasang, terbitkan Surat Perintah Kerja (SPK), dan perbarui status teknis lapangan.
-          </p>
-        </div>
+      {/* Top Admin Banner - Deep Spruce & Terracotta */}
+      <div className="relative overflow-hidden bg-linear-to-r from-[#143833] via-[#1A453F] to-[#12332E] text-white rounded-3xl p-6 sm:p-7 shadow-lg shadow-[#143833]/20 border border-[#23534B]">
+        {/* Subtle luminous background glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-[#DC602E]/20 rounded-full blur-3xl pointer-events-none -mb-20" />
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 backdrop-blur-xs text-blue-100 text-xs font-semibold border border-white/15">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Sistem Terhubung Real-Time</span>
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-xl text-[10px] font-black tracking-wider uppercase bg-[#DC602E] text-white flex items-center gap-1.5 shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                Backoffice &amp; Pengendalian Operasional
+              </span>
+              <span className="text-xs text-[#A6C4BE] font-semibold">PT Aetra Air Tangerang</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              Pusat Verifikasi Sambungan Baru &amp; SPKO
+            </h2>
+            <p className="text-xs text-[#C2D6D2] leading-relaxed">
+              Verifikasi berkas calon pelanggan, pantau pelunasan rekening sambungan, terbitkan Surat Perintah Kerja (SPK) pipa dinas, dan perbarui nomor seri meter air.
+            </p>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-2.5 flex-wrap">
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/10 backdrop-blur-md text-white text-xs font-bold border border-white/20 shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Sistem Terhubung Real-Time</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tab Switcher: Data Registrasi Baru vs Data Survey Pelanggan */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/90 w-fit flex-wrap">
+      {/* Modern Segmented Tab Switcher */}
+      <div className="flex items-center gap-1.5 p-1.5 bg-[#EDE7DC] rounded-2xl border border-[#DDD3C4] w-full sm:w-fit flex-wrap">
         <button
           type="button"
           onClick={() => setAdminSubTab('registrations')}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
             adminSubTab === 'registrations'
-              ? 'bg-[#005DAA] text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#143833] text-white shadow-md shadow-[#143833]/25 font-bold'
+              : 'text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F2]'
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Data Pelanggan Registrasi Baru</span>
+          <span>Data Pelanggan Baru</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+            className={`px-2 py-0.5 rounded-full text-[10px] font-black tabular-nums ${
               adminSubTab === 'registrations'
                 ? 'bg-white/20 text-white'
-                : 'bg-slate-200 text-slate-700'
+                : 'bg-[#DDD3C4] text-slate-800'
             }`}
           >
             {combinedList.length}
@@ -550,32 +542,32 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         <button
           type="button"
           onClick={() => setAdminSubTab('accounts')}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
             adminSubTab === 'accounts'
-              ? 'bg-[#005DAA] text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#143833] text-white shadow-md shadow-[#143833]/25 font-bold'
+              : 'text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F2]'
           }`}
         >
-          <UserCheck className="w-4 h-4 text-emerald-300" />
+          <UserCheck className="w-4 h-4 text-emerald-400" />
           <span>Daftar Akun Aetra Connect</span>
         </button>
 
         <button
           type="button"
           onClick={() => setAdminSubTab('bills')}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
             adminSubTab === 'bills'
-              ? 'bg-[#005DAA] text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#143833] text-white shadow-md shadow-[#143833]/25 font-bold'
+              : 'text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F2]'
           }`}
         >
-          <CreditCard className="w-4 h-4 text-amber-300" />
-          <span>Data Tagihan Pelanggan (Manual &amp; Impor Excel)</span>
+          <CreditCard className="w-4 h-4 text-[#DC602E]" />
+          <span>Tagihan Pelanggan</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+            className={`px-2 py-0.5 rounded-full text-[10px] font-black tabular-nums ${
               adminSubTab === 'bills'
                 ? 'bg-white/20 text-white'
-                : 'bg-slate-200 text-slate-700'
+                : 'bg-[#DDD3C4] text-slate-800'
             }`}
           >
             {billsState.length}
@@ -585,19 +577,19 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         <button
           type="button"
           onClick={() => setAdminSubTab('surveys')}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
             adminSubTab === 'surveys'
-              ? 'bg-[#005DAA] text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              ? 'bg-[#143833] text-white shadow-md shadow-[#143833]/25 font-bold'
+              : 'text-slate-700 hover:text-slate-900 hover:bg-[#FAF7F2]'
           }`}
         >
-          <MessageSquareHeart className="w-4 h-4 text-emerald-300" />
-          <span>Data Survey Kepuasan Pelanggan</span>
+          <MessageSquareHeart className="w-4 h-4 text-pink-400" />
+          <span>Survey Kepuasan</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+            className={`px-2 py-0.5 rounded-full text-[10px] font-black tabular-nums ${
               adminSubTab === 'surveys'
                 ? 'bg-white/20 text-white'
-                : 'bg-slate-200 text-slate-700'
+                : 'bg-slate-300/80 text-slate-700'
             }`}
           >
             {surveyList.length}
@@ -609,73 +601,85 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         <>
           {/* KPI Cards Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {/* Total Pengajuan */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">Total Pengajuan</span>
-            <Users className="w-4 h-4 text-[#005DAA]" />
-          </div>
-          <div className="text-xl font-black text-slate-900">{stats.total}</div>
-          <div className="text-[10px] text-slate-500">Permohonan terdaftar</div>
-        </div>
+            {/* Total Pengajuan */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[11px] font-bold text-[#143833] uppercase tracking-wider">Total</span>
+                <div className="w-7 h-7 rounded-lg bg-[#EAE4D8] text-[#143833] flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-[#143833] tabular-nums">{stats.total}</div>
+              <div className="text-[10px] text-slate-500 font-medium">Permohonan terdaftar</div>
+            </div>
 
-        {/* Tahap 1: Verifikasi Berkas */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">1. Berkas</span>
-            <Clock className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-xl font-black text-amber-600">{stats.step1}</div>
-          <div className="text-[10px] text-slate-500">Verifikasi dokumen</div>
-        </div>
+            {/* Tahap 1: Verifikasi Berkas */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">1. Berkas</span>
+                <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <Clock className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-amber-600 tabular-nums">{stats.step1}</div>
+              <div className="text-[10px] text-slate-500 font-medium">Verifikasi dokumen</div>
+            </div>
 
-        {/* Tahap 2: Pembayaran */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">2. Pembayaran</span>
-            <CreditCard className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-xl font-black text-[#005DAA]">{stats.step2}</div>
-          <div className="text-[10px] text-slate-500">Menunggu / konfirmasi</div>
-        </div>
+            {/* Tahap 2: Pembayaran */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[11px] font-bold text-[#143833] uppercase tracking-wider">2. Tagihan</span>
+                <div className="w-7 h-7 rounded-lg bg-[#EAE4D8] text-[#143833] flex items-center justify-center">
+                  <CreditCard className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-[#143833] tabular-nums">{stats.step2}</div>
+              <div className="text-[10px] text-slate-500 font-medium">Menunggu / konfirmasi</div>
+            </div>
 
-        {/* Tahap 3: SPKO Pipa Dinas */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">3. SPKO &amp; Pipa</span>
-            <Wrench className="w-4 h-4 text-[#F37021]" />
-          </div>
-          <div className="text-xl font-black text-[#F37021]">{stats.step3}</div>
-          <div className="text-[10px] text-slate-500">Pekerjaan pipa dinas</div>
-        </div>
+            {/* Tahap 3: SPKO Pipa Dinas */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[11px] font-bold text-orange-700 uppercase tracking-wider">3. SPKO</span>
+                <div className="w-7 h-7 rounded-lg bg-orange-50 text-[#F15A24] flex items-center justify-center">
+                  <Wrench className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-[#F15A24] tabular-nums">{stats.step3}</div>
+              <div className="text-[10px] text-slate-500 font-medium">Pekerjaan pipa dinas</div>
+            </div>
 
-        {/* Tahap 4: Pasang Meter & Segel */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">4. Pasang Meter</span>
-            <Gauge className="w-4 h-4 text-indigo-600" />
-          </div>
-          <div className="text-xl font-black text-indigo-600">{stats.step4}</div>
-          <div className="text-[10px] text-slate-500">Water meter &amp; segel</div>
-        </div>
+            {/* Tahap 4: Pasang Meter & Segel */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">4. Meter</span>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                  <Gauge className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-blue-700 tabular-nums">{stats.step4}</div>
+              <div className="text-[10px] text-slate-500 font-medium">Water meter &amp; segel</div>
+            </div>
 
-        {/* Tahap 5: Selesai (Air Mengalir) */}
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">5. Air Mengalir</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            {/* Tahap 5: Selesai (Air Mengalir) */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">5. Aktif</span>
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-emerald-600 tabular-nums">{stats.step5}</div>
+              <div className="text-[10px] text-slate-500 font-medium">Sambungan resmi aktif</div>
+            </div>
           </div>
-          <div className="text-xl font-black text-emerald-600">{stats.step5}</div>
-          <div className="text-[10px] text-slate-500">Sambungan aktif resmi</div>
-        </div>
-      </div>
 
       {/* Main Admin Content Card: Data Pelanggan */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         {/* Table Top Header & Excel Action Bar */}
-        <div className="border-b border-slate-200 px-5 sm:px-6 py-4 flex items-center justify-between gap-4 flex-wrap bg-slate-50/70">
+        <div className="border-b border-slate-200 px-5 sm:px-6 py-4 flex items-center justify-between gap-4 flex-wrap bg-[#EAE4D8]/40">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005DAA] shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#E0D8CA]/70 border border-[#D8CFBE] flex items-center justify-center text-[#143833] shadow-2xs">
               <Users className="w-5 h-5" />
             </div>
             <div>
@@ -683,7 +687,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                 <h3 className="text-sm font-bold text-slate-900">
                   Data Pelanggan Sambungan Baru
                 </h3>
-                <span className="text-[11px] font-bold bg-[#005DAA] text-white px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold bg-[#143833] text-white px-2.5 py-0.5 rounded-full">
                   {combinedList.length} Pemohon
                 </span>
               </div>
@@ -708,7 +712,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
             <button
               type="button"
               onClick={() => setIsExcelImportModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold transition shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#143833] hover:bg-[#1C4A42] text-white text-xs font-bold transition shadow-xs cursor-pointer"
               title="Import data pelanggan dari file Excel (.xlsx / .csv)"
             >
               <Upload className="w-4 h-4" />
@@ -748,7 +752,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Cari Nama, No. Form, No. SR, atau Kelurahan..."
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                 />
                 {searchTerm && (
                   <button
@@ -781,7 +785,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                     onClick={() => setStatusFilter(flt.id as any)}
                     className={`px-2.5 py-1.5 rounded-lg font-semibold transition ${
                       statusFilter === flt.id
-                        ? 'bg-[#005DAA] text-white shadow-xs'
+                        ? 'bg-[#143833] text-white shadow-xs'
                         : flt.id === 'paid'
                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 font-bold'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -839,7 +843,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
             {/* Manual Update Guidance Banner for Admin */}
             <div className="p-3.5 bg-blue-50/80 rounded-xl border border-blue-200/80 flex items-start gap-2.5 text-xs text-blue-900">
-              <ShieldCheck className="w-4 h-4 text-[#005DAA] shrink-0 mt-0.5" />
+              <ShieldCheck className="w-4 h-4 text-[#143833] shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <span className="font-bold text-blue-950">Wewenang Pembaruan Status Manual Admin:</span>
                 <p className="text-[11px] text-blue-800 leading-relaxed">
@@ -873,9 +877,9 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                     filteredList.map((item) => {
                       const stepColors: Record<number, { bg: string; text: string; label: string }> = {
                         1: { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', label: '1. Verifikasi Berkas' },
-                        2: { bg: 'bg-blue-50 border-blue-200', text: 'text-[#005DAA]', label: '2. Pembayaran Biaya' },
+                        2: { bg: 'bg-[#EAE4D8] border-[#D8CFBE]', text: 'text-[#143833]', label: '2. Pembayaran Biaya' },
                         3: { bg: 'bg-orange-50 border-orange-200', text: 'text-[#F37021]', label: '3. SPKO & Pipa Dinas' },
-                        4: { bg: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', label: '4. Pasang Meter & Segel' },
+                        4: { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-800', label: '4. Pasang Meter & Segel' },
                         5: { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-800', label: '5. Selesai (Air Mengalir)' },
                       };
                       const currColor = stepColors[item.currentStep] || stepColors[1];
@@ -885,7 +889,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       return (
                         <tr key={item.noForm} className="hover:bg-slate-50/80 transition">
                           <td className="py-3.5 px-4">
-                            <div className="font-mono font-bold text-[#005DAA] text-xs">
+                            <div className="font-mono font-bold text-[#143833] text-xs">
                               #{item.noForm}
                             </div>
                             <div className="text-[11px] font-mono text-slate-500">
@@ -952,7 +956,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                                       item.namaKtp
                                     )
                                   }
-                                  className={`w-full text-[11px] font-bold py-1.5 pl-2.5 pr-7 rounded-lg border appearance-none cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 transition ${currColor.bg} ${currColor.text}`}
+                                  className={`w-full text-[11px] font-bold py-1.5 pl-2.5 pr-7 rounded-lg border appearance-none cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-[#143833]/20 transition ${currColor.bg} ${currColor.text}`}
                                   title="Ubah tahapan proses permohonan pelanggan ini secara manual"
                                 >
                                   <option value={1}>1. Verifikasi Berkas</option>
@@ -1000,9 +1004,9 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                                 type="button"
                                 onClick={() => setViewingFullRecord(item)}
                                 title="Buka Seluruh Data Pengisian Formulir Sambungan Baru"
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-50 text-[#005DAA] hover:bg-sky-100 border border-sky-300 font-bold text-[11px] transition shadow-2xs"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EAE4D8] text-[#143833] hover:bg-[#E0D8CA] border border-[#D8CFBE] font-bold text-[11px] transition shadow-2xs"
                               >
-                                <Eye className="w-3.5 h-3.5 text-[#005DAA]" />
+                                <Eye className="w-3.5 h-3.5 text-[#143833]" />
                                 <span>Data Lengkap</span>
                               </button>
 
@@ -1024,7 +1028,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                                 type="button"
                                 onClick={() => handleOpenEditModal(item)}
                                 title="Buka Formulir Pembaruan Data Sambungan Baru & Data Teknis"
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 text-[#005DAA] hover:bg-blue-100 border border-blue-200/80 font-bold text-[11px] transition shadow-2xs"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EAE4D8] text-[#143833] hover:bg-[#E0D8CA] border border-[#D8CFBE]/80 font-bold text-[11px] transition shadow-2xs"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
                                 <span>Ubah Data</span>
@@ -1097,7 +1101,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
             onClick={() => setSurveyTypeFilter('all')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               surveyTypeFilter === 'all'
-                ? 'bg-[#005DAA] text-white shadow-xs'
+                ? 'bg-[#143833] text-white shadow-xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
@@ -1110,7 +1114,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
             onClick={() => setSurveyTypeFilter('new_connection')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               surveyTypeFilter === 'new_connection'
-                ? 'bg-[#005DAA] text-white shadow-xs'
+                ? 'bg-[#143833] text-white shadow-xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
@@ -1125,11 +1129,11 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
             onClick={() => setSurveyTypeFilter('regular_customer')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               surveyTypeFilter === 'regular_customer'
-                ? 'bg-[#005DAA] text-white shadow-xs'
+                ? 'bg-[#143833] text-white shadow-xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <Droplets className="w-4 h-4 text-blue-500" />
+            <Droplets className="w-4 h-4 text-cyan-500" />
             <span>
               Survey Kepuasan Pelanggan Rutin ({surveyList.filter((s) => s.surveyType !== 'new_connection').length})
             </span>
@@ -1142,7 +1146,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-1">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-xs font-semibold">Total Responden</span>
-              <Users className="w-4 h-4 text-[#005DAA]" />
+              <Users className="w-4 h-4 text-[#143833]" />
             </div>
             <div className="text-2xl font-black text-slate-900">{surveyStats.total}</div>
             <div className="text-[11px] text-slate-500">Kuesioner masuk</div>
@@ -1177,7 +1181,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               <span className="text-xs font-semibold">Tingkat Kepuasan</span>
               <CheckCircle2 className="w-4 h-4 text-blue-600" />
             </div>
-            <div className="text-2xl font-black text-[#005DAA]">{surveyStats.satisfactionRate}</div>
+            <div className="text-2xl font-black text-[#143833]">{surveyStats.satisfactionRate}</div>
             <div className="text-[11px] text-slate-500">{surveyStats.satisfiedCount} responden puas (≥ 4.0)</div>
           </div>
         </div>
@@ -1333,7 +1337,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {srv.surveyType === 'new_connection' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-300">
-                            <Wrench className="w-3 h-3 text-[#005DAA]" />
+                            <Wrench className="w-3 h-3 text-[#143833]" />
                             <span>Sambungan Baru</span>
                           </span>
                         ) : (
@@ -1347,7 +1351,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       {/* Data Pelanggan */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="font-bold text-slate-900 block">{srv.nama}</span>
-                        <span className="font-mono text-[11px] text-[#005DAA] font-semibold">
+                        <span className="font-mono text-[11px] text-[#143833] font-semibold">
                           SR/ID: {srv.noPelangganOrSr || '-'}
                         </span>
                       </td>
@@ -1412,17 +1416,17 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
       {editingRecord && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="bg-[#005DAA] text-white p-4 flex items-center justify-between">
+            <div className="bg-linear-to-r from-[#143833] via-[#1B453E] to-[#11312C] text-white p-4 flex items-center justify-between border-b border-[#143833]/60">
               <div>
                 <h3 className="font-bold text-sm">Perbarui Status &amp; Data Teknis</h3>
-                <p className="text-[11px] text-blue-100">
+                <p className="text-[11px] text-[#A6C4BE]">
                   No. Form #{editingRecord.noForm} &bull; {editingRecord.nama}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingRecord(null)}
-                className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition"
+                className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1458,7 +1462,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       }
                       className={`p-2.5 rounded-xl border font-bold text-left transition ${
                         editingRecord.currentStep === s.step
-                          ? 'bg-blue-50 border-[#005DAA] text-[#005DAA] ring-1 ring-[#005DAA]'
+                          ? 'bg-[#EAE4D8] border-[#143833] text-[#143833] ring-1 ring-[#143833]'
                           : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
@@ -1513,7 +1517,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       prev ? { ...prev, statusPembayaran: e.target.value as any } : null
                     )
                   }
-                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                 >
                   <option value="Menunggu Pembayaran">Menunggu Pembayaran (Belum Lunas)</option>
                   <option value="Lunas">Lunas (Terkonfirmasi)</option>
@@ -1535,7 +1539,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       )
                     }
                     placeholder="Contoh: AET-2609-8472"
-                    className="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                   />
                 </div>
 
@@ -1552,7 +1556,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       )
                     }
                     placeholder="Contoh: SGL-AAT-99120"
-                    className="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                   />
                 </div>
               </div>
@@ -1571,7 +1575,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                         prev ? { ...prev, petugasSurveyor: e.target.value } : null
                       )
                     }
-                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                   />
                 </div>
 
@@ -1587,7 +1591,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                         prev ? { ...prev, petugasTeknisi: e.target.value } : null
                       )
                     }
-                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                   />
                 </div>
               </div>
@@ -1606,7 +1610,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                     )
                   }
                   placeholder="Contoh: Berkas telah diverifikasi lengkap. Petugas surveyor dijadwalkan datang besok."
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
                 />
               </div>
 
@@ -1621,7 +1625,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white font-bold shadow-xs transition"
+                  className="px-5 py-2 rounded-xl bg-[#143833] hover:bg-[#1C4A42] text-white font-bold shadow-xs transition cursor-pointer"
                 >
                   Simpan Perubahan
                 </button>
@@ -1636,13 +1640,13 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl max-w-4xl w-full border border-slate-200 shadow-2xl overflow-hidden my-auto animate-in zoom-in-95 duration-150 max-h-[92vh] flex flex-col">
             {/* Modal Header */}
-            <div className="bg-linear-to-r from-[#005DAA] via-[#004B8A] to-[#003868] text-white p-5 flex items-start justify-between gap-4 shrink-0 border-b-2 border-[#F37021]">
+            <div className="bg-linear-to-r from-[#143833] via-[#1B453E] to-[#11312C] text-white p-5 flex items-start justify-between gap-4 shrink-0 border-b-2 border-amber-500">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="bg-white/20 text-white font-mono font-bold text-xs px-2 py-0.5 rounded">
                     FORM #{viewingFullRecord.noForm}
                   </span>
-                  <span className="bg-orange-500/80 text-white font-mono font-bold text-xs px-2 py-0.5 rounded">
+                  <span className="bg-amber-500 text-slate-950 font-mono font-bold text-xs px-2 py-0.5 rounded">
                     SR: {viewingFullRecord.noSr}
                   </span>
                   <span className="bg-emerald-500/90 text-white font-mono font-bold text-xs px-2 py-0.5 rounded">
@@ -1650,10 +1654,10 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-orange-400" />
+                  <FileText className="w-5 h-5 text-amber-400" />
                   <span>Berkas Pendaftaran Sambungan Baru: {viewingFullRecord.namaKtp}</span>
                 </h3>
-                <p className="text-xs text-blue-100">
+                <p className="text-xs text-[#A6C4BE]">
                   Data lengkap formulir sambungan baru rumah tangga yang tersimpan permanen di sistem Aetra
                 </p>
               </div>
@@ -1673,9 +1677,9 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm text-white ${
                     viewingFullRecord.currentStep === 1 ? 'bg-amber-500' :
-                    viewingFullRecord.currentStep === 2 ? 'bg-[#005DAA]' :
+                    viewingFullRecord.currentStep === 2 ? 'bg-[#143833]' :
                     viewingFullRecord.currentStep === 3 ? 'bg-[#F37021]' :
-                    viewingFullRecord.currentStep === 4 ? 'bg-indigo-600' : 'bg-emerald-600'
+                    viewingFullRecord.currentStep === 4 ? 'bg-blue-600' : 'bg-emerald-600'
                   }`}>
                     T{viewingFullRecord.currentStep}
                   </div>
@@ -1709,7 +1713,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                 {/* 1. DATA IDENTITAS PEMOHON */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-100 font-bold text-slate-800 text-xs uppercase">
-                    <Users className="w-4 h-4 text-[#005DAA]" />
+                    <Users className="w-4 h-4 text-[#143833]" />
                     <span>1. Data Identitas Pemohon</span>
                   </div>
                   <div className="space-y-2 text-slate-700">
@@ -1754,7 +1758,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                         <div className="text-[11px] text-slate-600 mt-1 flex items-center gap-2">
                           <span>RT/RW: {viewingFullRecord.rtRwPasang || '-'}</span>
                           <span>&bull;</span>
-                          <strong className="text-[#005DAA]">Kel. {viewingFullRecord.kelurahanPasang || '-'}</strong>
+                          <strong className="text-[#143833]">Kel. {viewingFullRecord.kelurahanPasang || '-'}</strong>
                           <span>&bull;</span>
                           <span>Pos: {viewingFullRecord.kodePosPasang || '-'}</span>
                         </div>
@@ -1779,7 +1783,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                 {/* 3. KONDISI FISIK BANGUNAN & KATEGORI TARIF OTOMATIS */}
                 <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-xs">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-100 font-bold text-slate-800 text-xs uppercase">
-                    <Home className="w-4 h-4 text-purple-600" />
+                    <Home className="w-4 h-4 text-[#143833]" />
                     <span>3. Kondisi Bangunan &amp; Tarif Domestik</span>
                   </div>
                   <div className="space-y-2 text-slate-700">
@@ -1792,8 +1796,8 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       <span className="font-semibold text-slate-900">{viewingFullRecord.kondisiBangunan?.jumlahLantai || 1} Lantai</span>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-50 bg-blue-50/50 px-2 rounded">
-                      <span className="font-bold text-[#005DAA]">Total Luas Bangunan:</span>
-                      <span className="font-mono font-black text-sm text-[#005DAA]">
+                      <span className="font-bold text-[#143833]">Total Luas Bangunan:</span>
+                      <span className="font-mono font-black text-sm text-[#143833]">
                         {viewingFullRecord.totalLuasBangunan || viewingFullRecord.kondisiBangunan?.totalLuasBangunan || (Number(viewingFullRecord.luasBangunan || 0) * Number(viewingFullRecord.kondisiBangunan?.jumlahLantai || 1))} m²
                       </span>
                     </div>
@@ -2043,7 +2047,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                     setViewingFullRecord(null);
                     handleOpenEditModal(item);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#005DAA] hover:bg-[#004B8A] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#143833] hover:bg-[#004B8A] text-white font-bold text-xs shadow-xs transition cursor-pointer"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   <span>Ubah Data</span>
@@ -2085,7 +2089,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
             className="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col max-h-[90vh] my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-[#005DAA] text-white p-4 flex items-center justify-between">
+            <div className="bg-[#143833] text-white p-4 flex items-center justify-between">
               <div>
                 <h4 className="font-bold text-sm text-white">{previewDocModal.title}</h4>
                 <p className="text-[11px] text-blue-100">Pratinjau Dokumen / Foto Persyaratan Resmi Pelanggan</p>
@@ -2164,7 +2168,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                         1. Target Penerima ({selectedWaRecipients.length}/{paidCustomers.length})
                       </span>
                       {singleWaItem && (
-                        <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-[#005DAA] font-bold rounded">
+                        <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-[#143833] font-bold rounded">
                           Mode Personal
                         </span>
                       )}
@@ -2179,7 +2183,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                             setSelectedWaRecipients(paidCustomers.map((c) => c.noForm));
                           }
                         }}
-                        className="text-[11px] text-[#005DAA] hover:underline font-bold"
+                        className="text-[11px] text-[#143833] hover:underline font-bold"
                       >
                         {selectedWaRecipients.length === paidCustomers.length
                           ? 'Batal Pilih Semua'
@@ -2337,7 +2341,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                   {/* WhatsApp Chat Bubble */}
                   <div className="bg-white rounded-xl rounded-tl-none p-3 shadow-sm border border-slate-200/80 text-[11px] leading-relaxed text-slate-800 max-w-[95%] space-y-1.5 self-start">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-1 mb-1">
-                      <span className="font-bold text-[#005DAA] flex items-center gap-1 text-[10px]">
+                      <span className="font-bold text-[#143833] flex items-center gap-1 text-[10px]">
                         <span>PT Aetra Air Tangerang</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       </span>
@@ -2401,7 +2405,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       type="button"
                       disabled={selectedWaRecipients.length === 0}
                       onClick={() => handleTriggerWaBlast('app')}
-                      className="py-3 px-3 rounded-xl bg-[#005DAA] hover:bg-[#004A88] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="py-3 px-3 rounded-xl bg-[#143833] hover:bg-[#1C4A42] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
                       title="Buka percakapan di Aplikasi WhatsApp (wa.me / WhatsApp Desktop)"
                     >
                       <MessageSquare className="w-4 h-4" />

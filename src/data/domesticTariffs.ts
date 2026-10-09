@@ -126,9 +126,9 @@ export const DOMESTIC_TARIFF_RULES: DomesticTariffRule[] = [
       'Pelanggan yang propertinya mempunyai luas bangunan < 70 m2 dan < 120 m2 di pemukiman umum tetapi memiliki usaha.',
     ],
     summaryCondition: 'Luas > 120 m² pemukiman umum, > 70 m² real estate, atau < 120 m² di pemukiman umum dengan usaha',
-    badgeBg: 'bg-purple-600',
+    badgeBg: 'bg-slate-800',
     badgeText: 'text-white',
-    borderColor: 'border-purple-300',
+    borderColor: 'border-slate-300',
   },
 ];
 
@@ -284,7 +284,7 @@ export function calculateDomesticTariff(
           name: 'R4 = Rumah Tangga 4',
           appliedClause: 'Pelanggan yang propertinya mempunyai luas bangunan > 70 m2 di real estate tanpa ada usaha.',
           allPoints: DOMESTIC_TARIFF_RULES[3].points,
-          color: 'purple',
+          color: 'slate',
         };
       }
     } else {
@@ -294,7 +294,7 @@ export function calculateDomesticTariff(
         name: 'R4 = Rumah Tangga 4',
         appliedClause: 'Pelanggan di kawasan real estate dengan kegiatan usaha.',
         allPoints: DOMESTIC_TARIFF_RULES[3].points,
-        color: 'purple',
+        color: 'slate',
       };
     }
   }
@@ -332,7 +332,7 @@ export function calculateDomesticTariff(
         name: 'R4 = Rumah Tangga 4',
         appliedClause: 'Pelanggan yang propertinya mempunyai luas bangunan > 120 m2 di pemukiman umum atau > 70 m2 di real estate tanpa ada usaha.',
         allPoints: DOMESTIC_TARIFF_RULES[3].points,
-        color: 'purple',
+        color: 'slate',
       };
     }
   } else {
@@ -351,7 +351,7 @@ export function calculateDomesticTariff(
         name: 'R4 = Rumah Tangga 4',
         appliedClause: 'Pelanggan yang propertinya mempunyai luas bangunan < 70 m2 dan < 120 m2 di pemukiman umum tetapi memiliki usaha.',
         allPoints: DOMESTIC_TARIFF_RULES[3].points,
-        color: 'purple',
+        color: 'slate',
       };
     }
   }

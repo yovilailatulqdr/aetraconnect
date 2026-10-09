@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { UserAccount, RegistrationFormData } from '../types';
-import { cloudSyncService } from '../services/cloudSyncService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { fetchUserAccountsFromDb } from '../services/supabaseService';
 import {
   UserCheck,
@@ -32,37 +32,18 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
   const [roleFilter, setRoleFilter] = useState<'all' | 'customer' | 'admin'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [accounts, setAccounts] = useState<UserAccount[]>(() => {
-    const snap = cloudSyncService.getLocalSnapshot().accounts || [];
-    return snap;
-  });
+  const [accounts, setAccounts] = useState<UserAccount[]>([]);
 
-  // Load and refresh accounts from cloud and server
+  // Load and refresh accounts directly from Supabase
   const loadAccounts = async () => {
     setIsRefreshing(true);
     try {
-      await cloudSyncService.pullFromCloud().catch(() => {});
-      const snap = cloudSyncService.getLocalSnapshot().accounts || [];
-      const remote = await fetchUserAccountsFromDb().catch(() => null);
-
-      const mergedMap = new Map<string, UserAccount>();
-      snap.forEach((a) => {
-        if (a.email) mergedMap.set(a.email.toLowerCase(), a);
-      });
-      if (remote && Array.isArray(remote)) {
-        remote.forEach((ra) => {
-          if (ra.email) {
-            const key = ra.email.toLowerCase();
-            if (!mergedMap.has(key)) {
-              mergedMap.set(key, ra);
-            } else {
-              mergedMap.set(key, { ...mergedMap.get(key)!, ...ra });
-            }
-          }
-        });
+      if (isSupabaseConfigured()) {
+        const remote = await fetchUserAccountsFromDb();
+        if (remote && Array.isArray(remote)) {
+          setAccounts(remote);
+        }
       }
-
-      setAccounts(Array.from(mergedMap.values()));
     } catch (err) {
       console.warn('Error loading accounts:', err);
     } finally {
@@ -72,13 +53,6 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
 
   useEffect(() => {
     loadAccounts();
-    const unsub = cloudSyncService.addListener(() => {
-      const snap = cloudSyncService.getLocalSnapshot().accounts || [];
-      if (snap.length > 0) {
-        setAccounts(snap);
-      }
-    });
-    return unsub;
   }, []);
 
   // Filtered accounts based on search and role
@@ -125,7 +99,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
       {/* Top Banner Header */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#005DAA] text-xs font-bold border border-blue-200 mb-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE4D8] text-[#143833] text-xs font-bold border border-[#D8CFBE] mb-1">
             <UserCheck className="w-3.5 h-3.5" />
             <span>Manajemen Pengguna Terdaftar</span>
           </div>
@@ -145,7 +119,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
             className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-2xs disabled:opacity-50"
             title="Muat ulang dan sinkronkan data akun"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#005DAA] ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#143833] ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{isRefreshing ? 'Menyinkronkan...' : 'Sinkronkan Akun'}</span>
           </button>
         </div>
@@ -156,10 +130,10 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
         <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-semibold">Total Akun Terdaftar</span>
-            <Users className="w-4 h-4 text-[#005DAA]" />
+            <Users className="w-4 h-4 text-[#143833]" />
           </div>
           <div className="text-2xl font-black text-slate-900">{stats.total}</div>
-          <span className="text-[11px] text-blue-600 font-bold">Pengguna Aetra Connect</span>
+          <span className="text-[11px] text-[#143833] font-bold">Pengguna Aetra Connect</span>
         </div>
 
         <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
@@ -174,10 +148,10 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
         <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between text-slate-500 text-xs">
             <span className="font-semibold">Akun Administrator</span>
-            <ShieldCheck className="w-4 h-4 text-purple-600" />
+            <ShieldCheck className="w-4 h-4 text-[#143833]" />
           </div>
-          <div className="text-2xl font-black text-purple-700">{stats.adminCount}</div>
-          <span className="text-[11px] text-purple-600 font-bold">Petugas &amp; Backoffice</span>
+          <div className="text-2xl font-black text-[#143833]">{stats.adminCount}</div>
+          <span className="text-[11px] text-[#143833] font-bold">Petugas &amp; Backoffice</span>
         </div>
 
         <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
@@ -201,7 +175,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Cari nama, email, no. telepon, atau ID Pelanggan..."
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-[#005DAA]/20 focus:border-[#005DAA]"
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-[#143833]/20 focus:border-[#143833]"
             />
           </div>
 
@@ -215,7 +189,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                 type="button"
                 onClick={() => setRoleFilter('all')}
                 className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  roleFilter === 'all' ? 'bg-[#005DAA] text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  roleFilter === 'all' ? 'bg-[#143833] text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Semua ({accounts.length})
@@ -224,7 +198,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                 type="button"
                 onClick={() => setRoleFilter('customer')}
                 className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  roleFilter === 'customer' ? 'bg-[#005DAA] text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  roleFilter === 'customer' ? 'bg-[#143833] text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Pelanggan ({stats.customerCount})
@@ -233,7 +207,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                 type="button"
                 onClick={() => setRoleFilter('admin')}
                 className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  roleFilter === 'admin' ? 'bg-[#005DAA] text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  roleFilter === 'admin' ? 'bg-[#143833] text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Admin ({stats.adminCount})
@@ -287,8 +261,8 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                         <div className="flex items-center gap-2.5">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${
                             acc.role === 'admin'
-                              ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                              : 'bg-blue-100 text-[#005DAA] border border-blue-200'
+                              ? 'bg-[#143833] text-white border border-[#23534B]'
+                              : 'bg-emerald-100 text-[#143833] border border-[#D8CFBE]'
                           }`}>
                             {acc.nama ? acc.nama.charAt(0).toUpperCase() : 'U'}
                           </div>
@@ -318,7 +292,7 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                       {/* ID Pelanggan */}
                       <td className="py-3 px-4">
                         {acc.idPelanggan && acc.idPelanggan.length > 5 ? (
-                          <div className="inline-flex items-center gap-1 bg-blue-50 text-[#005DAA] px-2.5 py-1 rounded-lg border border-blue-200 font-mono font-bold text-xs">
+                          <div className="inline-flex items-center gap-1 bg-[#EAE4D8] text-[#143833] px-2.5 py-1 rounded-lg border border-[#D8CFBE] font-mono font-bold text-xs">
                             <span>#{acc.idPelanggan}</span>
                             <button
                               type="button"
@@ -342,8 +316,8 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                       {/* Peran */}
                       <td className="py-3 px-4 text-center">
                         {acc.role === 'admin' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
-                            <ShieldCheck className="w-3 h-3 text-purple-600" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#143833] text-white border border-[#23534B]">
+                            <ShieldCheck className="w-3 h-3 text-[#DC602E]" />
                             <span>Administrator</span>
                           </span>
                         ) : (
@@ -359,14 +333,14 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                         {relatedReg ? (
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-1.5">
-                              <span className="px-2 py-0.5 rounded-md bg-blue-50 text-[#005DAA] border border-blue-200 font-bold text-[10px]">
+                              <span className="px-2 py-0.5 rounded-md bg-[#EAE4D8] text-[#143833] border border-[#D8CFBE] font-bold text-[10px]">
                                 No. Form: {relatedReg.noForm}
                               </span>
                               {onNavigateToTracking && (
                                 <button
                                   type="button"
                                   onClick={() => onNavigateToTracking(relatedReg.noForm)}
-                                  className="text-blue-600 hover:text-blue-800 p-0.5 cursor-pointer"
+                                  className="text-[#143833] hover:text-blue-800 p-0.5 cursor-pointer"
                                   title="Lihat Pelacakan"
                                 >
                                   <ExternalLink className="w-3 h-3" />

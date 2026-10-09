@@ -103,7 +103,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <nav 
       aria-label="Navigasi Bawah Mobile" 
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-2xl px-2 pt-1 pb-safe lg:hidden transition-transform"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-t border-[#E7E0D5] shadow-2xl px-2 pt-1 pb-safe lg:hidden transition-transform"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         {tabs.map((tab) => {
@@ -120,6 +120,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             }
           };
 
+          const isAdminMode = userRole === 'admin';
+
           if (tab.isCenter) {
             return (
               <button
@@ -131,15 +133,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 <div
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-200 active:scale-95 ${
                     isActive
-                      ? 'bg-linear-to-tr from-[#005DAA] to-[#004A88] text-white ring-4 ring-blue-100 shadow-blue-500/30'
-                      : 'bg-linear-to-tr from-[#F37021] to-[#e05e10] text-white shadow-orange-500/30'
+                      ? (isAdminMode
+                          ? 'bg-[#143833] text-white ring-4 ring-[#143833]/20 shadow-[#143833]/30'
+                          : 'bg-[#DC602E] text-white ring-4 ring-[#DC602E]/20 shadow-[#DC602E]/30')
+                      : 'bg-[#143833] text-white shadow-md'
                   }`}
                 >
                   <Icon className="w-5 h-5 stroke-[2.2]" />
                 </div>
                 <span
                   className={`text-[10px] font-black tracking-tight mt-1 transition-colors ${
-                    isActive ? 'text-[#005DAA]' : 'text-slate-700'
+                    isActive ? (isAdminMode ? 'text-[#143833]' : 'text-[#DC602E]') : 'text-slate-700'
                   }`}
                 >
                   {tab.label}
@@ -154,13 +158,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               type="button"
               onClick={handleTabClick}
               className={`relative flex-1 py-1.5 flex flex-col items-center justify-center transition-colors group cursor-pointer ${
-                isActive ? 'text-[#005DAA]' : 'text-slate-500 hover:text-slate-900'
+                isActive ? (isAdminMode ? 'text-[#143833]' : 'text-[#DC602E]') : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               <div className="relative">
                 <div
                   className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
-                    isActive ? 'bg-blue-50 text-[#005DAA]' : 'group-hover:bg-slate-50'
+                    isActive
+                      ? (isAdminMode ? 'bg-[#EAE4D8] text-[#143833]' : 'bg-[#FDEEE7] text-[#DC602E]')
+                      : 'group-hover:bg-[#EFE9DF]'
                   }`}
                 >
                   <Icon className={`w-4.5 h-4.5 ${isActive ? 'stroke-[2.4]' : 'stroke-[1.8]'}`} />
@@ -176,7 +182,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
               <span
                 className={`text-[10px] mt-0.5 transition-all truncate max-w-[64px] ${
-                  isActive ? 'font-black text-[#005DAA]' : 'font-semibold text-slate-500'
+                  isActive ? (isAdminMode ? 'font-black text-[#143833]' : 'font-black text-[#DC602E]') : 'font-semibold text-slate-500'
                 }`}
               >
                 {tab.label}

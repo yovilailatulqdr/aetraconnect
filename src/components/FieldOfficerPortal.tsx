@@ -27,7 +27,7 @@ import {
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { InteractiveMapPicker } from './InteractiveMapPicker';
 import { DocumentImageViewerModal } from './DocumentImageViewerModal';
-import { cloudSyncService } from '../services/cloudSyncService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { saveRegistrationToDb, saveTrackingRecordToDb } from '../services/supabaseService';
 
 interface FieldOfficerPortalProps {
@@ -226,9 +226,13 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
       fotoPropertiFiles: propertyPhotos,
     };
 
+    const regResult = await saveRegistrationToDb(updatedReg);
+    if (!regResult.success && isSupabaseConfigured()) {
+      setIsSaving(false);
+      showToast(`Gagal menyimpan data ke database: ${regResult.error}`);
+      return;
+    }
     onUpdateRegistration?.(updatedReg);
-    cloudSyncService.saveRegistration(updatedReg);
-    saveRegistrationToDb(updatedReg).catch((err) => console.warn(err));
 
     // Update tracking record with surveyor/technician details & meter info
     if (selectedTracking) {
@@ -249,13 +253,18 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
           role: 'Teknisi Water Meter',
         },
       };
+
+      const trackResult = await saveTrackingRecordToDb(updatedTracking);
+      if (!trackResult.success && isSupabaseConfigured()) {
+        setIsSaving(false);
+        showToast(`Gagal menyimpan tracking ke database: ${trackResult.error}`);
+        return;
+      }
       onUpdateTracking?.(updatedTracking);
-      cloudSyncService.saveTracking(updatedTracking);
-      saveTrackingRecordToDb(updatedTracking).catch((err) => console.warn(err));
     }
 
     setIsSaving(false);
-    showToast(`Dokumentasi properti lapangan & data teknis untuk No. Form #${selectedRegistration.noForm} (${selectedRegistration.namaKtp}) berhasil disimpan!`);
+    showToast(`Dokumentasi properti lapangan & data teknis untuk No. Form #${selectedRegistration.noForm} (${selectedRegistration.namaKtp}) berhasil disimpan ke database!`);
   };
 
   const filteredRegistrations = useMemo(() => {

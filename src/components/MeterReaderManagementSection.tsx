@@ -331,11 +331,11 @@ export const MeterReaderManagementSection: React.FC<MeterReaderManagementSection
           onClick={() => setFilterCategory('Key Account')}
           className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1.5 ${
             filterCategory === 'Key Account'
-              ? 'bg-purple-600 text-white shadow-xs'
+              ? 'bg-[#143833] text-white shadow-xs'
               : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
-          <Shield className="w-3.5 h-3.5" />
+          <Shield className="w-3.5 h-3.5 text-[#DC602E]" />
           <span>
             Key Account ({meterReaders.filter((r) => r.kategori === 'Key Account').length})
           </span>
@@ -535,8 +535,8 @@ export const MeterReaderManagementSection: React.FC<MeterReaderManagementSection
                     <div
                       className={`w-12 h-12 rounded-2xl font-black text-lg flex items-center justify-center text-white shadow-xs ${
                         reader.kategori === 'Key Account'
-                          ? 'bg-gradient-to-tr from-purple-700 to-indigo-500'
-                          : 'bg-gradient-to-tr from-[#0055A5] to-blue-500'
+                          ? 'bg-linear-to-tr from-[#143833] to-[#1C4A42]'
+                          : 'bg-linear-to-tr from-[#0055A5] to-blue-500'
                       }`}
                     >
                       {reader.nama.substring(0, 2).toUpperCase()}
@@ -549,7 +549,7 @@ export const MeterReaderManagementSection: React.FC<MeterReaderManagementSection
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             reader.kategori === 'Key Account'
-                              ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
+                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
                               : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                           }`}
                         >

@@ -130,7 +130,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
       <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
         <div className="flex items-center justify-between border-b pb-2 border-slate-200">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#005DAA] text-white flex items-center justify-center font-bold text-xs">
+            <div className="w-6 h-6 rounded-md bg-[#0f766e] text-white flex items-center justify-center font-bold text-xs">
               SK
             </div>
             <div>
@@ -142,7 +142,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[10px] bg-blue-100 text-[#005DAA] font-bold px-2 py-0.5 rounded-full">
+          <span className="text-[10px] bg-blue-100 text-[#0f766e] font-bold px-2 py-0.5 rounded-full">
             Ketentuan SK Aetra
           </span>
         </div>
@@ -151,10 +151,10 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
         <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
           <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#005DAA]" />
+              <MapPin className="w-3.5 h-3.5 text-[#0f766e]" />
               <span>1. Kawasan / Area Properti Bangunan:</span>
             </span>
-            <span className="text-[11px] font-semibold text-[#005DAA]">
+            <span className="text-[11px] font-semibold text-[#0f766e]">
               {isRealEstate ? 'Kawasan Real Estate' : 'Non Real Estate (Pemukiman Umum)'}
             </span>
           </label>
@@ -165,12 +165,12 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
               onClick={() => handleSetArea(false)}
               className={`p-2.5 rounded-lg border text-left transition flex items-start gap-2.5 ${
                 !isRealEstate
-                  ? 'bg-blue-50/80 border-[#005DAA] text-slate-900 ring-1 ring-[#005DAA]/40'
+                  ? 'bg-teal-50/80 border-[#0f766e] text-slate-900 ring-1 ring-[#0f766e]/40'
                   : 'bg-slate-50/70 border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
             >
               <div className={`w-4 h-4 mt-0.5 rounded-full border flex items-center justify-center shrink-0 ${
-                !isRealEstate ? 'border-[#005DAA] bg-[#005DAA]' : 'border-slate-400 bg-white'
+                !isRealEstate ? 'border-[#0f766e] bg-[#0f766e]' : 'border-slate-400 bg-white'
               }`}>
                 {!isRealEstate && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
               </div>
@@ -188,12 +188,12 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
               onClick={() => handleSetArea(true)}
               className={`p-2.5 rounded-lg border text-left transition flex items-start gap-2.5 ${
                 isRealEstate
-                  ? 'bg-blue-50/80 border-[#005DAA] text-slate-900 ring-1 ring-[#005DAA]/40'
+                  ? 'bg-teal-50/80 border-[#0f766e] text-slate-900 ring-1 ring-[#0f766e]/40'
                   : 'bg-slate-50/70 border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
             >
               <div className={`w-4 h-4 mt-0.5 rounded-full border flex items-center justify-center shrink-0 ${
-                isRealEstate ? 'border-[#005DAA] bg-[#005DAA]' : 'border-slate-400 bg-white'
+                isRealEstate ? 'border-[#0f766e] bg-[#0f766e]' : 'border-slate-400 bg-white'
               }`}>
                 {isRealEstate && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
               </div>
@@ -274,7 +274,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
               <Home className="w-3.5 h-3.5 text-blue-600" />
               <span>3. Luas Bangunan &amp; Rentang Sesuai Ketentuan Foto:</span>
             </label>
-            <span className="font-mono text-xs font-black text-[#005DAA] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+            <span className="font-mono text-xs font-black text-[#0f766e] bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
               Total Luas: {totalLuas > 0 ? `${totalLuas.toLocaleString('id-ID')} m²` : '0 m²'}
             </span>
           </div>
@@ -300,7 +300,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
                     onClick={() => handleSetLuasPreset(preset.value)}
                     className={`px-2.5 py-1.5 rounded-lg border text-center transition flex flex-col items-center justify-center ${
                       isSelected
-                        ? 'bg-[#005DAA] text-white border-[#005DAA] shadow-xs'
+                        ? 'bg-[#0f766e] text-white border-[#0f766e] shadow-xs'
                         : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                     }`}
                   >
@@ -323,14 +323,14 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
         {/* Header persis banner dokumen resmi Aetra */}
         <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h3 className="text-lg sm:text-xl font-extrabold text-[#005DAA] tracking-tight">
+            <h3 className="text-lg sm:text-xl font-extrabold text-[#0f766e] tracking-tight">
               Kategori Tarif Pelanggan Domestik
             </h3>
             <div className="h-0.5 w-24 bg-red-400 mt-0.5 rounded-full" />
           </div>
 
           <div className="flex items-center gap-1.5 text-right">
-            <span className="text-base sm:text-lg font-black tracking-tight text-[#005DAA] lowercase">
+            <span className="text-base sm:text-lg font-black tracking-tight text-[#0f766e] lowercase">
               aetra
             </span>
             <span className="text-xs font-semibold text-slate-500 lowercase">
@@ -383,7 +383,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
 
               <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-slate-500">
                 <span>Kriteria: Luas &lt; 28,8 m² &bull; Non Real Estate &bull; Tanpa Usaha</span>
-                <span className="text-[#005DAA] font-semibold">Klik untuk terapkan</span>
+                <span className="text-[#0f766e] font-semibold">Klik untuk terapkan</span>
               </div>
             </div>
 
@@ -425,7 +425,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
 
               <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-slate-500">
                 <span>Kriteria: Luas 28,9 – 70 m² &bull; Non Real Estate &bull; Tanpa Usaha</span>
-                <span className="text-[#005DAA] font-semibold">Klik untuk terapkan</span>
+                <span className="text-[#0f766e] font-semibold">Klik untuk terapkan</span>
               </div>
             </div>
           </div>
@@ -437,7 +437,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
             {/* R3 = Rumah Tangga 3 */}
             <div className={`p-4 rounded-xl border-2 transition-all relative ${
               calculation?.code === 'R3'
-                ? 'bg-blue-50/90 border-blue-500 shadow-md ring-2 ring-blue-400/30'
+                ? 'bg-teal-50/90 border-blue-500 shadow-md ring-2 ring-blue-400/30'
                 : 'bg-slate-50/50 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
             }`}>
               <div className="flex items-center justify-between mb-2.5">
@@ -527,7 +527,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
             {/* R4 = Rumah Tangga 4 */}
             <div className={`p-4 rounded-xl border-2 transition-all relative ${
               calculation?.code === 'R4'
-                ? 'bg-purple-50/90 border-purple-500 shadow-md ring-2 ring-purple-400/30'
+                ? 'bg-slate-100/90 border-[#0F2744] shadow-md ring-2 ring-[#0F2744]/20'
                 : 'bg-slate-50/50 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
             }`}>
               <div className="flex items-center justify-between mb-2.5">
@@ -541,7 +541,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
                   </div>
                 </div>
                 {calculation?.code === 'R4' && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-600 text-white text-[10px] font-bold shadow-2xs animate-in fade-in">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#0F2744] text-white text-[10px] font-bold shadow-2xs animate-in fade-in">
                     <CheckCircle2 className="w-3 h-3" />
                     <span>KATEGORI ANDA</span>
                   </span>
@@ -554,13 +554,13 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
                   onClick={() => handleApplyClause(DOMESTIC_TARIFF_CLAUSES[5])}
                   className={`p-1.5 rounded-lg cursor-pointer transition flex items-start gap-2 ${
                     calculation?.code === 'R4' && ((calculation?.appliedClause || '').includes('> 120 m2 di pemukiman umum') || (calculation?.appliedClause || '').includes('> 70 m2 di real estate'))
-                      ? 'bg-purple-100/90 text-purple-950 font-bold ring-1 ring-purple-400'
+                      ? 'bg-slate-200/90 text-slate-950 font-bold ring-1 ring-slate-400'
                       : 'hover:bg-slate-100/80'
                   }`}
                 >
                   <span className="font-black select-none text-slate-900 mt-0.5">
                     {calculation?.code === 'R4' && ((calculation?.appliedClause || '').includes('> 120 m2 di pemukiman umum') || (calculation?.appliedClause || '').includes('> 70 m2 di real estate')) ? (
-                      <Check className="w-3.5 h-3.5 text-purple-700" />
+                      <Check className="w-3.5 h-3.5 text-[#0F2744]" />
                     ) : (
                       '&bull;'
                     )}
@@ -575,13 +575,13 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
                   onClick={() => handleApplyClause(DOMESTIC_TARIFF_CLAUSES[6])}
                   className={`p-1.5 rounded-lg cursor-pointer transition flex items-start gap-2 ${
                     calculation?.code === 'R4' && (calculation?.appliedClause || '').includes('< 70 m2 dan < 120 m2 di pemukiman umum tetapi memiliki usaha')
-                      ? 'bg-purple-100/90 text-purple-950 font-bold ring-1 ring-purple-400'
+                      ? 'bg-slate-200/90 text-slate-950 font-bold ring-1 ring-slate-400'
                       : 'hover:bg-slate-100/80'
                   }`}
                 >
                   <span className="font-black select-none text-slate-900 mt-0.5">
                     {calculation?.code === 'R4' && (calculation?.appliedClause || '').includes('< 70 m2 dan < 120 m2 di pemukiman umum tetapi memiliki usaha') ? (
-                      <Check className="w-3.5 h-3.5 text-purple-700" />
+                      <Check className="w-3.5 h-3.5 text-[#0F2744]" />
                     ) : (
                       '&bull;'
                     )}
@@ -608,7 +608,7 @@ export const DomesticTariffSelector: React.FC<DomesticTariffSelectorProps> = ({
           </div>
 
           {calculation && (
-            <span className="text-[11px] text-[#005DAA] font-semibold bg-white px-3 py-1 rounded-full border border-blue-200 shadow-2xs">
+            <span className="text-[11px] text-[#0f766e] font-semibold bg-white px-3 py-1 rounded-full border border-teal-200 shadow-2xs">
               Klausul Terpenuhi: {calculation.appliedClause}
             </span>
           )}

@@ -22,7 +22,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6">
       <div className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-200">
         {/* Modal Top Header with Aetra Royal Blue */}
-        <div className="bg-[#005DAA] text-white px-6 py-4 flex items-center justify-between border-b border-blue-800">
+        <div className="bg-[#0f766e] text-white px-6 py-4 flex items-center justify-between border-b border-blue-800">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#F37021]"></span>
             <span className="font-bold tracking-wide text-sm">
@@ -67,7 +67,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
           </div>
 
           {/* Key Identifiers (ID Pelanggan & No SR) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-linear-to-r from-blue-50/70 to-emerald-50/70 p-4 rounded-xl border border-blue-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-linear-to-r from-blue-50/70 to-emerald-50/70 p-4 rounded-xl border border-teal-200">
             <div>
               <span className="text-[11px] text-emerald-800 uppercase font-bold flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -79,8 +79,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
               <span className="text-[10px] text-emerald-700 font-medium">Nomor Pembayaran Resmi</span>
             </div>
             <div>
-              <span className="text-[11px] text-[#005DAA] uppercase font-bold">No. SR (Sambungan)</span>
-              <div className="text-xl sm:text-2xl font-black text-[#005DAA] font-mono tracking-wider mt-0.5">
+              <span className="text-[11px] text-[#0f766e] uppercase font-bold">No. SR (Sambungan)</span>
+              <div className="text-xl sm:text-2xl font-black text-[#0f766e] font-mono tracking-wider mt-0.5">
                 {data.noSr}
               </div>
               <span className="text-[10px] text-slate-500">Nomor Sambungan Rumah</span>
@@ -139,7 +139,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
             )}
             <div className="grid grid-cols-3 py-1">
               <span className="text-slate-500">Biaya Sambungan</span>
-              <span className="col-span-2 font-bold text-[#005DAA] text-sm">
+              <span className="col-span-2 font-bold text-[#0f766e] text-sm">
                 Rp {data.biayaSambungan.toLocaleString('id-ID')},- ({data.skemaPembayaran})
               </span>
             </div>
@@ -189,7 +189,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ data, isOpen, onClos
                 onClose();
                 onTrackNow();
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold shadow-md shadow-blue-500/20 transition"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0f766e] hover:bg-[#115e59] text-white text-xs font-bold shadow-md shadow-blue-500/20 transition"
             >
               Lacak di Live Tracking Sekarang
               <ArrowRight className="w-4 h-4" />

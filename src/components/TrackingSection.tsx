@@ -231,9 +231,9 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
   if (customerScopedRecords.length === 0 || !selectedRecord) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm text-center space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#005DAA] border border-blue-100 flex items-center justify-center mx-auto shadow-xs">
-            <Package className="w-8 h-8" />
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E7E0D5] shadow-sm text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-[#F2ECE1] text-[#143833] border border-[#DDD3C4] flex items-center justify-center mx-auto shadow-xs">
+            <Package className="w-8 h-8 text-[#DC602E]" />
           </div>
 
           <div className="space-y-1.5 max-w-md mx-auto">
@@ -252,7 +252,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToRegister}
-                className="px-6 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white font-bold text-xs shadow-md transition cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#DC602E] hover:bg-[#C85223] text-white font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Daftar Sambungan Baru Sekarang
               </button>
@@ -268,12 +268,16 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-in fade-in duration-200">
-      {/* Header Banner - Symmetrical & Creative Layout with Large SR Badge */}
-      <div className="bg-linear-to-r from-[#005DAA] via-[#004B8A] to-[#003868] text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden border-b-4 border-[#F37021]">
+      {/* Header Banner - Authentic & Balanced Aetra Palette */}
+      <div className="relative overflow-hidden bg-linear-to-r from-[#143833] via-[#1C4A42] to-[#102E2A] text-white p-6 sm:p-8 rounded-3xl shadow-lg shadow-[#143833]/15 border border-[#23534B]">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-1/4 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none -mt-20" />
+        <div className="absolute bottom-0 right-0 w-60 h-60 bg-[#DC602E]/20 rounded-full blur-2xl pointer-events-none -mb-10" />
+
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-blue-100 text-xs font-semibold border border-white/20">
-              <Compass className="w-3.5 h-3.5 text-[#F37021]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/15 backdrop-blur-md text-white text-[11px] font-bold border border-white/20">
+              <Compass className="w-3.5 h-3.5 text-amber-300" />
               <span>Tracking Real-Time Sambungan Baru</span>
             </div>
 
@@ -281,14 +285,15 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
               Status Pelacakan Permohonan Sambungan Air
             </h1>
 
-            <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#C2D6D2] leading-relaxed font-medium">
               Pantau tahapan pemasangan sambungan air bersih Anda secara transparan dari verifikasi berkas hingga air bersih mengalir ke persil.
             </p>
           </div>
 
           {/* Compact & Clean Nomor SR Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xs shrink-0 self-start md:self-center">
-            <span className="text-xs sm:text-sm font-black text-amber-300 tracking-wider">
+          <div className="inline-flex items-center gap-3 px-4.5 py-2.5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 shadow-md shrink-0 self-start md:self-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#DC602E] animate-pulse" />
+            <span className="text-xs font-black text-amber-300 tracking-wider">
               NO SR :
             </span>
             <span className="font-mono text-sm sm:text-base font-black text-white">
@@ -313,14 +318,14 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                 onClick={() => handleSelectCustomerRecord(rec)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold border shrink-0 transition flex items-center gap-2 cursor-pointer ${
                   isSelected
-                    ? 'bg-blue-50 border-blue-400 text-blue-900 shadow-xs'
+                    ? 'bg-[#EAE4D8] border-[#143833] text-[#143833] shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <span>No. SR: {rec.noSr}</span>
                 <span className="text-slate-300">&bull;</span>
                 <span className="max-w-[130px] truncate">{rec.alamat.split(',')[0]}</span>
-                <span className={`w-2 h-2 rounded-full ${rec.currentStep === 5 ? 'bg-emerald-500' : 'bg-blue-500 animate-pulse'}`} />
+                <span className={`w-2 h-2 rounded-full ${rec.currentStep === 5 ? 'bg-emerald-500' : 'bg-[#DC602E] animate-pulse'}`} />
               </button>
             );
           })}
@@ -333,7 +338,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-[#005DAA] text-white font-mono font-black text-sm px-3.5 py-1 rounded-xl shadow-xs">
+              <span className="bg-[#143833] text-white font-mono font-black text-sm px-3.5 py-1 rounded-xl shadow-xs">
                 SR - {selectedRecord.noSr}
               </span>
               {selectedRecord.idPelanggan ? (
@@ -341,7 +346,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                   ID PELANGGAN: {selectedRecord.idPelanggan}
                 </span>
               ) : (
-                <span className="bg-slate-100 text-slate-600 font-semibold text-xs px-3 py-1 rounded-xl border border-slate-200">
+                <span className="bg-[#EAE4D8] text-[#143833] font-semibold text-xs px-3 py-1 rounded-xl border border-[#D8CFBE]">
                   ID Pelanggan: Diterbitkan setelah bayar
                 </span>
               )}
@@ -352,17 +357,17 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
             </h3>
 
             <p className="text-xs text-slate-600 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#F37021] shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-[#DC602E] shrink-0" />
               <span>{selectedRecord.alamat}</span>
             </p>
           </div>
 
           {/* Estimasi Air Mengalir: 14 - 1 Bulan Hari Kerja */}
-          <div className="bg-linear-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200 p-4 rounded-2xl sm:text-right shrink-0">
+          <div className="bg-[#FAF7F2] border border-[#DDD3C4] p-4 rounded-2xl sm:text-right shrink-0">
             <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">
               Estimasi Air Mengalir
             </span>
-            <div className="text-sm sm:text-base font-black text-[#005DAA] mt-0.5">
+            <div className="text-sm sm:text-base font-black text-[#143833] mt-0.5">
               14 - 1 Bulan Hari Kerja
             </div>
             <span className="text-[10px] text-slate-500 block mt-0.5">
@@ -375,14 +380,14 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
             <span className="text-slate-900 font-bold">Progres Pemasangan</span>
-            <span className="font-mono text-[#005DAA] font-black">
+            <span className="font-mono text-[#143833] font-black">
               {progressPercent}% (Tahap {selectedRecord.currentStep} dari 5)
             </span>
           </div>
 
           <div className="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-200">
             <div 
-              className="bg-linear-to-r from-[#005DAA] via-[#0080FF] to-[#F37021] h-full transition-all duration-500 rounded-full"
+              className="bg-linear-to-r from-[#143833] via-[#1C4A42] to-[#DC602E] h-full transition-all duration-500 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -402,7 +407,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                   isCompleted
                     ? 'bg-emerald-50/60 border-emerald-300'
                     : isCurrent
-                    ? 'bg-blue-50/90 border-blue-400 shadow-sm ring-2 ring-blue-300/40'
+                    ? 'bg-[#F2ECE1] border-[#143833] shadow-sm ring-2 ring-[#143833]/20'
                     : 'bg-slate-50 border-slate-200 opacity-60'
                 }`}
               >
@@ -411,7 +416,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                     isCompleted
                       ? 'bg-emerald-600 text-white shadow-xs'
                       : isCurrent
-                      ? 'bg-[#005DAA] text-white animate-pulse shadow-xs'
+                      ? 'bg-[#143833] text-white animate-pulse shadow-xs'
                       : 'bg-slate-200 text-slate-600'
                   }`}>
                     {isCompleted ? <Check className="w-4 h-4 stroke-[3]" /> : st.step}
@@ -420,14 +425,14 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                     isCompleted
                       ? 'bg-emerald-100 text-emerald-800'
                       : isCurrent
-                      ? 'bg-blue-100 text-blue-900'
+                      ? 'bg-[#EAE4D8] text-[#143833]'
                       : 'bg-slate-200 text-slate-500'
                   }`}>
                     {isCompleted ? 'Selesai' : isCurrent ? 'Berjalan' : 'Menunggu'}
                   </span>
                 </div>
 
-                <div className={`text-xs font-bold ${isCurrent ? 'text-blue-950' : isCompleted ? 'text-emerald-950' : 'text-slate-700'}`}>
+                <div className={`text-xs font-bold ${isCurrent ? 'text-[#143833]' : isCompleted ? 'text-emerald-950' : 'text-slate-700'}`}>
                   {st.title}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1 leading-snug">
@@ -442,7 +447,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
         <div className="bg-slate-50/80 rounded-2xl p-5 sm:p-6 border border-slate-200 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
-              <History className="w-5 h-5 text-[#005DAA]" />
+              <History className="w-5 h-5 text-sky-600" />
               <h4 className="text-sm font-black text-slate-900 tracking-wide uppercase">
                 Riwayat Histori &amp; Aktivitas Pelacakan
               </h4>
@@ -464,7 +469,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                   <div className={`absolute -left-6 sm:-left-8 top-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-xs ${
                     isCompleted
                       ? 'bg-emerald-500 text-white'
-                      : 'bg-[#005DAA] text-white animate-pulse ring-2 ring-blue-300'
+                      : 'bg-sky-600 text-white animate-pulse ring-2 ring-sky-300'
                   }`}>
                     {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Clock className="w-3.5 h-3.5" />}
                   </div>
@@ -472,7 +477,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                   {/* Timeline Content Card */}
                   <div className={`p-4 rounded-xl border transition ${
                     isLatest && !isCompleted
-                      ? 'bg-blue-50/90 border-blue-300 shadow-xs'
+                      ? 'bg-sky-50/90 border-sky-300 shadow-xs'
                       : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
                   }`}>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1.5 border-b border-slate-100">
@@ -484,7 +489,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                             isCompleted
                               ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-blue-100 text-[#005DAA]'
+                              : 'bg-sky-100 text-sky-800'
                           }`}>
                             {evt.badge}
                           </span>

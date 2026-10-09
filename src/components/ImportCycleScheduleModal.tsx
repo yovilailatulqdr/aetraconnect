@@ -217,7 +217,7 @@ export const ImportCycleScheduleModal: React.FC<ImportCycleScheduleModalProps> =
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               item.kategoriPetugas === 'Key Account'
-                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300'
+                                ? 'bg-amber-100 text-amber-800 border border-amber-200'
                                 : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
                             }`}
                           >

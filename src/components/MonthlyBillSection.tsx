@@ -43,7 +43,8 @@ import {
   Droplets
 } from 'lucide-react';
 import { PaymentPartnersGrid } from './PaymentPartnersGrid';
-import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { saveMonthlyBillToDb, fetchMonthlyBillsFromDb } from '../services/supabaseService';
 import { get12MonthsMeterHistory, MonthlyMeterRecord } from '../utils/meterHistoryService';
 import { OFFICIAL_PAYMENT_CHANNELS } from '../data/paymentChannels';
 
@@ -62,11 +63,9 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
   onNavigateToRegister,
   externalBills,
 }) => {
-  // Load bills from cloudSyncService / local storage
+  // Load bills from props / Supabase
   const [bills, setBills] = useState<MonthlyBillRecord[]>(() => {
-    if (externalBills && externalBills.length > 0) return externalBills;
-    const local = cloudSyncService.getLocalSnapshot().bills;
-    return local.length > 0 ? local : INITIAL_BILLS_DATA;
+    return externalBills || [];
   });
 
   // Demo state switcher for simulation
@@ -86,20 +85,9 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
   // Zoom receipt modal
   const [viewingReceiptImage, setViewingReceiptImage] = useState<string | null>(null);
 
-  // Listen to cloud updates
-  useEffect(() => {
-    const unsub = cloudSyncService.addListener(() => {
-      const updated = cloudSyncService.getLocalSnapshot().bills;
-      if (updated && updated.length > 0) {
-        setBills(updated);
-      }
-    });
-    return unsub;
-  }, []);
-
   // Update when externalBills prop changes
   useEffect(() => {
-    if (externalBills && externalBills.length > 0) {
+    if (externalBills) {
       setBills(externalBills);
     }
   }, [externalBills]);
@@ -288,7 +276,10 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
       return b;
     });
 
-    cloudSyncService.saveBills(updatedBills);
+    const targetBill = updatedBills.find((b) => b.id === currentBill.id || b.idPelanggan === currentBill.idPelanggan);
+    if (targetBill && isSupabaseConfigured()) {
+      saveMonthlyBillToDb(targetBill).catch((e) => console.warn('Supabase bill proof update error:', e));
+    }
     setBills(updatedBills);
 
     setTimeout(() => {
@@ -320,13 +311,14 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
         </div>
       )}
 
-      {/* Hero Header Banner */}
-      <div className="bg-linear-to-r from-[#005DAA] via-[#004B8A] to-[#003868] text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden border-b-4 border-[#F37021]">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+      {/* Hero Header Banner - Authentic & Balanced Aetra Palette */}
+      <div className="relative overflow-hidden bg-linear-to-r from-[#143833] via-[#1C4A42] to-[#102E2A] text-white p-6 sm:p-8 rounded-3xl shadow-lg shadow-[#143833]/15 border border-[#23534B]">
+        <div className="absolute top-0 right-1/4 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none -mt-20" />
+        <div className="absolute bottom-0 right-0 w-60 h-60 bg-[#DC602E]/20 rounded-full blur-2xl pointer-events-none -mb-10" />
 
         <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-blue-100 text-xs font-semibold border border-white/20">
-            <CreditCard className="w-3.5 h-3.5 text-[#F37021]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/15 backdrop-blur-md text-white text-[11px] font-bold border border-white/20">
+            <CreditCard className="w-3.5 h-3.5 text-amber-300" />
             <span>Layanan Mandiri Pelanggan Aetra</span>
           </div>
 
@@ -334,7 +326,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
             Cek Tagihan &amp; Histori Pemakaian Air
           </h1>
 
-          <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#C2D6D2] leading-relaxed font-medium">
             Masukkan <strong>ID Pelanggan</strong> Anda untuk mengecek rincian tagihan rekening air, upload bukti bayar, simulasi status penertiban, dan grafik histori pemakaian 12 bulan terakhir.
           </p>
         </div>
@@ -361,7 +353,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
             <button
               type="submit"
               disabled={!searchId.trim() || isSearching}
-              className="w-full sm:w-auto px-6 py-3 bg-[#005DAA] hover:bg-[#004A88] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-3 bg-[#DC602E] hover:bg-[#C85223] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
             >
               <Search className="w-4 h-4" />
               <span>Cek Tagihan</span>
@@ -370,7 +362,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
         </form>
 
         {/* Quick Sample IDs for Testing */}
-        <div className="mt-3 flex items-center gap-2 flex-wrap text-[11px] text-blue-100">
+        <div className="mt-3 flex items-center gap-2 flex-wrap text-[11px] text-teal-100">
           <span className="font-semibold text-blue-200">Contoh ID Pelanggan:</span>
           {['10842918', '10928371', '10739182', '10567890'].map((id) => (
             <button
@@ -399,7 +391,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
           onClick={() => setActiveTab('tagihan')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
             activeTab === 'tagihan'
-              ? 'bg-[#005DAA] text-white shadow-xs'
+              ? 'bg-[#0284c7] text-white shadow-xs'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -412,7 +404,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
           onClick={() => setActiveTab('histori')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
             activeTab === 'histori'
-              ? 'bg-[#005DAA] text-white shadow-xs'
+              ? 'bg-[#0284c7] text-white shadow-xs'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -602,7 +594,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                 {/* Header */}
                 <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#005DAA] flex items-center justify-center shrink-0 border border-blue-100">
+                    <div className="w-10 h-10 rounded-2xl bg-sky-50 text-[#0284c7] flex items-center justify-center shrink-0 border border-sky-100">
                       <Receipt className="w-5 h-5" />
                     </div>
                     <div>
@@ -624,7 +616,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                       </span>
                     ) : currentBill.status === 'MENUNGGU VERIFIKASI' ? (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-900 text-xs font-black border border-blue-300 shadow-xs">
-                        <Clock className="w-4 h-4 text-blue-700 animate-spin" />
+                        <Clock className="w-4 h-4 text-teal-700 animate-spin" />
                         MENUNGGU VERIFIKASI
                       </span>
                     ) : (
@@ -638,12 +630,12 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
 
                 <div className="p-6 sm:p-8 space-y-6">
                   {/* Highlight Amount Banner */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-linear-to-r from-blue-50 via-sky-50 to-indigo-50/60 border-2 border-blue-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="p-5 sm:p-6 rounded-2xl bg-linear-to-r from-blue-50 via-sky-50 to-indigo-50/60 border-2 border-sky-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                         Total Tagihan Rekening Air
                       </span>
-                      <div className="font-mono text-3xl sm:text-4xl font-black text-[#005DAA] tracking-tight">
+                      <div className="font-mono text-3xl sm:text-4xl font-black text-[#0284c7] tracking-tight">
                         Rp {currentBill.totalTagihan.toLocaleString('id-ID')},-
                       </div>
                       <div className="flex items-center gap-2 pt-1 text-xs text-slate-600">
@@ -653,7 +645,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                     </div>
 
                     {/* ID Pelanggan / Payment Code Box */}
-                    <div className="bg-white p-4 rounded-2xl border border-blue-200 shadow-xs space-y-1.5 shrink-0 min-w-[220px]">
+                    <div className="bg-white p-4 rounded-2xl border border-sky-200 shadow-xs space-y-1.5 shrink-0 min-w-[220px]">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                           Kode Bayar (ID Pelanggan):
@@ -661,7 +653,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                         <button
                           type="button"
                           onClick={handleCopyPaymentCode}
-                          className="text-xs text-[#005DAA] font-bold hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          className="text-xs text-[#0284c7] font-bold hover:underline inline-flex items-center gap-1 cursor-pointer"
                           title="Salin ID Pelanggan"
                         >
                           {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -730,7 +722,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                   {/* ========================================================= */}
                   <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden space-y-3 p-5 shadow-xs">
                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                      <FileText className="w-4 h-4 text-[#005DAA]" />
+                      <FileText className="w-4 h-4 text-[#0284c7]" />
                       <h4 className="font-bold text-xs uppercase tracking-wider text-slate-800">
                         Rincian Komponen Tagihan Air
                       </h4>
@@ -765,7 +757,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                         </span>
                       </div>
 
-                      <div className="flex justify-between py-3 bg-blue-50/60 px-3 rounded-xl border border-blue-100 font-bold text-sm text-[#005DAA]">
+                      <div className="flex justify-between py-3 bg-sky-50/60 px-3 rounded-xl border border-sky-100 font-bold text-sm text-[#0284c7]">
                         <span>Total Tagihan</span>
                         <span className="font-mono font-black text-base">
                           Rp {currentBill.totalTagihan.toLocaleString('id-ID')}
@@ -778,10 +770,10 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                   {/* K.1 UPLOAD BUKTI PEMBAYARAN TAGIHAN BULANAN               */}
                   {/* ========================================================= */}
                   {currentBill.status !== 'LUNAS' && (
-                    <div className="bg-linear-to-r from-blue-50 to-sky-50 border-2 border-blue-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="bg-linear-to-r from-blue-50 to-sky-50 border-2 border-sky-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <Upload className="w-4 h-4 text-[#005DAA]" />
+                          <Upload className="w-4 h-4 text-[#0284c7]" />
                           <h4 className="font-bold text-sm text-slate-900">
                             Sudah Melakukan Pembayaran Tagihan?
                           </h4>
@@ -794,7 +786,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                       <button
                         type="button"
                         onClick={() => setIsUploadProofModalOpen(true)}
-                        className="px-5 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004B8A] text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                        className="px-5 py-2.5 rounded-xl bg-[#0284c7] hover:bg-[#004B8A] text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer shrink-0"
                       >
                         <Upload className="w-4 h-4" />
                         <span>Upload Bukti Pembayaran</span>
@@ -804,12 +796,12 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
 
                   {/* Proof Details if Uploaded */}
                   {currentBill.paymentProof && (
-                    <div className="bg-white border border-blue-200 rounded-2xl p-4 space-y-3 shadow-xs">
+                    <div className="bg-white border border-sky-200 rounded-2xl p-4 space-y-3 shadow-xs">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                           <span className="font-bold text-xs text-slate-900">Bukti Pembayaran Terunggah</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-teal-800 font-semibold">
                             {currentBill.paymentProof.bankPengirim || 'Transfer Bank'}
                           </span>
                         </div>
@@ -877,7 +869,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                     <button
                       type="button"
                       onClick={handlePrintSlip}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#005DAA] hover:bg-[#004A88] text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold transition shadow-xs cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
                       <span>Unduh PDF</span>
@@ -898,7 +890,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-[#005DAA]" />
+                      <TrendingUp className="w-5 h-5 text-[#0284c7]" />
                       <h3 className="font-bold text-base text-slate-900">
                         Grafik Trend Pemakaian Air (12 Bulan Terakhir)
                       </h3>
@@ -910,7 +902,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
 
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-500">ID Pelanggan:</span>
-                    <span className="font-mono font-bold text-xs text-[#005DAA] bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                    <span className="font-mono font-bold text-xs text-[#0284c7] bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
                       {currentBill.idPelanggan}
                     </span>
                   </div>
@@ -940,7 +932,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                                 {m.bulan}: {m.pemakaianM3} m³ (Rp {m.biayaPemakaianAir.toLocaleString('id-ID')})
                               </div>
 
-                              <span className="text-[10px] font-mono font-bold text-slate-600 group-hover:text-[#005DAA]">
+                              <span className="text-[10px] font-mono font-bold text-slate-600 group-hover:text-[#0284c7]">
                                 {m.pemakaianM3}
                               </span>
 
@@ -948,7 +940,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                                 style={{ height: `${heightPercent}%` }}
                                 className={`w-full max-w-[32px] rounded-t-lg transition-all duration-300 ${
                                   isLatest
-                                    ? 'bg-linear-to-t from-[#005DAA] to-[#F37021] shadow-xs'
+                                    ? 'bg-linear-to-t from-[#0284c7] to-[#F37021] shadow-xs'
                                     : 'bg-linear-to-t from-blue-400 to-sky-300 group-hover:from-blue-600 group-hover:to-blue-400'
                                 }`}
                               />
@@ -986,7 +978,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
               {/* Table Stand Meter Histori (12 Bulan) */}
               <div className="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden p-6 sm:p-8 space-y-4">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                  <Droplets className="w-5 h-5 text-[#005DAA]" />
+                  <Droplets className="w-5 h-5 text-[#0284c7]" />
                   <h3 className="font-bold text-base text-slate-900">
                     Tabel Histori Stand Meter 1 Tahun Terakhir
                   </h3>
@@ -1017,7 +1009,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                             {row.standKini.toLocaleString('id-ID')} m³
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="font-mono font-black text-[#005DAA] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                            <span className="font-mono font-black text-[#0284c7] bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
                               {row.pemakaianM3} m³
                             </span>
                           </td>
@@ -1067,7 +1059,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                 setSearchId('10842918');
                 setActiveQuery('10842918');
               }}
-              className="px-4 py-2 bg-blue-50 text-[#005DAA] rounded-xl text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
+              className="px-4 py-2 bg-sky-50 text-[#0284c7] rounded-xl text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
             >
               Coba ID Demo #10842918
             </button>
@@ -1076,7 +1068,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToRegister}
-                className="px-4 py-2 bg-[#005DAA] text-white rounded-xl text-xs font-bold hover:bg-blue-800 transition cursor-pointer"
+                className="px-4 py-2 bg-[#0284c7] text-white rounded-xl text-xs font-bold hover:bg-blue-800 transition cursor-pointer"
               >
                 Daftar Sambungan Baru
               </button>
@@ -1090,13 +1082,13 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
       {/* ========================================================= */}
       {isUploadProofModalOpen && currentBill && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-blue-100 overflow-hidden my-auto animate-in zoom-in-95 duration-150">
-            <div className="bg-[#005DAA] text-white p-5 flex items-center justify-between">
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-sky-100 overflow-hidden my-auto animate-in zoom-in-95 duration-150">
+            <div className="bg-[#0284c7] text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <Upload className="w-5 h-5 text-blue-200" />
                 <div>
                   <h3 className="font-bold text-sm">Upload Bukti Pembayaran Tagihan</h3>
-                  <p className="text-[11px] text-blue-100">
+                  <p className="text-[11px] text-teal-100">
                     ID Pelanggan: {currentBill.idPelanggan} &bull; Periode {currentBill.periodeBulan}
                   </p>
                 </div>
@@ -1111,9 +1103,9 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
             </div>
 
             <form onSubmit={handleSubmitProof} className="p-6 space-y-4 text-xs">
-              <div className="bg-blue-50/60 p-3.5 rounded-2xl border border-blue-200 space-y-1">
+              <div className="bg-sky-50/60 p-3.5 rounded-2xl border border-sky-200 space-y-1">
                 <span className="text-[10px] text-slate-500 font-bold uppercase block">Total Tagihan Yang Dibayar</span>
-                <div className="font-mono text-xl font-black text-[#005DAA]">
+                <div className="font-mono text-xl font-black text-[#0284c7]">
                   Rp {currentBill.totalTagihan.toLocaleString('id-ID')}
                 </div>
                 <span className="text-[11px] text-slate-600 block">
@@ -1129,7 +1121,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                 <select
                   value={selectedChannel}
                   onChange={(e) => setSelectedChannel(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-semibold text-slate-800 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-semibold text-slate-800 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#0284c7]"
                 >
                   {OFFICIAL_PAYMENT_CHANNELS.map((ch) => (
                     <option key={ch.id} value={ch.name}>
@@ -1161,7 +1153,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                         <CheckCircle2 className="w-4 h-4" />
                         <span>{proofFile.name} ({proofFile.size})</span>
                       </div>
-                      <span className="text-[10px] text-blue-600 underline">Klik untuk ganti file</span>
+                      <span className="text-[10px] text-teal-700 underline">Klik untuk ganti file</span>
                     </div>
                   ) : (
                     <div className="space-y-1">
@@ -1183,7 +1175,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                   value={proofNotes}
                   onChange={(e) => setProofNotes(e.target.value)}
                   placeholder="Contoh: Dibayar via m-BCA jam 10.30 WIB"
-                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#005DAA]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-[#0284c7]"
                 />
               </div>
 
@@ -1198,7 +1190,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                 <button
                   type="submit"
                   disabled={!proofFile || isSubmittingProof}
-                  className="px-5 py-2 rounded-xl bg-[#005DAA] hover:bg-[#004B8A] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-[#0284c7] hover:bg-[#004B8A] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmittingProof ? 'Mengunggah...' : 'Kirim Bukti Pembayaran'}
                 </button>
