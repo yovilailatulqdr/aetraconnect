@@ -177,14 +177,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
       <div className="w-full max-w-md bg-[#FAF8F4] text-slate-800 rounded-3xl shadow-xl shadow-slate-400/15 border border-[#E7DFD4] overflow-hidden relative z-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Header Branding */}
         <div className="bg-linear-to-b from-[#F2ECE1] via-[#FAF8F4] to-[#FAF8F4] px-6 pt-7 pb-4 text-center border-b border-[#EBE4D8]">
-          <div className="flex justify-center mb-2">
+          <div className="flex justify-center mb-1">
             <AetraLogo size="lg" />
           </div>
 
-          <h1 className="text-xl font-black text-[#143833] tracking-tight mt-1">
-            Aetra Connect
-          </h1>
-          <p className="text-xs font-semibold text-slate-500 mt-0.5">
+          <p className="text-xs font-semibold text-slate-500 mt-1">
             PT Aetra Air Tangerang
           </p>
 
@@ -325,10 +322,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
           ) : (
             /* Form Daftar Akun Baru: STRICTLY Nama, Email / No. Telepon, Password */
             <form onSubmit={handleRegister} className="space-y-3.5">
-              <div className="bg-[#F2ECE1] p-3 rounded-2xl border border-[#DDD3C4] text-[11px] text-[#143833] leading-relaxed">
-                Pendaftaran akun pelanggan baru cukup masukkan <strong>Nama Lengkap</strong>, <strong>Alamat Email / No. Telepon</strong>, dan <strong>Kata Sandi</strong>.
-              </div>
-
               {/* 1. Nama */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">

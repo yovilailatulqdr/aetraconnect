@@ -1,7 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { UserAccount, RegistrationFormData } from '../types';
 import { isSupabaseConfigured } from '../lib/supabase';
-import { fetchUserAccountsFromDb } from '../services/supabaseService';
+import { 
+  fetchUserAccountsFromDb, 
+  deleteUserAccountFromDb, 
+  deleteAllNonAdminAccountsFromDb 
+} from '../services/supabaseService';
 import {
   UserCheck,
   Search,
@@ -16,7 +20,8 @@ import {
   AlertCircle,
   Copy,
   ExternalLink,
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 
 interface AdminAccountManagementProps {
@@ -32,6 +37,8 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
   const [roleFilter, setRoleFilter] = useState<'all' | 'customer' | 'admin'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toastFeedback, setToastFeedback] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<UserAccount[]>([]);
 
   // Load and refresh accounts directly from Supabase
@@ -54,6 +61,60 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
   useEffect(() => {
     loadAccounts();
   }, []);
+
+  // Delete all registered non-admin customer accounts
+  const handleDeleteAllCustomers = async () => {
+    const confirmDelete = window.confirm(
+      'Hapus SEMUA akun pelanggan yang terdaftar? Seluruh akun yang bukan administrator akan dihapus permanen dari Supabase. Akun Administrator akan tetap aman.'
+    );
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteAllNonAdminAccountsFromDb();
+      if (res.success) {
+        setToastFeedback(`Berhasil menghapus seluruh akun pelanggan (${res.count || 0} akun). Hanya akun Administrator yang tersisa.`);
+        // Bersihkan draf atau session lokal pelanggan jika ada
+        try {
+          const curr = localStorage.getItem('aetra_current_user');
+          if (curr) {
+            const parsed = JSON.parse(curr);
+            if (parsed.role !== 'admin') {
+              localStorage.removeItem('aetra_current_user');
+            }
+          }
+        } catch {}
+        await loadAccounts();
+      } else {
+        alert(`Gagal menghapus akun: ${res.error || 'Terjadi gangguan koneksi ke Supabase.'}`);
+      }
+    } catch (err: any) {
+      alert(`Terjadi error: ${err.message || 'Gagal memproses penghapusan akun.'}`);
+    } finally {
+      setIsDeleting(false);
+      setTimeout(() => setToastFeedback(null), 5000);
+    }
+  };
+
+  // Delete single customer account
+  const handleDeleteSingleAccount = async (id: string, name: string) => {
+    if (!window.confirm(`Hapus akun pelanggan "${name}"? Tindakan ini permanen.`)) {
+      return;
+    }
+    try {
+      const res = await deleteUserAccountFromDb(id);
+      if (res.success) {
+        setToastFeedback(`Akun "${name}" berhasil dihapus.`);
+        await loadAccounts();
+      } else {
+        alert(`Gagal menghapus akun: ${res.error || 'Terjadi kesalahan.'}`);
+      }
+    } catch (err: any) {
+      alert(`Terjadi error: ${err.message || 'Gagal menghapus akun.'}`);
+    } finally {
+      setTimeout(() => setToastFeedback(null), 4000);
+    }
+  };
 
   // Filtered accounts based on search and role
   const filteredAccounts = useMemo(() => {
@@ -96,6 +157,14 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Toast Feedback */}
+      {toastFeedback && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2.5 animate-in fade-in duration-150">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{toastFeedback}</span>
+        </div>
+      )}
+
       {/* Top Banner Header */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -111,7 +180,18 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={handleDeleteAllCustomers}
+            disabled={isDeleting || stats.customerCount === 0}
+            className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-40"
+            title="Hapus semua akun pelanggan yang terdaftar disini (Kecuali Admin)"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>{isDeleting ? 'Menghapus Akun...' : 'Hapus Semua Akun (Kecuali Admin)'}</span>
+          </button>
+
           <button
             type="button"
             onClick={loadAccounts}
@@ -228,12 +308,13 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                 <th className="py-3 px-4 text-center">Peran Akun</th>
                 <th className="py-3 px-4">Status Sambungan Baru</th>
                 <th className="py-3 px-4">Terdaftar Sejak</th>
+                <th className="py-3 px-4 text-center w-20">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-normal">
               {filteredAccounts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     <UserCheck className="w-8 h-8 mx-auto mb-2 opacity-40" />
                     <p className="font-semibold text-xs text-slate-700">Tidak ada akun yang sesuai kriteria pencarian</p>
                     <p className="text-[11px] text-slate-400 mt-0.5">Coba gunakan kata kunci pencarian yang lain.</p>
@@ -373,6 +454,22 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
                             }) : '-'}
                           </span>
                         </div>
+                      </td>
+
+                      {/* Aksi */}
+                      <td className="py-3 px-4 text-center">
+                        {acc.role !== 'admin' ? (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSingleAccount(acc.id, acc.nama)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                            title={`Hapus akun ${acc.nama}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-semibold italic">Aman</span>
+                        )}
                       </td>
                     </tr>
                   );

@@ -672,6 +672,37 @@ export const deleteUserAccountFromDb = async (id: string): Promise<{ success: bo
   }
 };
 
+export const deleteAllNonAdminAccountsFromDb = async (): Promise<{ success: boolean; count?: number; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
+  try {
+    const client = getDb();
+    const { data: nonAdminUsers, error: fetchErr } = await client
+      .from('user_accounts')
+      .select('id')
+      .neq('role', 'admin');
+
+    if (fetchErr) {
+      return { success: false, error: fetchErr.message };
+    }
+
+    const { error: delErr } = await client
+      .from('user_accounts')
+      .delete()
+      .neq('role', 'admin');
+
+    if (delErr) {
+      return { success: false, error: delErr.message };
+    }
+
+    return { success: true, count: nonAdminUsers?.length || 0 };
+  } catch (err: any) {
+    console.error('Error deleting non-admin accounts:', err);
+    return { success: false, error: err?.message || 'Gagal menghapus seluruh akun pelanggan non-admin.' };
+  }
+};
+
 // ==============================================================================
 // 6. REAL SUPABASE AUTHENTICATION: signUp() (Strictly No Local Fallback)
 // ==============================================================================
