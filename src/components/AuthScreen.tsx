@@ -97,9 +97,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
       return;
     }
 
-    if (pass.length < 4) {
+    if (pass.length < 6) {
       setIsLoading(false);
-      setErrorMessage('Kata sandi minimal terdiri dari 4 karakter.');
+      setErrorMessage('Kata sandi minimal terdiri dari 6 karakter.');
       return;
     }
 
@@ -375,7 +375,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
                     type={showPassword ? 'text' : 'password'}
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="Minimal 4 karakter"
+                    placeholder="Minimal 6 karakter"
                     className="w-full pl-10 pr-10 py-2.5 text-xs bg-white border border-[#DDD3C4] rounded-xl focus:bg-white focus:outline-hidden focus:border-[#DC602E] focus:ring-2 focus:ring-[#DC602E]/20 transition"
                     required
                   />

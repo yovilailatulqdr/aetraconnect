@@ -159,7 +159,7 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
           fill={textColorMode === 'white' ? '#FAF6EE' : '#005DAA'}
           fontSize="58"
           fontWeight="900"
-          fontFamily="'Outfit', 'Space Grotesk', system-ui, sans-serif"
+          fontFamily="'Manrope', 'Space Grotesk', system-ui, sans-serif"
           letterSpacing="-0.035em"
         >
           aetra
@@ -172,7 +172,7 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
           fill={textColorMode === 'white' ? '#E56D3B' : '#F15A24'}
           fontSize="20"
           fontWeight="800"
-          fontFamily="'Outfit', 'Space Grotesk', system-ui, sans-serif"
+          fontFamily="'Manrope', 'Space Grotesk', system-ui, sans-serif"
           letterSpacing="0.12em"
         >
           CONNECT
