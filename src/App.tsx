@@ -200,6 +200,15 @@ export default function App() {
   // Initial load from Supabase as single source of truth for all cross-browser data
   const loadFromSupabase = useCallback(async () => {
     try {
+      // 0. Check Supabase auth session
+      const sessionUser = await getSupabaseSessionUser();
+      if (sessionUser && !currentUser) {
+        setCurrentUser(sessionUser);
+        setUserRole(sessionUser.role);
+        localStorage.setItem('aetra_current_user', JSON.stringify(sessionUser));
+      }
+
+      // 1. Query Supabase directly as the primary authoritative source of truth
       const [remoteRegs, remoteTrackings, remoteSurveys, remoteBills] = await Promise.all([
         fetchRegistrationsFromDb(),
         fetchTrackingRecordsFromDb(),
@@ -222,27 +231,7 @@ export default function App() {
     } catch (err) {
       console.warn('Initial data fetch notice:', err);
     }
-  }, []);
-
-  // Separate, safe initial auth check on mount only (never auto-re-login if logged out)
-  useEffect(() => {
-    const checkInitialAuth = async () => {
-      if (!isSupabaseConfigured()) return;
-      try {
-        const hasSavedUser = Boolean(localStorage.getItem('aetra_current_user'));
-        if (hasSavedUser) {
-          const sessionUser = await getSupabaseSessionUser();
-          if (sessionUser) {
-            setCurrentUser(sessionUser);
-            setUserRole(sessionUser.role);
-          }
-        }
-      } catch (e) {
-        console.warn('Initial auth check notice:', e);
-      }
-    };
-    checkInitialAuth();
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     loadFromSupabase();
@@ -253,17 +242,17 @@ export default function App() {
       try {
         const client = getSupabaseClient();
         const { data } = client.auth.onAuthStateChange(async (event, session) => {
-          if (event === 'SIGNED_OUT') {
-            setCurrentUser(null);
-            setUserRole('customer');
-            localStorage.removeItem('aetra_current_user');
-          } else if (event === 'SIGNED_IN' && session?.user) {
+          if (session?.user) {
             const user = await getSupabaseSessionUser();
             if (user) {
               setCurrentUser(user);
               setUserRole(user.role);
               localStorage.setItem('aetra_current_user', JSON.stringify(user));
             }
+          } else if (event === 'SIGNED_OUT') {
+            setCurrentUser(null);
+            setUserRole('customer');
+            localStorage.removeItem('aetra_current_user');
           }
         });
         authSub = data?.subscription || null;
@@ -1164,15 +1153,15 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    setCurrentUser(null);
-    setUserRole('customer');
-    setActiveTab('registration');
-    localStorage.removeItem('aetra_current_user');
     try {
       await signOutUserWithSupabase();
     } catch (e) {
       console.warn('Sign out notice:', e);
     }
+    setCurrentUser(null);
+    setUserRole('customer');
+    setActiveTab('registration');
+    localStorage.removeItem('aetra_current_user');
   };
 
   // If user is not logged in, gate the application with AuthScreen

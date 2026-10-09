@@ -159,23 +159,23 @@ export const AetraLogo: React.FC<AetraLogoProps> = ({
           fill={textColorMode === 'white' ? '#FAF6EE' : '#005DAA'}
           fontSize="58"
           fontWeight="900"
-          fontFamily="'Manrope', 'Space Grotesk', system-ui, sans-serif"
+          fontFamily="'Nunito', 'Plus Jakarta Sans', -apple-system, sans-serif"
           letterSpacing="-0.035em"
         >
           aetra
         </text>
 
-        {/* 3. Subtitle "connect" */}
+        {/* 3. Subtitle "tangerang" */}
         <text
           x="110"
           y="93"
           fill={textColorMode === 'white' ? '#E56D3B' : '#F15A24'}
           fontSize="20"
           fontWeight="800"
-          fontFamily="'Manrope', 'Space Grotesk', system-ui, sans-serif"
-          letterSpacing="0.12em"
+          fontFamily="'Nunito', 'Plus Jakarta Sans', -apple-system, sans-serif"
+          letterSpacing="0.08em"
         >
-          CONNECT
+          TANGERANG
         </text>
       </svg>
     </div>

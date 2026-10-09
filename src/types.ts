@@ -323,6 +323,7 @@ export interface TrackingTimelineEvent {
 
 export interface CustomerTrackingRecord {
   noForm: string;
+  userId?: string;
   noSr: string;
   idPelanggan?: string;
   email?: string;
