@@ -1177,12 +1177,12 @@ export default function App() {
   };
 
   const handleSwitchRole = (role: UserRole) => {
+    // Keamanan: Hanya akun administrator resmi yang dapat beralih tampilan
+    if (currentUser?.role !== 'admin') {
+      return;
+    }
     setUserRole(role);
     if (role === 'admin') {
-      if (!currentUser || currentUser.role !== 'admin') {
-        setCurrentUser(MASTER_ADMIN_ACCOUNT);
-        safeLocalStorageSetItem('aetra_current_user', MASTER_ADMIN_ACCOUNT);
-      }
       setActiveTab('admin');
     } else {
       if (activeTab === 'admin') {
@@ -1191,12 +1191,20 @@ export default function App() {
     }
   };
 
+  const handleSelectTab = (tab: TabType) => {
+    // Keamanan: Cegah akun pelanggan membuka tab admin
+    if (tab === 'admin' && currentUser?.role !== 'admin') {
+      return;
+    }
+    setActiveTab(tab);
+  };
+
   // If user is not logged in, gate the application with AuthScreen
   if (!currentUser) {
     return <AuthScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
-  const isAdminPortal = activeTab === 'admin' || currentUser?.role === 'admin' || userRole === 'admin';
+  const isAdminPortal = currentUser?.role === 'admin' && (activeTab === 'admin' || userRole === 'admin');
 
   return (
     <div className={`min-h-screen font-sans text-slate-800 transition-colors duration-200 ${
@@ -1208,7 +1216,7 @@ export default function App() {
       {isSidebarVisible && (
         <Sidebar
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleSelectTab}
           adminSubTab={adminSubTab}
           onSelectAdminSubTab={setAdminSubTab}
           registeredCount={registrations.length}
@@ -1219,7 +1227,7 @@ export default function App() {
           customerStatus={customerStatus}
           onLogout={handleLogout}
           onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-          onSwitchRole={handleSwitchRole}
+          onSwitchRole={currentUser?.role === 'admin' ? handleSwitchRole : undefined}
         />
       )}
 
@@ -1236,8 +1244,8 @@ export default function App() {
           isSidebarVisible={isSidebarVisible}
           onLogout={handleLogout}
           onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-          onSelectTab={(tab) => setActiveTab(tab)}
-          onSwitchRole={handleSwitchRole}
+          onSelectTab={handleSelectTab}
+          onSwitchRole={currentUser?.role === 'admin' ? handleSwitchRole : undefined}
         />
 
         {/* Dedicated Mobile App Bar Header (Only visible on mobile screens when sidebar is visible) */}
@@ -1281,7 +1289,7 @@ export default function App() {
 
         {/* Main Content Modules */}
         <main className={`flex-1 w-full ${isSidebarVisible ? 'max-w-7xl' : 'max-w-5xl'} mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 lg:pb-8`}>
-          {activeTab === 'admin' && (
+          {activeTab === 'admin' && currentUser?.role === 'admin' && (
             <AdminSection
               registrations={registrations}
               trackingRecords={trackingRecords}
@@ -1333,15 +1341,13 @@ export default function App() {
               onUpdateTrackingStep={handleUpdateTrackingStep}
               onNavigateToRegister={() => setActiveTab('registration')}
               onQuickDemoRegister={handleQuickDemoRegister}
-              onNavigateToAdmin={(noForm) => {
-                setCurrentUser(MASTER_ADMIN_ACCOUNT);
-                safeLocalStorageSetItem('aetra_current_user', MASTER_ADMIN_ACCOUNT);
+              onNavigateToAdmin={currentUser?.role === 'admin' ? (noForm) => {
                 setUserRole('admin');
                 setActiveTab('admin');
                 if (noForm) {
                   setActiveTrackingForm(noForm);
                 }
-              }}
+              } : undefined}
             />
           )}
 

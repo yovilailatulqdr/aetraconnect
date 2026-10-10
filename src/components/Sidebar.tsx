@@ -29,7 +29,7 @@ interface SidebarProps {
   isOpenMobile: boolean;
   setIsOpenMobile: (open: boolean) => void;
   userRole: UserRole;
-  onSwitchRole: (role: UserRole) => void;
+  onSwitchRole?: (role: UserRole) => void;
   currentUser?: UserAccount | null;
   customerStatus?: RegistrationStatus;
   onLogout?: () => void;
@@ -409,8 +409,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
 
-            {/* Role / Portal Switcher */}
-            {isAdminAccount ? (
+            {/* Role / Portal Switcher (Only visible for genuine Administrator accounts) */}
+            {isAdminAccount && (
               <button
                 type="button"
                 onClick={() => setActiveTab(activeTab === 'admin' ? 'registration' : 'admin')}
@@ -418,16 +418,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 <span>{activeTab === 'admin' ? 'Lihat Antarmuka Pelanggan' : 'Kembali ke Portal Admin'}</span>
               </button>
-            ) : onSwitchRole ? (
-              <button
-                type="button"
-                onClick={() => onSwitchRole('admin')}
-                className="w-full mt-2.5 py-1.5 px-2.5 rounded-xl bg-[#143833] hover:bg-[#1C4A42] text-white text-[10px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs border border-[#1D4A43]"
-              >
-                <ShieldCheck className="w-3 h-3 text-[#DC602E]" />
-                <span>Masuk Portal Administrator</span>
-              </button>
-            ) : null}
+            )}
           </div>
         )}
 

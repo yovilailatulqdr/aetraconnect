@@ -89,6 +89,17 @@ export interface UserAccount {
   createdAt: string;
 }
 
+export const MASTER_ADMIN_ACCOUNT: UserAccount = {
+  id: 'acc-admin',
+  userId: 'acc-admin',
+  email: 'admin@aetra.co.id',
+  nama: 'Administrator Aetra Tangerang',
+  idPelanggan: '10999999',
+  telp: '081199887766',
+  role: 'admin',
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
+
 export interface MonthlyBillRecord {
   id: string;
   idPelanggan: string;

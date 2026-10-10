@@ -244,9 +244,26 @@ export const saveRegistrationToDb = async (record: RegistrationFormData): Promis
   }
   try {
     const dbData = mapRegistrationToDb(record);
-    const { error } = await getDb()
+    const payload: Record<string, any> = { ...dbData };
+
+    let { error } = await getDb()
       .from('registrations')
-      .upsert(dbData, { onConflict: 'no_form' });
+      .upsert(payload, { onConflict: 'no_form' });
+
+    // Auto-heal schema cache mismatches (e.g. if table does not have 'user_id' column)
+    while (error && error.message && error.message.includes('column of \'registrations\' in the schema cache')) {
+      const match = error.message.match(/Could not find the '([^']+)' column/);
+      if (match && match[1] && match[1] in payload) {
+        console.warn(`Column '${match[1]}' not in registrations table, retrying without it.`);
+        delete payload[match[1]];
+        const retryResult = await getDb()
+          .from('registrations')
+          .upsert(payload, { onConflict: 'no_form' });
+        error = retryResult.error;
+      } else {
+        break;
+      }
+    }
 
     if (error) {
       console.error('Supabase save registration error:', error.message);
@@ -305,9 +322,26 @@ export const saveTrackingRecordToDb = async (record: CustomerTrackingRecord): Pr
   }
   try {
     const dbData = mapTrackingToDb(record);
-    const { error } = await getDb()
+    const payload: Record<string, any> = { ...dbData };
+
+    let { error } = await getDb()
       .from('tracking_records')
-      .upsert(dbData, { onConflict: 'no_form' });
+      .upsert(payload, { onConflict: 'no_form' });
+
+    // Auto-heal schema cache mismatches (e.g. if table does not have 'user_id' column)
+    while (error && error.message && error.message.includes('column of \'tracking_records\' in the schema cache')) {
+      const match = error.message.match(/Could not find the '([^']+)' column/);
+      if (match && match[1] && match[1] in payload) {
+        console.warn(`Column '${match[1]}' not in tracking_records table, retrying without it.`);
+        delete payload[match[1]];
+        const retryResult = await getDb()
+          .from('tracking_records')
+          .upsert(payload, { onConflict: 'no_form' });
+        error = retryResult.error;
+      } else {
+        break;
+      }
+    }
 
     if (error) {
       console.error('Supabase save tracking record error:', error.message);

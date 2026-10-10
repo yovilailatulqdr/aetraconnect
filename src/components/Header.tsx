@@ -8,7 +8,7 @@ interface HeaderProps {
   onOpenMobileSidebar: () => void;
   registeredCount: number;
   userRole: UserRole;
-  onSwitchRole: (role: UserRole) => void;
+  onSwitchRole?: (role: UserRole) => void;
   currentUser?: UserAccount | null;
   customerStatus?: RegistrationStatus;
   isSidebarVisible?: boolean;
@@ -180,17 +180,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="hidden sm:inline">Aetra Connect</span>
                 <span className="sm:hidden">Pelanggan</span>
               </div>
-              {onSwitchRole && (
-                <button
-                  type="button"
-                  onClick={() => onSwitchRole('admin')}
-                  className="px-2.5 py-1.5 rounded-xl bg-[#143833] hover:bg-[#1C4A42] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer border border-[#1D4A43]"
-                  title="Beralih ke Portal Administrator Backoffice"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#DC602E]" />
-                  <span className="hidden sm:inline">Akses Admin</span>
-                </button>
-              )}
             </div>
           )}
 
