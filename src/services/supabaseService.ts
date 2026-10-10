@@ -548,26 +548,16 @@ export const deleteMonthlyBillFromDb = async (id: string): Promise<{ success: bo
 // ==========================================
 // 5. USER ACCOUNTS & PROFILES (Supabase Only)
 // ==========================================
-export const fetchUserAccountById = async (userId: string): Promise<UserAccount | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data, error } = await getDb()
-      .from('user_accounts')
-      .select('*')
-      .or(`id.eq.${userId},user_id.eq.${userId}`)
-      .maybeSingle();
-
-    if (error || !data) return null;
-    return {
-      id: data.id,
-      userId: data.user_id || data.id,
-      email: data.email,
-      nama: data.nama,
-      idPelanggan: data.id_pelanggan || '',
-      telp: data.telp || undefined,
-      role: data.role as 'admin' | 'customer',
-      createdAt: data.created_at,
-    };
+export const MASTER_ADMIN_ACCOUNT: UserAccount = {
+  id: 'acc-admin',
+  userId: 'acc-admin',
+  email: 'admin@aetra.co.id',
+  nama: 'Administrator Aetra Tangerang',
+  idPelanggan: '10999999',
+  telp: '081199887766',
+  role: 'admin',
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
   } catch {
     return null;
   }
