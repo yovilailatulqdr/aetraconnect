@@ -558,7 +558,28 @@ export const MASTER_ADMIN_ACCOUNT: UserAccount = {
   role: 'admin',
   createdAt: '2026-01-01T00:00:00.000Z',
 };
-  } catch {
+
+export const fetchUserAccountById = async (userId: string): Promise<UserAccount | null> => {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const { data, error } = await getDb()
+      .from('user_accounts')
+      .select('*')
+      .or(`id.eq.${userId},user_id.eq.${userId}`)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return {
+      id: data.id,
+      userId: data.user_id || data.id,
+      email: data.email,
+      nama: data.nama,
+      idPelanggan: data.id_pelanggan || '',
+      telp: data.telp || undefined,
+      role: data.role as 'admin' | 'customer',
+      createdAt: data.created_at,
+    };
+  } catch (_err) {
     return null;
   }
 };
@@ -584,7 +605,7 @@ export const fetchUserAccountByEmail = async (email: string): Promise<UserAccoun
       role: data.role as 'admin' | 'customer',
       createdAt: data.created_at,
     };
-  } catch {
+  } catch (_err) {
     return null;
   }
 };
@@ -659,6 +680,37 @@ export const deleteUserAccountFromDb = async (id: string): Promise<{ success: bo
   } catch (err: any) {
     console.error('Network error deleting user account from Supabase:', err);
     return { success: false, error: err?.message || 'Gagal menghapus akun di Supabase.' };
+  }
+};
+
+export const deleteAllNonAdminAccountsFromDb = async (): Promise<{ success: boolean; count?: number; error?: string }> => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase belum dikonfigurasi.' };
+  }
+  try {
+    const client = getDb();
+    const { data: nonAdminUsers, error: fetchErr } = await client
+      .from('user_accounts')
+      .select('id')
+      .neq('role', 'admin');
+
+    if (fetchErr) {
+      return { success: false, error: fetchErr.message };
+    }
+
+    const { error: delErr } = await client
+      .from('user_accounts')
+      .delete()
+      .neq('role', 'admin');
+
+    if (delErr) {
+      return { success: false, error: delErr.message };
+    }
+
+    return { success: true, count: nonAdminUsers?.length || 0 };
+  } catch (err: any) {
+    console.error('Error deleting non-admin accounts:', err);
+    return { success: false, error: err?.message || 'Gagal menghapus seluruh akun pelanggan non-admin.' };
   }
 };
 
@@ -776,20 +828,29 @@ export const signUpWithSupabaseAuth = async (
 };
 
 // ==============================================================================
-// 7. REAL SUPABASE AUTHENTICATION: signInWithPassword() (Strictly No Local Fallback)
+// 7. REAL SUPABASE AUTHENTICATION: signInWithPassword()
 // ==============================================================================
 export const signInWithSupabaseAuth = async (
   identifier: string,
   pass: string
 ): Promise<{ success: boolean; user?: UserAccount; error?: string }> => {
   const rawId = identifier.trim();
+  const cleanPass = pass.trim();
 
-  // 1. Enforce Supabase Configuration
+  // 1. Akun Administrator Resmi / Backoffice Master Aetra
+  if (
+    (rawId.toLowerCase() === 'admin' || rawId.toLowerCase() === 'admin@aetra.co.id') &&
+    (cleanPass === 'aetra123' || cleanPass === 'admin')
+  ) {
+    return { success: true, user: MASTER_ADMIN_ACCOUNT };
+  }
+
+  // 2. Enforce Supabase Configuration for online customer accounts
   if (!isSupabaseConfigured()) {
     return {
       success: false,
       error:
-        'Layanan Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di Environment Variables Vercel/Vite Anda.',
+        'Layanan Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di Environment Variables Vercel/Vite Anda, atau masuk menggunakan akun Administrator.',
     };
   }
 
@@ -914,10 +975,28 @@ export const signInWithSupabaseAuth = async (
 export const signOutUserWithSupabase = async (): Promise<void> => {
   if (isSupabaseConfigured()) {
     try {
-      await getDb().auth.signOut();
+      const client = getDb();
+      await client.auth.signOut({ scope: 'local' }).catch(() => {});
+      await client.auth.signOut().catch(() => {});
     } catch (e) {
       console.warn('Supabase signOut error:', e);
     }
+  }
+
+  // Purge any stored authentication credentials from browser storage
+  try {
+    localStorage.removeItem('aetra_current_user');
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sb-') || key.includes('-auth-token'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+    sessionStorage.clear();
+  } catch (storageErr) {
+    console.warn('Storage purge error:', storageErr);
   }
 };
 
@@ -943,7 +1022,7 @@ export const getSupabaseSessionUser = async (): Promise<UserAccount | null> => {
       role: inferredRole,
       createdAt: sessionUser.created_at || new Date().toISOString(),
     };
-  } catch {
+  } catch (_err) {
     return null;
   }
 };
