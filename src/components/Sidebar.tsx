@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   setIsOpenMobile,
   userRole,
-  onSwitchRole: _onSwitchRole,
+  onSwitchRole,
   currentUser,
   customerStatus = 'NEW_USER',
   onLogout,
@@ -408,6 +408,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               )}
             </div>
+
+            {/* Role / Portal Switcher */}
+            {isAdminAccount ? (
+              <button
+                type="button"
+                onClick={() => setActiveTab(activeTab === 'admin' ? 'registration' : 'admin')}
+                className="w-full mt-2.5 py-1.5 px-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer border border-white/10"
+              >
+                <span>{activeTab === 'admin' ? 'Lihat Antarmuka Pelanggan' : 'Kembali ke Portal Admin'}</span>
+              </button>
+            ) : onSwitchRole ? (
+              <button
+                type="button"
+                onClick={() => onSwitchRole('admin')}
+                className="w-full mt-2.5 py-1.5 px-2.5 rounded-xl bg-[#143833] hover:bg-[#1C4A42] text-white text-[10px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs border border-[#1D4A43]"
+              >
+                <ShieldCheck className="w-3 h-3 text-[#DC602E]" />
+                <span>Masuk Portal Administrator</span>
+              </button>
+            ) : null}
           </div>
         )}
 
