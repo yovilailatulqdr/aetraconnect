@@ -1,11 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { UserAccount, RegistrationFormData } from '../types';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { UserAccount, RegistrationFormData, MASTER_ADMIN_ACCOUNT } from '../types';
+import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { 
   fetchUserAccountsFromDb, 
   deleteUserAccountFromDb, 
-  deleteAllNonAdminAccountsFromDb,
-  MASTER_ADMIN_ACCOUNT,
 } from '../services/supabaseService';
 import {
   UserCheck,
@@ -74,23 +72,43 @@ export const AdminAccountManagement: React.FC<AdminAccountManagementProps> = ({
 
     setIsDeleting(true);
     try {
-      const res = await deleteAllNonAdminAccountsFromDb();
-      if (res.success) {
-        setToastFeedback(`Berhasil menghapus seluruh akun pelanggan (${res.count || 0} akun). Hanya akun Administrator yang tersisa.`);
-        // Bersihkan draf atau session lokal pelanggan jika ada
-        try {
-          const curr = localStorage.getItem('aetra_current_user');
-          if (curr) {
-            const parsed = JSON.parse(curr);
-            if (parsed.role !== 'admin') {
-              localStorage.removeItem('aetra_current_user');
-            }
+      let count = 0;
+      if (isSupabaseConfigured()) {
+        const client = getSupabaseClient();
+        if (client) {
+          const { data: nonAdminUsers, error: fetchErr } = await client
+            .from('user_accounts')
+            .select('id')
+            .neq('role', 'admin');
+
+          if (fetchErr) {
+            throw new Error(fetchErr.message);
           }
-        } catch {}
-        await loadAccounts();
-      } else {
-        alert(`Gagal menghapus akun: ${res.error || 'Terjadi gangguan koneksi ke Supabase.'}`);
+
+          count = nonAdminUsers?.length || 0;
+          const { error: delErr } = await client
+            .from('user_accounts')
+            .delete()
+            .neq('role', 'admin');
+
+          if (delErr) {
+            throw new Error(delErr.message);
+          }
+        }
       }
+
+      setToastFeedback(`Berhasil menghapus seluruh akun pelanggan (${count} akun). Hanya akun Administrator yang tersisa.`);
+      // Bersihkan draf atau session lokal pelanggan jika ada
+      try {
+        const curr = localStorage.getItem('aetra_current_user');
+        if (curr) {
+          const parsed = JSON.parse(curr);
+          if (parsed.role !== 'admin') {
+            localStorage.removeItem('aetra_current_user');
+          }
+        }
+      } catch {}
+      await loadAccounts();
     } catch (err: any) {
       alert(`Terjadi error: ${err.message || 'Gagal memproses penghapusan akun.'}`);
     } finally {
