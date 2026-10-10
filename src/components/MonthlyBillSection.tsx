@@ -43,8 +43,7 @@ import {
   Droplets
 } from 'lucide-react';
 import { PaymentPartnersGrid } from './PaymentPartnersGrid';
-import { isSupabaseConfigured } from '../lib/supabase';
-import { saveMonthlyBillToDb, fetchMonthlyBillsFromDb } from '../services/supabaseService';
+import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
 import { get12MonthsMeterHistory, MonthlyMeterRecord } from '../utils/meterHistoryService';
 import { OFFICIAL_PAYMENT_CHANNELS } from '../data/paymentChannels';
 
@@ -63,9 +62,11 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
   onNavigateToRegister,
   externalBills,
 }) => {
-  // Load bills from props / Supabase
+  // Load bills from cloudSyncService / local storage
   const [bills, setBills] = useState<MonthlyBillRecord[]>(() => {
-    return externalBills || [];
+    if (externalBills && externalBills.length > 0) return externalBills;
+    const local = cloudSyncService.getLocalSnapshot().bills;
+    return local.length > 0 ? local : INITIAL_BILLS_DATA;
   });
 
   // Demo state switcher for simulation
@@ -85,9 +86,20 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
   // Zoom receipt modal
   const [viewingReceiptImage, setViewingReceiptImage] = useState<string | null>(null);
 
+  // Listen to cloud updates
+  useEffect(() => {
+    const unsub = cloudSyncService.addListener(() => {
+      const updated = cloudSyncService.getLocalSnapshot().bills;
+      if (updated && updated.length > 0) {
+        setBills(updated);
+      }
+    });
+    return unsub;
+  }, []);
+
   // Update when externalBills prop changes
   useEffect(() => {
-    if (externalBills) {
+    if (externalBills && externalBills.length > 0) {
       setBills(externalBills);
     }
   }, [externalBills]);
@@ -276,10 +288,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
       return b;
     });
 
-    const targetBill = updatedBills.find((b) => b.id === currentBill.id || b.idPelanggan === currentBill.idPelanggan);
-    if (targetBill && isSupabaseConfigured()) {
-      saveMonthlyBillToDb(targetBill).catch((e) => console.warn('Supabase bill proof update error:', e));
-    }
+    cloudSyncService.saveBills(updatedBills);
     setBills(updatedBills);
 
     setTimeout(() => {
@@ -811,20 +820,26 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setViewingReceiptImage(currentBill.paymentProof?.fileUrl || null)}
-                          className="w-16 h-16 rounded-xl border border-slate-200 bg-slate-100 overflow-hidden relative group cursor-pointer shrink-0"
-                        >
-                          <img
-                            src={currentBill.paymentProof.fileUrl}
-                            alt="Bukti Bayar"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
-                            <Eye className="w-4 h-4" />
+                        {Boolean(currentBill.paymentProof.fileUrl && currentBill.paymentProof.fileUrl.trim()) ? (
+                          <button
+                            type="button"
+                            onClick={() => setViewingReceiptImage(currentBill.paymentProof?.fileUrl || null)}
+                            className="w-16 h-16 rounded-xl border border-slate-200 bg-slate-100 overflow-hidden relative group cursor-pointer shrink-0"
+                          >
+                            <img
+                              src={currentBill.paymentProof.fileUrl || undefined}
+                              alt="Bukti Bayar"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
+                              <Eye className="w-4 h-4" />
+                            </div>
+                          </button>
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl border border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                            <FileCheck className="w-6 h-6 text-teal-600" />
                           </div>
-                        </button>
+                        )}
 
                         <div className="text-xs space-y-1">
                           <div className="font-bold text-slate-800">{currentBill.paymentProof.fileName}</div>
@@ -1146,9 +1161,11 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
                   />
                   {proofFile ? (
                     <div className="space-y-2">
-                      <div className="w-16 h-16 rounded-xl border border-slate-200 mx-auto overflow-hidden bg-white shadow-xs">
-                        <img src={proofFile.dataUrl} alt="Preview" className="w-full h-full object-cover" />
-                      </div>
+                      {proofFile.dataUrl && proofFile.dataUrl.trim() ? (
+                        <div className="w-16 h-16 rounded-xl border border-slate-200 mx-auto overflow-hidden bg-white shadow-xs">
+                          <img src={proofFile.dataUrl} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      ) : null}
                       <div className="text-xs font-bold text-emerald-700 flex items-center justify-center gap-1">
                         <CheckCircle2 className="w-4 h-4" />
                         <span>{proofFile.name} ({proofFile.size})</span>
@@ -1201,7 +1218,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
       )}
 
       {/* Image Preview Modal */}
-      {viewingReceiptImage && (
+      {Boolean(viewingReceiptImage && viewingReceiptImage.trim()) && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={() => setViewingReceiptImage(null)}
@@ -1213,7 +1230,7 @@ export const MonthlyBillSection: React.FC<MonthlyBillSectionProps> = ({
             >
               <X className="w-4 h-4" />
             </button>
-            <img src={viewingReceiptImage} alt="Bukti Pembayaran Penuh" className="w-full h-auto max-h-[85vh] object-contain rounded-xl" />
+            <img src={viewingReceiptImage!} alt="Bukti Pembayaran Penuh" className="w-full h-auto max-h-[85vh] object-contain rounded-xl" />
           </div>
         </div>
       )}

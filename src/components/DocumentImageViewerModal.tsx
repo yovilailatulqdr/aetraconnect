@@ -19,7 +19,7 @@ export const DocumentImageViewerModal: React.FC<DocumentImageViewerModalProps> =
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [rotation, setRotation] = useState<number>(0);
 
-  if (!isOpen || !imageUrl) return null;
+  if (!isOpen || !imageUrl || !imageUrl.trim()) return null;
 
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.25, 3));
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.25, 0.5));
@@ -114,7 +114,7 @@ export const DocumentImageViewerModal: React.FC<DocumentImageViewerModalProps> =
             }}
           >
             <img
-              src={imageUrl}
+              src={imageUrl || undefined}
               alt={title}
               className="max-h-[72vh] max-w-full rounded-xl shadow-2xl object-contain border border-slate-800"
             />

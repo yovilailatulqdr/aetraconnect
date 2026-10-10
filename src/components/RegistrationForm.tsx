@@ -28,6 +28,7 @@ import {
   ExternalLink,
   Layers,
   FileCheck,
+  FileText,
   CheckSquare,
   Square,
   ScrollText,
@@ -773,13 +774,12 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
-  const processRegistration = async (currentData = formData) => {
+  const processRegistration = (currentData = formData) => {
     const noFormVal = currentData.noForm || Math.floor(100000 + Math.random() * 900000).toString();
     const noSrVal = currentData.noSr || calculateNextSrNumber(existingRegistrations);
 
     const finalizedRecord: RegistrationFormData = {
       ...currentData,
-      userId: currentUser?.id,
       noForm: noFormVal,
       noSr: noSrVal,
       idPelanggan: '', // Akan diisi admin setelah verifikasi dan pembayaran
@@ -794,14 +794,6 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       createdAt: new Date().toISOString(),
     };
 
-    // Save to Supabase first and check result
-    const dbResult = await saveRegistrationToDb(finalizedRecord);
-    if (!dbResult.success) {
-      setNotification(`Gagal menyimpan pendaftaran ke database: ${dbResult.error || 'Periksa koneksi Supabase.'}`);
-      setTimeout(() => setNotification(null), 6000);
-      return;
-    }
-
     onRegisterSuccess(finalizedRecord);
     setSubmittedRecord(finalizedRecord);
 
@@ -813,7 +805,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       // ignore
     }
 
-    setNotification('Pendaftaran Sambungan Baru Berhasil Disimpan ke Supabase! Status: Menunggu Verifikasi Admin.');
+    setNotification('Pendaftaran Sambungan Baru Berhasil Disimpan! Status: Menunggu Verifikasi Admin.');
     setTimeout(() => setNotification(null), 5000);
   };
 
@@ -1235,10 +1227,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           )}
                         </div>
 
-                        {activeExistingRegistration.paymentProof.dataUrl && (
+                        {Boolean(activeExistingRegistration.paymentProof.dataUrl && activeExistingRegistration.paymentProof.dataUrl.trim()) && (
                           <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-video flex items-center justify-center">
                             <img
-                              src={activeExistingRegistration.paymentProof.dataUrl}
+                              src={activeExistingRegistration.paymentProof.dataUrl || undefined}
                               alt="Bukti Transfer"
                               className="max-h-full object-contain"
                             />
@@ -1285,10 +1277,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                           Foto Struk / Tangkapan Layar Bukti Transfer <span className="text-red-500">*</span>
                         </label>
 
-                        {paymentProofData.fileUrl ? (
+                        {Boolean(paymentProofData.fileUrl && paymentProofData.fileUrl.trim()) ? (
                           <div className="relative group border rounded-xl overflow-hidden bg-black/5 aspect-video max-w-sm flex items-center justify-center">
                             <img
-                              src={paymentProofData.fileUrl}
+                              src={paymentProofData.fileUrl || undefined}
                               alt="Bukti Transfer"
                               className="max-h-full object-contain"
                             />
@@ -2216,11 +2208,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
                     {formData.persyaratanFiles?.ktp ? (
                       <div className="relative group border rounded-xl overflow-hidden bg-black/5 aspect-video flex items-center justify-center">
-                        <img
-                          src={formData.persyaratanFiles.ktp.dataUrl}
-                          alt="KTP"
-                          className="max-h-full object-contain"
-                        />
+                        {formData.persyaratanFiles.ktp.dataUrl && formData.persyaratanFiles.ktp.dataUrl.trim() ? (
+                          <img
+                            src={formData.persyaratanFiles.ktp.dataUrl || undefined}
+                            alt="KTP"
+                            className="max-h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-center p-2 text-xs text-slate-500 font-semibold flex flex-col items-center gap-1">
+                            <FileText className="w-6 h-6 text-slate-400" />
+                            <span>{formData.persyaratanFiles.ktp.name || 'Dokumen KTP'}</span>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleRemoveDoc('ktp')}
@@ -2272,11 +2271,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
                     {formData.persyaratanFiles?.kk ? (
                       <div className="relative group border rounded-xl overflow-hidden bg-black/5 aspect-video flex items-center justify-center">
-                        <img
-                          src={formData.persyaratanFiles.kk.dataUrl}
-                          alt="KK"
-                          className="max-h-full object-contain"
-                        />
+                        {formData.persyaratanFiles.kk.dataUrl && formData.persyaratanFiles.kk.dataUrl.trim() ? (
+                          <img
+                            src={formData.persyaratanFiles.kk.dataUrl || undefined}
+                            alt="KK"
+                            className="max-h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-center p-2 text-xs text-slate-500 font-semibold flex flex-col items-center gap-1">
+                            <FileText className="w-6 h-6 text-slate-400" />
+                            <span>{formData.persyaratanFiles.kk.name || 'Dokumen KK'}</span>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleRemoveDoc('kk')}
@@ -2328,11 +2334,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
                     {formData.persyaratanFiles?.pbb ? (
                       <div className="relative group border rounded-xl overflow-hidden bg-black/5 aspect-video flex items-center justify-center">
-                        <img
-                          src={formData.persyaratanFiles.pbb.dataUrl}
-                          alt="PBB"
-                          className="max-h-full object-contain"
-                        />
+                        {formData.persyaratanFiles.pbb.dataUrl && formData.persyaratanFiles.pbb.dataUrl.trim() ? (
+                          <img
+                            src={formData.persyaratanFiles.pbb.dataUrl || undefined}
+                            alt="PBB"
+                            className="max-h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-center p-2 text-xs text-slate-500 font-semibold flex flex-col items-center gap-1">
+                            <FileText className="w-6 h-6 text-slate-400" />
+                            <span>{formData.persyaratanFiles.pbb.name || 'Dokumen PBB'}</span>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleRemoveDoc('pbb')}
@@ -2384,11 +2397,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
                     {formData.persyaratanFiles?.lainnya ? (
                       <div className="relative group border rounded-xl overflow-hidden bg-black/5 aspect-video flex items-center justify-center">
-                        <img
-                          src={formData.persyaratanFiles.lainnya.dataUrl}
-                          alt="Dokumen Lainnya"
-                          className="max-h-full object-contain"
-                        />
+                        {formData.persyaratanFiles.lainnya.dataUrl && formData.persyaratanFiles.lainnya.dataUrl.trim() ? (
+                          <img
+                            src={formData.persyaratanFiles.lainnya.dataUrl || undefined}
+                            alt="Dokumen Lainnya"
+                            className="max-h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-center p-2 text-xs text-slate-500 font-semibold flex flex-col items-center gap-1">
+                            <FileText className="w-6 h-6 text-slate-400" />
+                            <span>{formData.persyaratanFiles.lainnya.name || 'Dokumen Lainnya'}</span>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleRemoveDoc('lainnya')}

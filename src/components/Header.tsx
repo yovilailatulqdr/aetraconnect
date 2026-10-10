@@ -8,7 +8,7 @@ interface HeaderProps {
   onOpenMobileSidebar: () => void;
   registeredCount: number;
   userRole: UserRole;
-  onSwitchRole?: (role: UserRole) => void;
+  onSwitchRole: (role: UserRole) => void;
   currentUser?: UserAccount | null;
   customerStatus?: RegistrationStatus;
   isSidebarVisible?: boolean;
@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileSidebar,
   registeredCount: _registeredCount,
   userRole,
-  onSwitchRole,
+  onSwitchRole: _onSwitchRole,
   currentUser,
   customerStatus,
   isSidebarVisible = true,
@@ -150,36 +150,18 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Role Status Badge & Admin Access Switcher */}
+          {/* Role Status Badge */}
           {currentUser?.role === 'admin' ? (
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#143833] text-white text-xs font-bold shadow-xs border border-[#1D4A43]">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#DC602E]" />
-                <span className="hidden sm:inline">Admin Aetra Connect</span>
-                <span className="sm:hidden">Admin</span>
-              </div>
-              {onSelectTab && (
-                <button
-                  type="button"
-                  onClick={() => onSelectTab(activeTab === 'admin' ? 'registration' : 'admin')}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer border ${
-                    activeTab === 'admin'
-                      ? 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
-                      : 'bg-[#DC602E] hover:bg-[#C85324] text-white border-[#DC602E] shadow-xs'
-                  }`}
-                  title={activeTab === 'admin' ? 'Buka pratinjau antarmuka pelanggan' : 'Kembali ke dashboard admin'}
-                >
-                  <span>{activeTab === 'admin' ? 'Lihat Pelanggan' : 'Kembali ke Admin'}</span>
-                </button>
-              )}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#143833] text-white text-xs font-bold shadow-xs border border-[#1D4A43]">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#DC602E]" />
+              <span className="hidden sm:inline">Admin Aetra Connect</span>
+              <span className="sm:hidden">Admin</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#DC602E] text-white text-xs font-bold shadow-xs">
-                <User className="w-3.5 h-3.5 text-white" />
-                <span className="hidden sm:inline">Aetra Connect</span>
-                <span className="sm:hidden">Pelanggan</span>
-              </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#DC602E] text-white text-xs font-bold shadow-xs">
+              <User className="w-3.5 h-3.5 text-white" />
+              <span className="hidden sm:inline">Aetra Connect</span>
+              <span className="sm:hidden">Pelanggan</span>
             </div>
           )}
 

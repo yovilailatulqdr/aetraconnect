@@ -5,10 +5,6 @@ import {
   SurveySubmission,
   UserAccount,
   MonthlyBillRecord,
-  IndustryCustomer,
-  MeterReader,
-  CycleSchedule,
-  AuditLog,
 } from '../types';
 import { sanitizeRegistrationForPersistence } from '../utils/imageCompressor';
 
@@ -49,7 +45,6 @@ const mapRegistrationToDb = (rawReg: RegistrationFormData) => {
 
   return {
     id: reg.id || `reg-${Date.now()}`,
-    user_id: reg.userId || null,
     no_form: reg.noForm,
     no_sr: reg.noSr,
     id_pelanggan: reg.idPelanggan || null,
@@ -97,7 +92,6 @@ const mapRegistrationToDb = (rawReg: RegistrationFormData) => {
 // Convert database row to frontend RegistrationFormData
 const mapDbToRegistration = (row: any): RegistrationFormData => ({
   id: row.id,
-  userId: row.user_id || undefined,
   noForm: row.no_form,
   noSr: row.no_sr || '',
   idPelanggan: row.id_pelanggan || '',
@@ -166,7 +160,6 @@ const mapDbToRegistration = (row: any): RegistrationFormData => ({
 // Convert frontend CustomerTrackingRecord to database row
 const mapTrackingToDb = (rec: CustomerTrackingRecord) => ({
   no_form: rec.noForm,
-  user_id: (rec as any).userId || null,
   no_sr: rec.noSr || null,
   id_pelanggan: rec.idPelanggan || null,
   email: rec.email ? rec.email.toLowerCase().trim() : null,
@@ -193,7 +186,6 @@ const mapTrackingToDb = (rec: CustomerTrackingRecord) => ({
 // Convert database row to frontend CustomerTrackingRecord
 const mapDbToTracking = (row: any): CustomerTrackingRecord => ({
   noForm: row.no_form,
-  userId: row.user_id || undefined,
   noSr: row.no_sr || '',
   idPelanggan: row.id_pelanggan || '',
   email: row.email || '',
@@ -244,26 +236,9 @@ export const saveRegistrationToDb = async (record: RegistrationFormData): Promis
   }
   try {
     const dbData = mapRegistrationToDb(record);
-    const payload: Record<string, any> = { ...dbData };
-
-    let { error } = await getDb()
+    const { error } = await getDb()
       .from('registrations')
-      .upsert(payload, { onConflict: 'no_form' });
-
-    // Auto-heal schema cache mismatches (e.g. if table does not have 'user_id' column)
-    while (error && error.message && error.message.includes('column of \'registrations\' in the schema cache')) {
-      const match = error.message.match(/Could not find the '([^']+)' column/);
-      if (match && match[1] && match[1] in payload) {
-        console.warn(`Column '${match[1]}' not in registrations table, retrying without it.`);
-        delete payload[match[1]];
-        const retryResult = await getDb()
-          .from('registrations')
-          .upsert(payload, { onConflict: 'no_form' });
-        error = retryResult.error;
-      } else {
-        break;
-      }
-    }
+      .upsert(dbData, { onConflict: 'no_form' });
 
     if (error) {
       console.error('Supabase save registration error:', error.message);
@@ -322,26 +297,9 @@ export const saveTrackingRecordToDb = async (record: CustomerTrackingRecord): Pr
   }
   try {
     const dbData = mapTrackingToDb(record);
-    const payload: Record<string, any> = { ...dbData };
-
-    let { error } = await getDb()
+    const { error } = await getDb()
       .from('tracking_records')
-      .upsert(payload, { onConflict: 'no_form' });
-
-    // Auto-heal schema cache mismatches (e.g. if table does not have 'user_id' column)
-    while (error && error.message && error.message.includes('column of \'tracking_records\' in the schema cache')) {
-      const match = error.message.match(/Could not find the '([^']+)' column/);
-      if (match && match[1] && match[1] in payload) {
-        console.warn(`Column '${match[1]}' not in tracking_records table, retrying without it.`);
-        delete payload[match[1]];
-        const retryResult = await getDb()
-          .from('tracking_records')
-          .upsert(payload, { onConflict: 'no_form' });
-        error = retryResult.error;
-      } else {
-        break;
-      }
-    }
+      .upsert(dbData, { onConflict: 'no_form' });
 
     if (error) {
       console.error('Supabase save tracking record error:', error.message);
@@ -582,17 +540,6 @@ export const deleteMonthlyBillFromDb = async (id: string): Promise<{ success: bo
 // ==========================================
 // 5. USER ACCOUNTS & PROFILES (Supabase Only)
 // ==========================================
-export const MASTER_ADMIN_ACCOUNT: UserAccount = {
-  id: 'acc-admin',
-  userId: 'acc-admin',
-  email: 'admin@aetra.co.id',
-  nama: 'Administrator Aetra Tangerang',
-  idPelanggan: '10999999',
-  telp: '081199887766',
-  role: 'admin',
-  createdAt: '2026-01-01T00:00:00.000Z',
-};
-
 export const fetchUserAccountById = async (userId: string): Promise<UserAccount | null> => {
   if (!isSupabaseConfigured()) return null;
   try {
@@ -613,7 +560,7 @@ export const fetchUserAccountById = async (userId: string): Promise<UserAccount 
       role: data.role as 'admin' | 'customer',
       createdAt: data.created_at,
     };
-  } catch (_err) {
+  } catch {
     return null;
   }
 };
@@ -639,7 +586,7 @@ export const fetchUserAccountByEmail = async (email: string): Promise<UserAccoun
       role: data.role as 'admin' | 'customer',
       createdAt: data.created_at,
     };
-  } catch (_err) {
+  } catch {
     return null;
   }
 };
@@ -714,37 +661,6 @@ export const deleteUserAccountFromDb = async (id: string): Promise<{ success: bo
   } catch (err: any) {
     console.error('Network error deleting user account from Supabase:', err);
     return { success: false, error: err?.message || 'Gagal menghapus akun di Supabase.' };
-  }
-};
-
-export const deleteAllNonAdminAccountsFromDb = async (): Promise<{ success: boolean; count?: number; error?: string }> => {
-  if (!isSupabaseConfigured()) {
-    return { success: false, error: 'Supabase belum dikonfigurasi.' };
-  }
-  try {
-    const client = getDb();
-    const { data: nonAdminUsers, error: fetchErr } = await client
-      .from('user_accounts')
-      .select('id')
-      .neq('role', 'admin');
-
-    if (fetchErr) {
-      return { success: false, error: fetchErr.message };
-    }
-
-    const { error: delErr } = await client
-      .from('user_accounts')
-      .delete()
-      .neq('role', 'admin');
-
-    if (delErr) {
-      return { success: false, error: delErr.message };
-    }
-
-    return { success: true, count: nonAdminUsers?.length || 0 };
-  } catch (err: any) {
-    console.error('Error deleting non-admin accounts:', err);
-    return { success: false, error: err?.message || 'Gagal menghapus seluruh akun pelanggan non-admin.' };
   }
 };
 
@@ -862,29 +778,20 @@ export const signUpWithSupabaseAuth = async (
 };
 
 // ==============================================================================
-// 7. REAL SUPABASE AUTHENTICATION: signInWithPassword()
+// 7. REAL SUPABASE AUTHENTICATION: signInWithPassword() (Strictly No Local Fallback)
 // ==============================================================================
 export const signInWithSupabaseAuth = async (
   identifier: string,
   pass: string
 ): Promise<{ success: boolean; user?: UserAccount; error?: string }> => {
   const rawId = identifier.trim();
-  const cleanPass = pass.trim();
 
-  // 1. Akun Administrator Resmi / Backoffice Master Aetra
-  if (
-    (rawId.toLowerCase() === 'admin' || rawId.toLowerCase() === 'admin@aetra.co.id') &&
-    (cleanPass === 'aetra123' || cleanPass === 'admin')
-  ) {
-    return { success: true, user: MASTER_ADMIN_ACCOUNT };
-  }
-
-  // 2. Enforce Supabase Configuration for online customer accounts
+  // 1. Enforce Supabase Configuration
   if (!isSupabaseConfigured()) {
     return {
       success: false,
       error:
-        'Layanan Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di Environment Variables Vercel/Vite Anda, atau masuk menggunakan akun Administrator.',
+        'Layanan Supabase belum dikonfigurasi. Harap tentukan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di Environment Variables Vercel/Vite Anda.',
     };
   }
 
@@ -893,29 +800,34 @@ export const signInWithSupabaseAuth = async (
   try {
     const client = getDb();
 
-    // 2. Resolve non-email identifier (phone or customer ID) via Supabase user_accounts table
+    // 2. Resolve non-email identifier (admin or phone/ID) via Supabase query
     if (!targetEmail.includes('@')) {
-      const cleanPhone = rawId.replace(/[^0-9]/g, '');
-      const { data: matchedRows, error: searchErr } = await client
-        .from('user_accounts')
-        .select('email')
-        .or(`telp.eq.${rawId},telp.eq.${cleanPhone},id_pelanggan.eq.${rawId}`)
-        .limit(1);
-
-      if (searchErr) {
-        return {
-          success: false,
-          error: `Gagal mencari akun di Supabase: ${searchErr.message}`,
-        };
-      }
-
-      if (matchedRows && matchedRows.length > 0 && matchedRows[0].email) {
-        targetEmail = matchedRows[0].email.toLowerCase().trim();
+      if (targetEmail === 'admin') {
+        targetEmail = 'admin@aetra.co.id';
       } else {
-        return {
-          success: false,
-          error: 'Format email tidak valid atau akun dengan nomor telepon/ID Pelanggan tersebut tidak terdaftar di Supabase.',
-        };
+        const cleanPhone = rawId.replace(/[^0-9]/g, '');
+        // Search in Supabase user_accounts table
+        const { data: matchedRows, error: searchErr } = await client
+          .from('user_accounts')
+          .select('email')
+          .or(`telp.eq.${rawId},telp.eq.${cleanPhone},id_pelanggan.eq.${rawId}`)
+          .limit(1);
+
+        if (searchErr) {
+          return {
+            success: false,
+            error: `Gagal mencari akun di Supabase: ${searchErr.message}`,
+          };
+        }
+
+        if (matchedRows && matchedRows.length > 0 && matchedRows[0].email) {
+          targetEmail = matchedRows[0].email.toLowerCase().trim();
+        } else {
+          return {
+            success: false,
+            error: 'Format email tidak valid atau akun dengan nomor telepon/ID Pelanggan tersebut tidak ditemukan di Supabase.',
+          };
+        }
       }
     }
 
@@ -1009,28 +921,10 @@ export const signInWithSupabaseAuth = async (
 export const signOutUserWithSupabase = async (): Promise<void> => {
   if (isSupabaseConfigured()) {
     try {
-      const client = getDb();
-      await client.auth.signOut({ scope: 'local' }).catch(() => {});
-      await client.auth.signOut().catch(() => {});
+      await getDb().auth.signOut();
     } catch (e) {
       console.warn('Supabase signOut error:', e);
     }
-  }
-
-  // Purge any stored authentication credentials from browser storage
-  try {
-    localStorage.removeItem('aetra_current_user');
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.startsWith('sb-') || key.includes('-auth-token'))) {
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
-    sessionStorage.clear();
-  } catch (storageErr) {
-    console.warn('Storage purge error:', storageErr);
   }
 };
 
@@ -1056,7 +950,7 @@ export const getSupabaseSessionUser = async (): Promise<UserAccount | null> => {
       role: inferredRole,
       createdAt: sessionUser.created_at || new Date().toISOString(),
     };
-  } catch (_err) {
+  } catch {
     return null;
   }
 };
@@ -1073,81 +967,3 @@ export const testSupabaseConnection = async (): Promise<{ success: boolean; mess
     return { success: false, message: err?.message || 'Gagal menghubungi Supabase.' };
   }
 };
-
-export const pushAllDataToSupabase = async (
-  customers: IndustryCustomer[],
-  meterReaders: MeterReader[],
-  cycleSchedules: CycleSchedule[],
-  auditLogs: AuditLog[]
-): Promise<{ success: boolean; message: string }> => {
-  if (!isSupabaseConfigured()) {
-    return { success: false, message: 'Supabase belum dikonfigurasi di environment variables.' };
-  }
-  try {
-    const db = getDb();
-    if (customers.length > 0) {
-      await db.from('industry_customers').upsert(customers, { onConflict: 'id' });
-    }
-    if (meterReaders.length > 0) {
-      await db.from('meter_readers').upsert(meterReaders, { onConflict: 'id' });
-    }
-    if (cycleSchedules.length > 0) {
-      await db.from('cycle_schedules').upsert(cycleSchedules, { onConflict: 'id' });
-    }
-    if (auditLogs.length > 0) {
-      await db.from('audit_logs').upsert(auditLogs, { onConflict: 'id' });
-    }
-    return { success: true, message: 'Berhasil mengunggah data ke Supabase.' };
-  } catch (err: any) {
-    return { success: false, message: err?.message || 'Gagal mengunggah data ke Supabase.' };
-  }
-};
-
-export const fetchSupabaseCustomers = async (): Promise<IndustryCustomer[] | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data, error } = await getDb().from('industry_customers').select('*');
-    if (error) throw error;
-    return data as IndustryCustomer[];
-  } catch (e) {
-    console.warn('fetchSupabaseCustomers error:', e);
-    return null;
-  }
-};
-
-export const fetchSupabaseMeterReaders = async (): Promise<MeterReader[] | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data, error } = await getDb().from('meter_readers').select('*');
-    if (error) throw error;
-    return data as MeterReader[];
-  } catch (e) {
-    console.warn('fetchSupabaseMeterReaders error:', e);
-    return null;
-  }
-};
-
-export const fetchSupabaseCycleSchedules = async (): Promise<CycleSchedule[] | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data, error } = await getDb().from('cycle_schedules').select('*');
-    if (error) throw error;
-    return data as CycleSchedule[];
-  } catch (e) {
-    console.warn('fetchSupabaseCycleSchedules error:', e);
-    return null;
-  }
-};
-
-export const fetchSupabaseAuditLogs = async (): Promise<AuditLog[] | null> => {
-  if (!isSupabaseConfigured()) return null;
-  try {
-    const { data, error } = await getDb().from('audit_logs').select('*');
-    if (error) throw error;
-    return data as AuditLog[];
-  } catch (e) {
-    console.warn('fetchSupabaseAuditLogs error:', e);
-    return null;
-  }
-};
-

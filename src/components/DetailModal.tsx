@@ -229,13 +229,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   <Camera className="w-3.5 h-3.5 text-[#0055A5] dark:text-blue-400" />
                   <span>Foto Fisik Meteran Air di Lokasi</span>
                 </p>
-                {(!customer.fotoMeter || customer.status === 'Belum Dibaca') && (
+                {(!customer.fotoMeter || !customer.fotoMeter.trim() || customer.status === 'Belum Dibaca') && (
                   <span className="text-[9px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 px-1.5 py-0.5 rounded">
                     Menunggu Pengisian
                   </span>
                 )}
               </div>
-              {customer.status === 'Belum Dibaca' || !customer.fotoMeter ? (
+              {customer.status === 'Belum Dibaca' || !customer.fotoMeter || !customer.fotoMeter.trim() ? (
                 <div className="h-40 w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800/60 flex flex-col items-center justify-center p-4 text-center">
                   <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center mb-2 text-slate-400">
                     <Camera className="w-5 h-5" />
@@ -250,7 +250,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               ) : (
                 <div className="h-40 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-900 relative">
                   <img
-                    src={customer.fotoMeter}
+                    src={customer.fotoMeter || undefined}
                     alt={`Meteran ${customer.nama}`}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
@@ -268,13 +268,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   <FileCheck className="w-3.5 h-3.5 text-[#E86216]" />
                   <span>Foto Dokumen BPM (Bukti Pembacaan Meter)</span>
                 </p>
-                {(!customer.fotoBPM || customer.status === 'Belum Dibaca') && (
+                {(!customer.fotoBPM || !customer.fotoBPM.trim() || customer.status === 'Belum Dibaca') && (
                   <span className="text-[9px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 px-1.5 py-0.5 rounded">
                     Menunggu Validasi
                   </span>
                 )}
               </div>
-              {customer.status === 'Belum Dibaca' || !customer.fotoBPM ? (
+              {customer.status === 'Belum Dibaca' || !customer.fotoBPM || !customer.fotoBPM.trim() ? (
                 <div className="h-40 w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800/60 flex flex-col items-center justify-center p-4 text-center">
                   <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center mb-2 text-slate-400">
                     <FileCheck className="w-5 h-5" />
@@ -289,7 +289,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               ) : (
                 <div className="h-40 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-900 relative">
                   <img
-                    src={customer.fotoBPM}
+                    src={customer.fotoBPM || undefined}
                     alt={`BPM ${customer.nama}`}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"

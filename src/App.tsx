@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TabType, RegistrationFormData, CustomerTrackingRecord, TrackingTimelineEvent, SurveySubmission, UserRole, UserAccount, MonthlyBillRecord, RegistrationStatus } from './types';
 import { 
-  INITIAL_FAQS 
+  INITIAL_TRACKING_DATABASE, 
+  INITIAL_FAQS, 
+  INITIAL_SURVEY_RESPONSES,
+  INITIAL_REGISTRATIONS
 } from './data/mockData';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -28,10 +31,8 @@ import {
   saveMonthlyBillToDb,
   getSupabaseSessionUser,
   signOutUserWithSupabase,
-  MASTER_ADMIN_ACCOUNT,
 } from './services/supabaseService';
 import { getSupabaseClient, isSupabaseConfigured } from './lib/supabase';
-import { cloudSyncService } from './services/cloudSyncService';
 import { safeLocalStorageSetItem } from './utils/storageUtils';
 import { Droplets, ShieldCheck, HeartHandshake } from 'lucide-react';
 
@@ -54,41 +55,43 @@ export default function App() {
   const [activeTrackingForm, setActiveTrackingForm] = useState<string>('');
   const [isOpenMobile, setIsOpenMobile] = useState<boolean>(false);
 
-  // Registrations state (Supabase is single source of truth)
+  // Registrations state (Supabase is single source of truth when configured)
   const [registrations, setRegistrations] = useState<RegistrationFormData[]>(() => {
     if (isSupabaseConfigured()) return [];
     try {
       const saved = localStorage.getItem('aetra_registrations');
-      return saved ? JSON.parse(saved) : [];
+      return saved ? JSON.parse(saved) : INITIAL_REGISTRATIONS;
     } catch {
-      return [];
+      return INITIAL_REGISTRATIONS;
     }
   });
 
-  // Tracking records state (Supabase is single source of truth)
+  // Tracking records state (Supabase is single source of truth when configured)
   const [trackingRecords, setTrackingRecords] = useState<CustomerTrackingRecord[]>(() => {
     if (isSupabaseConfigured()) return [];
     try {
       const saved = localStorage.getItem('aetra_tracking');
-      return saved ? JSON.parse(saved) : [];
+      return saved ? JSON.parse(saved) : INITIAL_TRACKING_DATABASE;
     } catch {
-      return [];
+      return INITIAL_TRACKING_DATABASE;
     }
   });
 
-  // Survey Submissions state (Supabase is single source of truth)
+  // Survey Submissions state (Supabase is single source of truth when configured)
   const [surveys, setSurveys] = useState<SurveySubmission[]>(() => {
     if (isSupabaseConfigured()) return [];
     try {
       const saved = localStorage.getItem('aetra_surveys');
-      return saved ? JSON.parse(saved) : [];
+      return saved ? JSON.parse(saved) : INITIAL_SURVEY_RESPONSES;
     } catch {
-      return [];
+      return INITIAL_SURVEY_RESPONSES;
     }
   });
 
-  // Monthly Bills state (Supabase is single source of truth)
-  const [bills, setBills] = useState<MonthlyBillRecord[]>([]);
+  // Monthly Bills state (Supabase is single source of truth when configured)
+  const [bills, setBills] = useState<MonthlyBillRecord[]>(() => {
+    return [];
+  });
 
   // Admin sub-tab state ('registrations' | 'bills' | 'surveys' | 'field' | 'accounts')
   const [adminSubTab, setAdminSubTab] = useState<'registrations' | 'bills' | 'surveys' | 'field' | 'accounts'>('registrations');
@@ -198,14 +201,39 @@ export default function App() {
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
   const [dbVersion, setDbVersion] = useState(0);
 
-  // Initial load from Supabase as single source of truth for all cross-browser data
+  // Initial load from Cloud & Supabase for cross-device persistence anywhere (e.g. Vercel)
   const loadFromSupabase = useCallback(async () => {
     try {
-      const [remoteRegs, remoteTrackings, remoteSurveys, remoteBills] = await Promise.all([
+      // 0. Check Supabase auth session
+      const sessionUser = await getSupabaseSessionUser();
+      if (sessionUser && !currentUser) {
+        setCurrentUser(sessionUser);
+        setUserRole(sessionUser.role);
+        localStorage.setItem('aetra_current_user', JSON.stringify(sessionUser));
+      }
+
+      // 1. First pull from master cloud & server store
+      const cloudSnap = await cloudSyncService.pullFromCloud();
+      if (cloudSnap) {
+        if (cloudSnap.registrations && cloudSnap.registrations.length > 0) {
+          setRegistrations(cloudSnap.registrations);
+        }
+        if (cloudSnap.trackingRecords && cloudSnap.trackingRecords.length > 0) {
+          setTrackingRecords(cloudSnap.trackingRecords);
+        }
+        if (cloudSnap.surveys && cloudSnap.surveys.length > 0) {
+          setSurveys(cloudSnap.surveys);
+        }
+        if (cloudSnap.bills && cloudSnap.bills.length > 0) {
+          setBills(cloudSnap.bills);
+        }
+      }
+
+      // 2. Also query Supabase if configured
+      const [remoteRegs, remoteTrackings, remoteSurveys] = await Promise.all([
         fetchRegistrationsFromDb(),
         fetchTrackingRecordsFromDb(),
         fetchSurveysFromDb(),
-        fetchMonthlyBillsFromDb(),
       ]);
 
       if (remoteRegs !== null) {
@@ -214,36 +242,13 @@ export default function App() {
       if (remoteTrackings !== null) {
         setTrackingRecords(remoteTrackings);
       }
-      if (remoteSurveys !== null) {
+      if (remoteSurveys !== null && remoteSurveys.length > 0) {
         setSurveys(remoteSurveys);
-      }
-      if (remoteBills !== null) {
-        setBills(remoteBills);
       }
     } catch (err) {
       console.warn('Initial data fetch notice:', err);
     }
-  }, []);
-
-  // Separate, safe initial auth check on mount only (never auto-re-login if logged out)
-  useEffect(() => {
-    const checkInitialAuth = async () => {
-      if (!isSupabaseConfigured()) return;
-      try {
-        const hasSavedUser = Boolean(localStorage.getItem('aetra_current_user'));
-        if (hasSavedUser) {
-          const sessionUser = await getSupabaseSessionUser();
-          if (sessionUser) {
-            setCurrentUser(sessionUser);
-            setUserRole(sessionUser.role);
-          }
-        }
-      } catch (e) {
-        console.warn('Initial auth check notice:', e);
-      }
-    };
-    checkInitialAuth();
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     loadFromSupabase();
@@ -254,17 +259,17 @@ export default function App() {
       try {
         const client = getSupabaseClient();
         const { data } = client.auth.onAuthStateChange(async (event, session) => {
-          if (event === 'SIGNED_OUT') {
-            setCurrentUser(null);
-            setUserRole('customer');
-            localStorage.removeItem('aetra_current_user');
-          } else if (event === 'SIGNED_IN' && session?.user) {
+          if (session?.user) {
             const user = await getSupabaseSessionUser();
             if (user) {
               setCurrentUser(user);
               setUserRole(user.role);
               localStorage.setItem('aetra_current_user', JSON.stringify(user));
             }
+          } else if (event === 'SIGNED_OUT') {
+            setCurrentUser(null);
+            setUserRole('customer');
+            localStorage.removeItem('aetra_current_user');
           }
         });
         authSub = data?.subscription || null;
@@ -273,47 +278,7 @@ export default function App() {
       }
     }
 
-    // Supabase Realtime Channel: Listen to changes across all tables so Browser A immediately syncs to Browser B
-    let realtimeChannel: any = null;
-    if (isSupabaseConfigured()) {
-      try {
-        const client = getSupabaseClient();
-        realtimeChannel = client
-          .channel('public-db-changes')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
-            fetchRegistrationsFromDb().then((data) => {
-              if (data !== null) setRegistrations(data);
-            });
-          })
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'tracking_records' }, () => {
-            fetchTrackingRecordsFromDb().then((data) => {
-              if (data !== null) setTrackingRecords(data);
-            });
-          })
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'monthly_bills' }, () => {
-            fetchMonthlyBillsFromDb().then((data) => {
-              if (data !== null) setBills(data);
-            });
-          })
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => {
-            fetchSurveysFromDb().then((data) => {
-              if (data !== null) setSurveys(data);
-            });
-          })
-          .subscribe();
-      } catch (err) {
-        console.warn('Realtime subscription notice:', err);
-      }
-    }
-
-    // Interval polling backup every 15 seconds to guarantee cross-browser sync even if Realtime socket drops
-    const pollInterval = setInterval(() => {
-      if (isSupabaseConfigured()) {
-        loadFromSupabase();
-      }
-    }, 15000);
-
-    // Listen to local sync events
+    // Listen to background cross-device sync updates
     const unsub = cloudSyncService.addListener(() => {
       const snap = cloudSyncService.getLocalSnapshot();
       if (snap.registrations) setRegistrations(snap.registrations);
@@ -324,12 +289,6 @@ export default function App() {
 
     return () => {
       authSub?.unsubscribe();
-      if (realtimeChannel) {
-        try {
-          getSupabaseClient().removeChannel(realtimeChannel);
-        } catch {}
-      }
-      clearInterval(pollInterval);
       unsub();
     };
   }, [loadFromSupabase]);
@@ -352,17 +311,14 @@ export default function App() {
   }, [bills]);
 
   // Handler when admin updates customer bills (manual or excel import)
-  const handleUpdateBills = async (newBills: MonthlyBillRecord[]) => {
+  const handleUpdateBills = (newBills: MonthlyBillRecord[]) => {
     setBills(newBills);
     safeLocalStorageSetItem('aetra_customer_bills', newBills);
     cloudSyncService.saveBills(newBills);
-    for (const b of newBills) {
-      await saveMonthlyBillToDb(b);
-    }
   };
 
   // Handler when user registers a new customer
-  const handleRegisterSuccess = async (newRecord: RegistrationFormData) => {
+  const handleRegisterSuccess = (newRecord: RegistrationFormData) => {
     const recordWithUser: RegistrationFormData = {
       ...newRecord,
       userId: currentUser?.id,
@@ -508,19 +464,9 @@ export default function App() {
       console.warn('Direct storage sync warning:', err);
     }
 
-    // Persist to online Supabase database directly
-    try {
-      const regRes = await saveRegistrationToDb(recordWithUser);
-      if (!regRes.success) {
-        console.error('Supabase registration error:', regRes.error);
-      }
-      const trackRes = await saveTrackingRecordToDb(newTracking);
-      if (!trackRes.success) {
-        console.error('Supabase tracking error:', trackRes.error);
-      }
-    } catch (e) {
-      console.warn('Supabase save error:', e);
-    }
+    // Persist to online Supabase database asynchronously
+    saveRegistrationToDb(newRecord).catch((e) => console.warn('Supabase save error:', e));
+    saveTrackingRecordToDb(newTracking).catch((e) => console.warn('Supabase tracking save error:', e));
   };
 
   const handleUpdateTrackingStep = (noForm: string, nextStep: 1 | 2 | 3 | 4 | 5, customNote?: string) => {
@@ -1144,12 +1090,9 @@ export default function App() {
     setActiveTab('tracking');
   };
 
-  const handleAddSurvey = async (newSurvey: SurveySubmission) => {
+  const handleAddSurvey = (newSurvey: SurveySubmission) => {
     setSurveys((prev) => [newSurvey, ...prev]);
-    const res = await saveSurveyToDb(newSurvey);
-    if (!res.success) {
-      console.error('Supabase survey save error:', res.error);
-    }
+    saveSurveyToDb(newSurvey).catch((e) => console.warn('Supabase survey save error:', e));
     cloudSyncService.saveSurvey(newSurvey);
   };
 
@@ -1165,38 +1108,15 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    setCurrentUser(null);
-    setUserRole('customer');
-    setActiveTab('registration');
-    localStorage.removeItem('aetra_current_user');
     try {
       await signOutUserWithSupabase();
     } catch (e) {
       console.warn('Sign out notice:', e);
     }
-  };
-
-  const handleSwitchRole = (role: UserRole) => {
-    // Keamanan: Hanya akun administrator resmi yang dapat beralih tampilan
-    if (currentUser?.role !== 'admin') {
-      return;
-    }
-    setUserRole(role);
-    if (role === 'admin') {
-      setActiveTab('admin');
-    } else {
-      if (activeTab === 'admin') {
-        setActiveTab('registration');
-      }
-    }
-  };
-
-  const handleSelectTab = (tab: TabType) => {
-    // Keamanan: Cegah akun pelanggan membuka tab admin
-    if (tab === 'admin' && currentUser?.role !== 'admin') {
-      return;
-    }
-    setActiveTab(tab);
+    setCurrentUser(null);
+    setUserRole('customer');
+    setActiveTab('registration');
+    localStorage.removeItem('aetra_current_user');
   };
 
   // If user is not logged in, gate the application with AuthScreen
@@ -1204,7 +1124,7 @@ export default function App() {
     return <AuthScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
-  const isAdminPortal = currentUser?.role === 'admin' && (activeTab === 'admin' || userRole === 'admin');
+  const isAdminPortal = activeTab === 'admin' || currentUser?.role === 'admin' || userRole === 'admin';
 
   return (
     <div className={`min-h-screen font-sans text-slate-800 transition-colors duration-200 ${
@@ -1216,7 +1136,7 @@ export default function App() {
       {isSidebarVisible && (
         <Sidebar
           activeTab={activeTab}
-          setActiveTab={handleSelectTab}
+          setActiveTab={setActiveTab}
           adminSubTab={adminSubTab}
           onSelectAdminSubTab={setAdminSubTab}
           registeredCount={registrations.length}
@@ -1227,7 +1147,14 @@ export default function App() {
           customerStatus={customerStatus}
           onLogout={handleLogout}
           onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-          onSwitchRole={currentUser?.role === 'admin' ? handleSwitchRole : undefined}
+          onSwitchRole={(role) => {
+            setUserRole(role);
+            if (role === 'admin') {
+              setActiveTab('admin');
+            } else if (activeTab === 'admin') {
+              setActiveTab('registration');
+            }
+          }}
         />
       )}
 
@@ -1244,8 +1171,15 @@ export default function App() {
           isSidebarVisible={isSidebarVisible}
           onLogout={handleLogout}
           onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-          onSelectTab={handleSelectTab}
-          onSwitchRole={currentUser?.role === 'admin' ? handleSwitchRole : undefined}
+          onSelectTab={(tab) => setActiveTab(tab)}
+          onSwitchRole={(role) => {
+            setUserRole(role);
+            if (role === 'admin') {
+              setActiveTab('admin');
+            } else if (activeTab === 'admin') {
+              setActiveTab('registration');
+            }
+          }}
         />
 
         {/* Dedicated Mobile App Bar Header (Only visible on mobile screens when sidebar is visible) */}
@@ -1289,7 +1223,7 @@ export default function App() {
 
         {/* Main Content Modules */}
         <main className={`flex-1 w-full ${isSidebarVisible ? 'max-w-7xl' : 'max-w-5xl'} mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 lg:pb-8`}>
-          {activeTab === 'admin' && currentUser?.role === 'admin' && (
+          {activeTab === 'admin' && (
             <AdminSection
               registrations={registrations}
               trackingRecords={trackingRecords}
@@ -1341,13 +1275,13 @@ export default function App() {
               onUpdateTrackingStep={handleUpdateTrackingStep}
               onNavigateToRegister={() => setActiveTab('registration')}
               onQuickDemoRegister={handleQuickDemoRegister}
-              onNavigateToAdmin={currentUser?.role === 'admin' ? (noForm) => {
+              onNavigateToAdmin={(noForm) => {
                 setUserRole('admin');
                 setActiveTab('admin');
                 if (noForm) {
                   setActiveTrackingForm(noForm);
                 }
-              } : undefined}
+              }}
             />
           )}
 

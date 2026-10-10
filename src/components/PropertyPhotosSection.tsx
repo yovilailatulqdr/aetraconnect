@@ -117,11 +117,13 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
           const photo = getPhotoForSlot(slot.key);
           const Icon = slot.icon;
 
+          const hasPhotoData = Boolean(photo && photo.dataUrl && typeof photo.dataUrl === 'string' && photo.dataUrl.trim());
+
           return (
             <div
               key={slot.key}
               className={`rounded-2xl border p-3.5 flex flex-col justify-between gap-3 transition bg-white ${
-                photo
+                hasPhotoData
                   ? 'border-emerald-300 ring-1 ring-emerald-400/40 shadow-xs'
                   : 'border-slate-200 hover:border-slate-300 shadow-2xs'
               }`}
@@ -132,7 +134,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
                     <Icon className="w-3.5 h-3.5 text-[#0f766e]" />
                     <span>{slot.title}</span>
                   </span>
-                  {photo ? (
+                  {hasPhotoData ? (
                     <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                       Terlampir
@@ -148,19 +150,19 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
                 </p>
               </div>
 
-              {photo ? (
+              {hasPhotoData ? (
                 <div className="space-y-2">
                   <div className="relative group rounded-xl overflow-hidden bg-slate-950 aspect-video border border-slate-200 flex items-center justify-center">
                     <img
-                      src={photo.dataUrl}
+                      src={photo!.dataUrl || undefined}
                       alt={slot.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-200 cursor-pointer"
-                      onClick={() => setLightboxPhoto(photo)}
+                      onClick={() => setLightboxPhoto(photo!)}
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
                       <button
                         type="button"
-                        onClick={() => setLightboxPhoto(photo)}
+                        onClick={() => setLightboxPhoto(photo!)}
                         className="p-1.5 bg-white/90 hover:bg-white text-slate-900 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-md cursor-pointer"
                         title="Lihat ukuran penuh"
                       >
@@ -182,7 +184,7 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
 
                   {!readOnly && (
                     <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
-                      <span>{photo.source === 'camera' ? 'Kamera' : 'File'} • {photo.timestamp || 'Tersimpan'}</span>
+                      <span>{photo!.source === 'camera' ? 'Kamera' : 'File'} • {photo!.timestamp || 'Tersimpan'}</span>
                       <label className="text-[#0f766e] font-bold hover:underline cursor-pointer">
                         Ganti Foto
                         <input
@@ -250,11 +252,15 @@ export const PropertyPhotosSection: React.FC<PropertyPhotosSectionProps> = ({
               </button>
             </div>
             <div className="p-3 bg-slate-950 flex items-center justify-center max-h-[75vh]">
-              <img
-                src={lightboxPhoto.dataUrl}
-                alt="Enlarged"
-                className="max-h-[70vh] w-auto max-w-full object-contain rounded-lg"
-              />
+              {lightboxPhoto.dataUrl && lightboxPhoto.dataUrl.trim() ? (
+                <img
+                  src={lightboxPhoto.dataUrl}
+                  alt="Enlarged"
+                  className="max-h-[70vh] w-auto max-w-full object-contain rounded-lg"
+                />
+              ) : (
+                <div className="text-slate-400 text-xs py-10">Foto tidak dapat dimuat</div>
+              )}
             </div>
           </div>
         </div>
