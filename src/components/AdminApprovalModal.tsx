@@ -155,11 +155,9 @@ export const AdminApprovalModal: React.FC<AdminApprovalModalProps> = ({
     { key: 'suratDomisili', label: 'Surat Keterangan Domisili', doc: record.persyaratanFiles?.suratDomisili },
     { key: 'suratKuasaSewa', label: 'Surat Kuasa / Perjanjian Sewa', doc: record.persyaratanFiles?.suratKuasaSewa },
     { key: 'lainnya', label: 'Dokumen Pendukung Lainnya', doc: record.persyaratanFiles?.lainnya },
-  ].filter((d) => Boolean(d.doc?.dataUrl && typeof d.doc.dataUrl === 'string' && d.doc.dataUrl.trim()));
+  ].filter((d) => Boolean(d.doc?.dataUrl));
 
-  const paymentProofUrl = (record.paymentProof?.dataUrl && typeof record.paymentProof.dataUrl === 'string' && record.paymentProof.dataUrl.trim()) ||
-    (record.paymentProof?.fileUrl && typeof record.paymentProof.fileUrl === 'string' && record.paymentProof.fileUrl.trim()) || null;
-  const paymentProofDoc = paymentProofUrl ? record.paymentProof : null;
+  const paymentProofDoc = record.paymentProof?.dataUrl || record.paymentProof?.fileUrl ? record.paymentProof : null;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
@@ -300,29 +298,21 @@ export const AdminApprovalModal: React.FC<AdminApprovalModalProps> = ({
               </div>
 
               <div
-                onClick={() => {
-                  if (paymentProofUrl) {
-                    setActiveViewer({
-                      isOpen: true,
-                      imageUrl: paymentProofUrl,
-                      title: 'Bukti Pembayaran Biaya Sambungan Baru',
-                      description: `Kanal: ${paymentProofDoc.bank || paymentProofDoc.bankPengirim || 'Mitra Resmi'} | Tgl: ${paymentProofDoc.tanggalBayar || 'Hari Ini'}`,
-                    });
-                  }
-                }}
+                onClick={() =>
+                  setActiveViewer({
+                    isOpen: true,
+                    imageUrl: paymentProofDoc.dataUrl || paymentProofDoc.fileUrl || '',
+                    title: 'Bukti Pembayaran Biaya Sambungan Baru',
+                    description: `Kanal: ${paymentProofDoc.bank || paymentProofDoc.bankPengirim || 'Mitra Resmi'} | Tgl: ${paymentProofDoc.tanggalBayar || 'Hari Ini'}`,
+                  })
+                }
                 className="flex items-center gap-4 p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30 hover:bg-slate-900 cursor-pointer group"
               >
-                {paymentProofUrl ? (
-                  <img
-                    src={paymentProofUrl}
-                    alt="Struk Bayar"
-                    className="w-16 h-16 object-cover rounded-xl border border-emerald-500/40"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-xl border border-emerald-500/40 bg-slate-800 flex items-center justify-center text-emerald-400">
-                    <ReceiptText className="w-6 h-6" />
-                  </div>
-                )}
+                <img
+                  src={paymentProofDoc.dataUrl || paymentProofDoc.fileUrl}
+                  alt="Struk Bayar"
+                  className="w-16 h-16 object-cover rounded-xl border border-emerald-500/40"
+                />
                 <div className="flex-1">
                   <span className="text-xs font-bold text-white block">
                     Struk Validasi Bank / Kasir Minimarket

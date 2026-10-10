@@ -231,10 +231,10 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
           )}
 
           {/* Captured Image Preview State */}
-          {Boolean(capturedImage && capturedImage.trim()) ? (
+          {capturedImage ? (
             <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
               <img
-                src={capturedImage || undefined}
+                src={capturedImage}
                 alt="Hasil Jepretan Kamera"
                 className="max-h-[380px] w-auto object-contain rounded-xl border border-slate-700 shadow-lg"
               />

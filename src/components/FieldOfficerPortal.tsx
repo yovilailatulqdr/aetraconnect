@@ -27,7 +27,7 @@ import {
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { InteractiveMapPicker } from './InteractiveMapPicker';
 import { DocumentImageViewerModal } from './DocumentImageViewerModal';
-import { cloudSyncService } from '../services/cloudSyncService';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { saveRegistrationToDb, saveTrackingRecordToDb } from '../services/supabaseService';
 
 interface FieldOfficerPortalProps {
@@ -226,9 +226,13 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
       fotoPropertiFiles: propertyPhotos,
     };
 
+    const regResult = await saveRegistrationToDb(updatedReg);
+    if (!regResult.success && isSupabaseConfigured()) {
+      setIsSaving(false);
+      showToast(`Gagal menyimpan data ke database: ${regResult.error}`);
+      return;
+    }
     onUpdateRegistration?.(updatedReg);
-    cloudSyncService.saveRegistration(updatedReg);
-    saveRegistrationToDb(updatedReg).catch((err) => console.warn(err));
 
     // Update tracking record with surveyor/technician details & meter info
     if (selectedTracking) {
@@ -249,13 +253,18 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
           role: 'Teknisi Water Meter',
         },
       };
+
+      const trackResult = await saveTrackingRecordToDb(updatedTracking);
+      if (!trackResult.success && isSupabaseConfigured()) {
+        setIsSaving(false);
+        showToast(`Gagal menyimpan tracking ke database: ${trackResult.error}`);
+        return;
+      }
       onUpdateTracking?.(updatedTracking);
-      cloudSyncService.saveTracking(updatedTracking);
-      saveTrackingRecordToDb(updatedTracking).catch((err) => console.warn(err));
     }
 
     setIsSaving(false);
-    showToast(`Dokumentasi properti lapangan & data teknis untuk No. Form #${selectedRegistration.noForm} (${selectedRegistration.namaKtp}) berhasil disimpan!`);
+    showToast(`Dokumentasi properti lapangan & data teknis untuk No. Form #${selectedRegistration.noForm} (${selectedRegistration.namaKtp}) berhasil disimpan ke database!`);
   };
 
   const filteredRegistrations = useMemo(() => {
@@ -442,7 +451,6 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
                       meter: 'Foto titik kran/pipa dinas yang dipasang',
                     };
                     const photo = getSlotPhoto(slot);
-                    const hasPhotoData = Boolean(photo && photo.dataUrl && typeof photo.dataUrl === 'string' && photo.dataUrl.trim());
 
                     return (
                       <div
@@ -454,7 +462,7 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
                             <span className="font-bold text-amber-400 text-[11px] uppercase">
                               {titles[slot]}
                             </span>
-                            {hasPhotoData ? (
+                            {photo ? (
                               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
                                 ✓ Terunggah
                               </span>
@@ -469,16 +477,16 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
                           </p>
                         </div>
 
-                        {hasPhotoData ? (
+                        {photo ? (
                           <div className="relative group rounded-xl overflow-hidden border border-slate-700 aspect-4/3 bg-slate-900">
                             <img
-                              src={photo!.dataUrl || undefined}
+                              src={photo.dataUrl}
                               alt={titles[slot]}
                               className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition duration-300"
                               onClick={() =>
                                 setActiveViewer({
                                   isOpen: true,
-                                  imageUrl: photo!.dataUrl,
+                                  imageUrl: photo.dataUrl,
                                   title: titles[slot],
                                   description: `Unggahan dokumentasi lapangan untuk No. Form #${selectedRegistration.noForm}`,
                                 })
@@ -490,7 +498,7 @@ export const FieldOfficerPortal: React.FC<FieldOfficerPortalProps> = ({
                                 onClick={() =>
                                   setActiveViewer({
                                     isOpen: true,
-                                    imageUrl: photo!.dataUrl,
+                                    imageUrl: photo.dataUrl,
                                     title: titles[slot],
                                     description: `Unggahan dokumentasi lapangan untuk No. Form #${selectedRegistration.noForm}`,
                                   })

@@ -296,7 +296,7 @@ export const AdminBillManagement: React.FC<AdminBillManagementProps> = ({
   };
 
   // Save Add / Edit
-  const handleSaveBill = (e: React.FormEvent) => {
+  const handleSaveBill = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.idPelanggan.trim()) {
       alert('ID Pelanggan wajib diisi.');

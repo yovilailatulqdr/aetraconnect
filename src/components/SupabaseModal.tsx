@@ -110,7 +110,7 @@ export const SupabaseModal: React.FC<SupabaseModalProps> = ({ isOpen, onClose, o
     setInputKey('');
     reloadSupabaseClient();
     setTestStatus('idle');
-    setTestMessage('Kredensial lokal telah dihapus. Aplikasi kembali ke mode cache lokal.');
+    setTestMessage('Kredensial lokal telah dibersihkan. Konfigurasi diambil dari Environment Variables Vercel/Vite.');
     if (onCredentialsUpdated) {
       onCredentialsUpdated();
     }

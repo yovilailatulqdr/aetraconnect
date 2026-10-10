@@ -54,7 +54,6 @@ import { ExcelImportModal } from './ExcelImportModal';
 import { AdminBillManagement } from './AdminBillManagement';
 import { AdminAccountManagement } from './AdminAccountManagement';
 import { AdminApprovalModal } from './AdminApprovalModal';
-import { cloudSyncService, INITIAL_BILLS_DATA } from '../services/cloudSyncService';
 import { AETRA_SERVICE_AREAS } from '../data/serviceAreas';
 
 interface AdminSectionProps {
@@ -138,33 +137,20 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
   // Bills state
   const [billsState, setBillsState] = useState<MonthlyBillRecord[]>(() => {
-    if (externalBills && externalBills.length > 0) return externalBills;
-    const local = cloudSyncService.getLocalSnapshot().bills;
-    return local.length > 0 ? local : INITIAL_BILLS_DATA;
+    return externalBills || [];
   });
 
   useEffect(() => {
-    if (externalBills && externalBills.length > 0) {
+    if (externalBills) {
       setBillsState(externalBills);
     }
   }, [externalBills]);
-
-  useEffect(() => {
-    const unsub = cloudSyncService.addListener(() => {
-      const snap = cloudSyncService.getLocalSnapshot().bills;
-      if (snap && snap.length > 0) {
-        setBillsState(snap);
-      }
-    });
-    return unsub;
-  }, []);
 
   const handleUpdateBills = (newBills: MonthlyBillRecord[]) => {
     setBillsState(newBills);
     if (onUpdateBills) {
       onUpdateBills(newBills);
     }
-    cloudSyncService.saveBills(newBills);
   };
 
   const surveyList = _surveys || [];
@@ -1861,7 +1847,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                     ].map((doc) => {
                       const isChecked = viewingFullRecord.persyaratan && (viewingFullRecord.persyaratan as any)[doc.key];
                       const uploaded = viewingFullRecord.persyaratanFiles && (viewingFullRecord.persyaratanFiles as any)[doc.key];
-                      const hasFile = Boolean(uploaded && uploaded.dataUrl && typeof uploaded.dataUrl === 'string' && uploaded.dataUrl.trim());
+                      const hasFile = Boolean(uploaded && uploaded.dataUrl);
 
                       return (
                         <div key={doc.key} className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-2">
@@ -1873,7 +1859,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                                 className="w-10 h-10 rounded-lg border border-slate-300 bg-white overflow-hidden relative group shrink-0 cursor-pointer shadow-2xs"
                                 title="Klik untuk melihat berkas ukuran penuh"
                               >
-                                <img src={uploaded.dataUrl || undefined} alt={doc.label} className="w-full h-full object-cover" />
+                                <img src={uploaded.dataUrl} alt={doc.label} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
                                   <Eye className="w-3.5 h-3.5" />
                                 </div>
@@ -1934,18 +1920,16 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                           (p) => p.category === slot.cat
                         ) || (viewingFullRecord.fotoPropertiFiles && viewingFullRecord.fotoPropertiFiles[0]);
 
-                        const hasPhoto = Boolean(photo && photo.dataUrl && typeof photo.dataUrl === 'string' && photo.dataUrl.trim());
-
                         return (
                           <div key={slot.cat} className="p-2 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
                             <span className="text-[10px] font-bold text-slate-700 block truncate">{slot.label}</span>
-                            {hasPhoto ? (
+                            {photo && photo.dataUrl ? (
                               <button
                                 type="button"
-                                onClick={() => setPreviewDocModal({ title: `${slot.label} - ${viewingFullRecord.namaKtp}`, url: photo!.dataUrl })}
+                                onClick={() => setPreviewDocModal({ title: `${slot.label} - ${viewingFullRecord.namaKtp}`, url: photo.dataUrl })}
                                 className="w-full h-16 rounded-lg border border-slate-200 overflow-hidden relative group bg-white shadow-2xs block cursor-pointer"
                               >
-                                <img src={photo!.dataUrl || undefined} alt={slot.label} className="w-full h-full object-cover" />
+                                <img src={photo.dataUrl} alt={slot.label} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[10px] font-bold">
                                   Perbesar
                                 </div>
@@ -1975,32 +1959,16 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {Boolean(
-                          (viewingFullRecord.paymentProof.fileUrl && viewingFullRecord.paymentProof.fileUrl.trim()) ||
-                          (viewingFullRecord.paymentProof.dataUrl && viewingFullRecord.paymentProof.dataUrl.trim())
-                        ) ? (
-                          (() => {
-                            const proofUrl = (viewingFullRecord.paymentProof.fileUrl && viewingFullRecord.paymentProof.fileUrl.trim())
-                              ? viewingFullRecord.paymentProof.fileUrl
-                              : (viewingFullRecord.paymentProof.dataUrl || '');
-                            return (
-                              <button
-                                type="button"
-                                onClick={() => setPreviewDocModal({
-                                  title: `Bukti Pembayaran Sambungan Baru - ${viewingFullRecord.namaKtp}`,
-                                  url: proofUrl,
-                                })}
-                                className="w-12 h-12 rounded-lg border border-emerald-300 bg-white overflow-hidden shrink-0 cursor-pointer shadow-2xs"
-                              >
-                                <img src={proofUrl || undefined} alt="Bukti Bayar" className="w-full h-full object-cover" />
-                              </button>
-                            );
-                          })()
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg border border-emerald-300 bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                            <FileText className="w-5 h-5" />
-                          </div>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => setPreviewDocModal({
+                            title: `Bukti Pembayaran Sambungan Baru - ${viewingFullRecord.namaKtp}`,
+                            url: viewingFullRecord.paymentProof?.fileUrl || '',
+                          })}
+                          className="w-12 h-12 rounded-lg border border-emerald-300 bg-white overflow-hidden shrink-0 cursor-pointer shadow-2xs"
+                        >
+                          <img src={viewingFullRecord.paymentProof.fileUrl} alt="Bukti Bayar" className="w-full h-full object-cover" />
+                        </button>
                         <div className="text-[11px] text-slate-700 space-y-0.5">
                           <div>Nominal: <strong className="text-emerald-900 font-mono">Rp {(viewingFullRecord.paymentProof.nominal || viewingFullRecord.biayaSambungan || 1371545).toLocaleString('id-ID')}</strong></div>
                           <div className="text-slate-500 text-[10px]">Waktu Unggah: {viewingFullRecord.paymentProof.uploadedAt?.slice(0, 16).replace('T', ' ')}</div>
@@ -2135,11 +2103,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               </button>
             </div>
             <div className="p-4 bg-slate-900 flex items-center justify-center overflow-auto flex-1 max-h-[70vh]">
-              {previewDocModal.url && previewDocModal.url.trim() ? (
-                <img src={previewDocModal.url} alt={previewDocModal.title} className="max-w-full max-h-[65vh] object-contain rounded-lg shadow-lg" />
-              ) : (
-                <div className="text-slate-400 text-xs py-8">Dokumen tidak dapat dimuat</div>
-              )}
+              <img src={previewDocModal.url} alt={previewDocModal.title} className="max-w-full max-h-[65vh] object-contain rounded-lg shadow-lg" />
             </div>
             <div className="p-3 bg-slate-100 border-t border-slate-200 flex justify-end">
               <button

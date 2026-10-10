@@ -183,3 +183,7 @@ GRANT ALL ON TABLE public.registrations TO anon, authenticated;
 GRANT ALL ON TABLE public.tracking_records TO anon, authenticated;
 GRANT ALL ON TABLE public.surveys TO anon, authenticated;
 GRANT ALL ON TABLE public.monthly_bills TO anon, authenticated;
+
+-- Pastikan kolom user_id tersedia di tabel jika diperlukan
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS user_id TEXT;
+ALTER TABLE public.tracking_records ADD COLUMN IF NOT EXISTS user_id TEXT;
