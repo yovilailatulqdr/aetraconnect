@@ -1,5 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { UserAccount, RegistrationFormData, MASTER_ADMIN_ACCOUNT } from '../types';
+import { UserAccount, RegistrationFormData } from '../types';
+import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
+import { 
+  fetchUserAccountsFromDb, 
+  deleteUserAccountFromDb, 
+} from '../services/supabaseService';
+
+export const MASTER_ADMIN_ACCOUNT: UserAccount = {
+  id: 'acc-admin',
+  userId: 'acc-admin',
+  email: 'admin@aetra.co.id',
+  nama: 'Administrator Aetra Tangerang',
+  idPelanggan: '10999999',
+  telp: '081199887766',
+  role: 'admin',
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { 
   fetchUserAccountsFromDb, 
