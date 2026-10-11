@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { TabType, RegistrationFormData, CustomerTrackingRecord, TrackingTimelineEvent, SurveySubmission, UserRole, UserAccount, MonthlyBillRecord, RegistrationStatus, MASTER_ADMIN_ACCOUNT } from './types';
+import { TabType, RegistrationFormData, CustomerTrackingRecord, TrackingTimelineEvent, SurveySubmission, UserRole, UserAccount, MonthlyBillRecord, RegistrationStatus } from './types';
 import { 
   INITIAL_FAQS 
 } from './data/mockData';

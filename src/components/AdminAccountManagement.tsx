@@ -3,23 +3,7 @@ import { UserAccount, RegistrationFormData } from '../types';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 import { 
   fetchUserAccountsFromDb, 
-  deleteUserAccountFromDb, 
-} from '../services/supabaseService';
-
-export const MASTER_ADMIN_ACCOUNT: UserAccount = {
-  id: 'acc-admin',
-  userId: 'acc-admin',
-  email: 'admin@aetra.co.id',
-  nama: 'Administrator Aetra Tangerang',
-  idPelanggan: '10999999',
-  telp: '081199887766',
-  role: 'admin',
-  createdAt: '2026-01-01T00:00:00.000Z',
-};
-import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
-import { 
-  fetchUserAccountsFromDb, 
-  deleteUserAccountFromDb, 
+  deleteUserAccountFromDb 
 } from '../services/supabaseService';
 import {
   UserCheck,
@@ -38,6 +22,17 @@ import {
   Users,
   Trash2
 } from 'lucide-react';
+
+export const MASTER_ADMIN_ACCOUNT: UserAccount = {
+  id: 'acc-admin',
+  userId: 'acc-admin',
+  email: 'admin@aetra.co.id',
+  nama: 'Administrator Aetra Tangerang',
+  idPelanggan: '10999999',
+  telp: '081199887766',
+  role: 'admin',
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
 
 interface AdminAccountManagementProps {
   registrations?: RegistrationFormData[];
